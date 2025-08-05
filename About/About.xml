@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Hull Style: NANAME Walls</name>
+  <packageId>OELS.NanameWalls</packageId>
+  <author>OELS</author>
+  <description>GravshipのHullのように自動的に斜めに繋がる壁を追加します。</description>
+  <url></url>
+
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld</downloadUrl>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+</ModMetaData>

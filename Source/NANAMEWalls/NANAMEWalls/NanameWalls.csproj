@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+	<OutputType>Library</OutputType>
+	<RootNamespace>NanameWalls</RootNamespace>
+	<AssemblyName>NanameWalls</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputPath>E:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\HullStyleNANAMEWalls\1.6\Assemblies\</OutputPath>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4535" />
+    <PackageReference Include="Lib.Harmony" Version="2.3.6">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
