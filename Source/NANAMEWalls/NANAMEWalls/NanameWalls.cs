@@ -106,19 +106,23 @@ public class NanameWalls : Mod
         var curY = viewRect.y;
         foreach (var group in defs)
         {
-            Text.Anchor = TextAnchor.MiddleCenter;
-            using (new TextBlock(TextAnchor.MiddleCenter))
+            if (group?.Key != null)
             {
-                var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white, 1);
-                if (Text.CalcSize(group.Key.Name).x > rect2.width)
+                Text.Anchor = TextAnchor.MiddleCenter;
+                using (new TextBlock(TextAnchor.MiddleCenter))
                 {
-                    Text.Font = GameFont.Tiny;
+                    var name = group.Key.Name ?? "";
+                    var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
+                    Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white, 1);
+                    if (Text.CalcSize(name).x > rect2.width)
+                    {
+                        Text.Font = GameFont.Tiny;
+                    }
+                    Widgets.LabelEllipses(rect2, name);
                 }
-                Widgets.LabelEllipses(rect2, group.Key.Name);
+                Text.Font = GameFont.Small;
+                curY += Text.LineHeight;
             }
-            Text.Font = GameFont.Small;
-            curY += Text.LineHeight;
 
             foreach (var def in group)
             {
