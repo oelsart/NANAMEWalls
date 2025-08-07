@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DefaultSettings>
+	<meshSettings>
+			<RB_RusticWall>
+			<northUVs>
+				<li>(0.282999992, 0.535000026, 0)</li>
+				<li>(0, 0.535000026, 0)</li>
+				<li>(0, 0.805000007, 0)</li>
+				<li>(0.282999992, 0.805000007, 0)</li>
+			</northUVs>
+			<northUVsFinish>
+				<li>(0.354999989, 0.550000012, 0)</li>
+				<li>(0.354999989, 0.925000012, 0)</li>
+				<li>(0.644999981, 0.925000012, 0)</li>
+				<li>(0.644999981, 0.550000012, 0)</li>
+			</northUVsFinish>
+			<southUVs>
+				<li>(0.354999989, 0, 0)</li>
+				<li>(0.354999989, 0.467000008, 0)</li>
+				<li>(0.644999981, 0.467000008, 0)</li>
+				<li>(0.644999981, 0, 0)</li>
+			</southUVs>
+			<southUVsFinish>
+				<li>(0.354999989, 0, 0)</li>
+				<li>(0.354999989, 0.467000008, 0)</li>
+				<li>(0.644999981, 0.467000008, 0)</li>
+				<li>(0.644999981, 0, 0)</li>
+			</southUVsFinish>
+			<southVertsFinish>
+				<li>(0.5, 0, 0.226999998)</li>
+				<li>(0.25, 0.00999999978, 0.439999998)</li>
+				<li>(0.75999999, 0.00999999978, 0.949999988)</li>
+				<li>(0.77700001, 0, 0.5)</li>
+			</southVertsFinish>
+		</RB_RusticWall>
+		<RB_GravshipWindowHull>
+			<northUVs>
+				<li>(0.282999992, 0.579999983, 0)</li>
+				<li>(0, 0.150000006, 0)</li>
+				<li>(0, 0.889999986, 0)</li>
+				<li>(0.282999992, 0.889999986, 0)</li>
+			</northUVs>
+			<southUVs>
+				<li>(0.150000006, 0, 0)</li>
+				<li>(0.289999992, 0.467000008, 0)</li>
+				<li>(0.709999979, 0.467000008, 0)</li>
+				<li>(0.850000024, 0, 0)</li>
+			</southUVs>
+			<southUVsFinish>
+				<li>(0.180000007, 0, 0)</li>
+				<li>(0.400000006, 0.467000008, 0)</li>
+				<li>(0.649999976, 0.467000008, 0)</li>
+				<li>(0.879999995, 0, 0)</li>
+			</southUVsFinish>
+			<southVertsFinish>
+				<li>(0.5, 0, 0.400000006)</li>
+				<li>(0.216999993, 0.00999999978, 0.407000005)</li>
+				<li>(0.77700001, 0.00999999978, 0.967000008)</li>
+				<li>(0.600000024, 0, 0.5)</li>
+			</southVertsFinish>
+		</RB_GravshipWindowHull>
+		<RB_CellWall>
+			<enabled>False</enabled>
+		</RB_CellWall>
+		<RB_BarriersWall>
+			<enabled>False</enabled>
+		</RB_BarriersWall>
+		<RB_ReinforcedGlassWall>
+			<enabled>False</enabled>
+		</RB_ReinforcedGlassWall>
+		<RB_GlassWall>
+			<enabled>False</enabled>
+		</RB_GlassWall>
+		<RB_ReinforcedClerestoryWall>
+			<enabled>False</enabled>
+		</RB_ReinforcedClerestoryWall>
+		<RB_ClerestoryWall>
+			<enabled>False</enabled>
+		</RB_ClerestoryWall>
+		<RB_OrnateWall>
+			<southUVs>
+				<li>(0.25, 0, 0)</li>
+				<li>(0.25, 0.467000008, 0)</li>
+				<li>(0.75, 0.467000008, 0)</li>
+				<li>(0.75, 0, 0)</li>
+			</southUVs>
+		</RB_OrnateWall>
+		<VFEArch_CellWall>
+			<enabled>False</enabled>
+		</VFEArch_CellWall>
+		<FT_WallSandbag>
+			<repeatNorth>4</repeatNorth>
+			<repeatSouth>4</repeatSouth>
+			<northUVs>
+				<li>(0.38499999, 0.5, 0)</li>
+				<li>(0, 0.150000006, 0)</li>
+				<li>(0, 0.600000024, 0)</li>
+				<li>(0.38499999, 0.949999988, 0)</li>
+			</northUVs>
+			<northVerts>
+				<li>(-0.115000002, 0, 0.449999988)</li>
+				<li>(-0.5, 0.00999999978, 0.449999988)</li>
+				<li>(0.5, 0.00999999978, 1.49000001)</li>
+				<li>(0.74000001, 0, 1.29999995)</li>
+			</northVerts>
+			<northVertsFiller>
+				<li>(-0.109999999, 0, 0.449999988)</li>
+				<li>(0.708000004, 0.00999999978, 1.26800001)</li>
+				<li>(1.005, 0.00999999978, 1.16999996)</li>
+				<li>(0.0799999982, 0, 0.270000011)</li>
+			</northVertsFiller>
+			<northUVsFinish>
+				<li>(0.400000006, 0.550000012, 0)</li>
+				<li>(0.400000006, 0.850000024, 0)</li>
+				<li>(0.589999974, 0.850000024, 0)</li>
+				<li>(0.589999974, 0.550000012, 0)</li>
+			</northUVsFinish>
+			<northVertsFinish>
+				<li>(0.379999995, 0, 0.0970000029)</li>
+				<li>(0.201000005, 0.0199999996, 0.449999988)</li>
+				<li>(0.689999998, 0.0199999996, 0.933000028)</li>
+				<li>(1.17999995, 0, 0.933000028)</li>
+			</northVertsFinish>
+			<northVertsFinishBorder>
+				<li>(0.202000007, 0, 0.460000008)</li>
+				<li>(0.202000007, 0.00999999978, 0.5)</li>
+				<li>(0.519999981, 0.00999999978, 0.810000002)</li>
+				<li>(0.519999981, 0, 0.769999981)</li>
+			</northVertsFinishBorder>
+			<southUVs>
+				<li>(0.289999992, 0, 0)</li>
+				<li>(0.289999992, 0.400000006, 0)</li>
+				<li>(0.709999979, 0.400000006, 0)</li>
+				<li>(0.709999979, 0, 0)</li>
+			</southUVs>
+			<southVerts>
+				<li>(0.474999994, 0, -0.5)</li>
+				<li>(0.200000003, 0.00999999978, 0.0799999982)</li>
+				<li>(1.10000002, 0.00999999978, 1)</li>
+				<li>(1.47500002, 0, 0.5)</li>
+			</southVerts>
+			<southVertsFiller>
+				<li>(0.200000003, 0, 0.0799999982)</li>
+				<li>(0.0799999982, 0.00999999978, 0.270000011)</li>
+				<li>(1.005, 0.00999999978, 1.16999996)</li>
+				<li>(1.10000002, 0, 0.899999976)</li>
+			</southVertsFiller>
+			<southUVsFinish>
+				<li>(0.289999992, 0, 0)</li>
+				<li>(0.289999992, 0.400000006, 0)</li>
+				<li>(0.709999979, 0.400000006, 0)</li>
+				<li>(0.709999979, 0, 0)</li>
+			</southUVsFinish>
+			<southVertsFinish>
+				<li>(0.5, 0, 0.0900000036)</li>
+				<li>(0.140000001, 0.00999999978, 0.330000013)</li>
+				<li>(0.899999976, 0.00999999978, 1.08000004)</li>
+				<li>(0.899999976, 0, 0.5)</li>
+			</southVertsFinish>
+			<topFillerUVs>
+				<li>(0.5, 0.699999988, 0)</li>
+				<li>(0.5, 0.699999988, 0)</li>
+				<li>(0.5, 0.699999988, 0)</li>
+				<li>(0.5, 0.699999988, 0)</li>
+			</topFillerUVs>
+		</FT_WallSandbag>
+	</meshSettings>
+</DefaultSettings>

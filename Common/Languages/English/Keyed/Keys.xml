@@ -2,6 +2,9 @@
 <LanguageData>
 
 	<NAW.Diagonal>Dia. </NAW.Diagonal>
+	<NAW.NanameSettings>NANAME Settings</NAW.NanameSettings>
+	<NAW.UpdateGraphic>Update Graphic</NAW.UpdateGraphic>
+	<NAW.NotGenerated>NANAME wall def not generated.</NAW.NotGenerated>
 	<NAW.Settings.EnableNaname>Enable NANAME Wall</NAW.Settings.EnableNaname>
 	
 </LanguageData>

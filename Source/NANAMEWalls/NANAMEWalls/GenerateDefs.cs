@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace NanameWalls;
@@ -29,16 +28,15 @@ public static class GenerateDefs
         var NewBlueprintDef_Thing = AccessTools.MethodDelegate<GetNewBlueprintDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewBlueprintDef_Thing"));
         var NewFrameDef_Thing = AccessTools.MethodDelegate<GetNewFrameDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewFrameDef_Thing"));
         var takenHashes = AccessTools.StaticFieldRefAccess<Dictionary<Type, HashSet<ushort>>>(typeof(ShortHashGiver), "takenHashesPerDeftype");
-        HashSet<DesignationCategoryDef> designationCategories = [];
         foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(IsWallProbably).ToArray())
         {
             var newDef = new ThingDef();
             foreach (var field in typeof(ThingDef).GetFields())
             {
-                if (!field.IsLiteral) field.SetValue(newDef, field.GetValue(wallDef));
+                if (!field.IsLiteral && field.Name != "cachedLabelCap") field.SetValue(newDef, field.GetValue(wallDef));
             }
-            newDef.defName += "_DiagonalNAW";
-            newDef.label = "NAW.Diagonal".Translate() + newDef.label;
+            newDef.defName += NanameWalls.Suffix;
+            newDef.label = "NAW.Diagonal".Translate() + wallDef.LabelCap;
             newDef.graphicData = new GraphicData();
             newDef.graphicData.CopyFrom(wallDef.graphicData);
             newDef.graphicData.linkType = (LinkDrawerType)217;
@@ -54,10 +52,17 @@ public static class GenerateDefs
             frameDef.shortHash = 0;
             GiveShortHash(frameDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
             DefGenerator.AddImpliedDef(frameDef);
-            designationCategories.Add(newDef.designationCategory);
-            NanameWalls.Mod.walls.Add(wallDef);
+
+            var meshSettingsDict = NanameWalls.Mod.Settings.meshSettings;
+            if (!meshSettingsDict.TryGetValue(wallDef.defName, out var meshSettings))
+            {
+                meshSettings = meshSettingsDict[wallDef.defName] = MeshSettings.DeepCopyDefaultFor(wallDef);
+            }
+            if (!meshSettings.enabled) newDef.designationCategory = null;
+            NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
+            NanameWalls.Mod.nanameWalls[wallDef] = newDef;
         }
-        foreach (var designationCategory in designationCategories)
+        foreach (var designationCategory in NanameWalls.Mod.designationCategories)
         {
             designationCategory.ResolveReferences();
         }

@@ -2,6 +2,9 @@
 <LanguageData>
 
 	<NAW.Diagonal>斜め</NAW.Diagonal>
+	<NAW.NanameSettings>斜め設定</NAW.NanameSettings>
+	<NAW.UpdateGraphic>グラフィック更新</NAW.UpdateGraphic>
+	<NAW.NotGenerated>斜め壁のdefが生成されていません.</NAW.NotGenerated>
 	<NAW.Settings.EnableNaname>斜め壁を有効化</NAW.Settings.EnableNaname>
 	
 </LanguageData>
