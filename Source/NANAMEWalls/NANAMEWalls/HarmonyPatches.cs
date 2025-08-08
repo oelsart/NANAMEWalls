@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace NanameWalls;
 
@@ -37,7 +39,8 @@ public static class Patch_Building_GetGizmos
                 {
                     Find.WindowStack.Add(new Dialog_ModSettings(NanameWalls.Mod)
                     {
-                        draggable = true
+                        draggable = true,
+                        resizeable = true
                     });
                     NanameWalls.Mod.selDef = NanameWalls.Mod.nanameWalls.FirstOrDefault(pair => pair.Value == __instance.def).Key;
                     NanameWalls.Mod.selThing = __instance;
@@ -54,5 +57,99 @@ public static class Patch_Building_GetGizmos
                 }
             };
         }
+    }
+}
+
+[HarmonyPatch(typeof(Designator_Dropdown), "SetupFloatMenu")]
+public static class Patch_Designator_Dropdown_SetupFloatMenu
+{
+    private readonly static AccessTools.FieldRef<Designator_Build, ThingDef> stuffDef = AccessTools.FieldRefAccess<Designator_Build, ThingDef>("stuffDef");
+
+    private readonly static AccessTools.FieldRef<Designator_Build, bool> writeStuff = AccessTools.FieldRefAccess<Designator_Build, bool>("writeStuff");
+
+    private readonly static AccessTools.FieldRef<Designator_Dropdown, bool> activeDesignatorSet = AccessTools.FieldRefAccess<Designator_Dropdown, bool>("activeDesignatorSet");
+
+    private static bool Prepare()
+    {
+        return NanameWalls.Mod.Settings.groupNanameWalls;
+    }
+
+    public static bool Prefix(Designator_Dropdown __instance, Event ev, List<Designator> ___elements, ref Window __result)
+    {
+        if (___elements.ElementAtOrDefault(0) is Designator_Build designator_Build && ___elements.ElementAtOrDefault(1) is Designator_Build designator_Build2)
+        {
+            if (designator_Build.PlacingDef is not ThingDef thingDef) return true;
+
+            if (NanameWalls.Mod.nanameWalls.TryGetValue(thingDef, out var thingDef2) && designator_Build2.PlacingDef == thingDef2)
+            {
+                if (!thingDef.MadeFromStuff) return true;
+
+                List<FloatMenuOption> list = [];
+                foreach (ThingDef item in from d in designator_Build.Map.resourceCounter.AllCountedAmounts.Keys
+                                          orderby d.stuffProps?.commonality ?? float.PositiveInfinity descending, d.BaseMarketValue
+                                          select d)
+                {
+                    if (item.IsStuff && item.stuffProps.CanMake(thingDef) && (DebugSettings.godMode || designator_Build.Map.listerThings.ThingsOfDef(item).Count > 0))
+                    {
+                        ThingDef localStuffDef = item;
+                        string str = designator_Build.sourcePrecept == null ? GenLabel.ThingLabel(thingDef, localStuffDef) : ((string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build.sourcePrecept.Label));
+                        str = str.CapitalizeFirst();
+                        FloatMenuOption floatMenuOption = new(str, () =>
+                        {
+                            if (TutorSystem.TutorialMode && !TutorSystem.AllowAction(designator_Build.TutorTagSelect))
+                            {
+                                return;
+                            }
+                            if (designator_Build.CurActivateSound != null)
+                            {
+                                designator_Build.CurActivateSound.PlayOneShotOnCamera(null);
+                            }
+                            Find.DesignatorManager.Select(designator_Build);
+                            stuffDef(designator_Build) = localStuffDef;
+                            writeStuff(designator_Build) = true;
+                            __instance.SetActiveDesignator(designator_Build);
+                        }, item)
+                        {
+                            tutorTag = "SelectStuff-" + thingDef.defName + "-" + localStuffDef.defName
+                        };
+                        list.Add(floatMenuOption);
+
+                        string str2 = designator_Build2.sourcePrecept == null ? GenLabel.ThingLabel(thingDef2, localStuffDef) : ((string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build2.sourcePrecept.Label));
+                        str2 = str2.CapitalizeFirst();
+                        FloatMenuOption floatMenuOption2 = new(str2, () =>
+                        {
+                            if (TutorSystem.TutorialMode && !TutorSystem.AllowAction(designator_Build2.TutorTagSelect))
+                            {
+                                return;
+                            }
+                            if (designator_Build2.CurActivateSound != null)
+                            {
+                                designator_Build2.CurActivateSound.PlayOneShotOnCamera(null);
+                            }
+                            Find.DesignatorManager.Select(designator_Build2);
+                            stuffDef(designator_Build2) = localStuffDef;
+                            writeStuff(designator_Build2) = true;
+                            __instance.SetActiveDesignator(designator_Build2);
+                        }, item, priority: MenuOptionPriority.Low)
+                        {
+                            tutorTag = "SelectStuff-" + thingDef2.defName + "-" + localStuffDef.defName
+                        };
+                        list.Add(floatMenuOption2);
+                    }
+                }
+
+                __result = new FloatMenu(list)
+                {
+                    onCloseCallback = delegate
+                    {
+                        activeDesignatorSet(__instance) = true;
+                        writeStuff(designator_Build) = true;
+                        writeStuff(designator_Build2) = true;
+                    }
+                };
+                return false;
+            }
+        }
+        return true;
     }
 }

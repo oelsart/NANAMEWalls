@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# IDE0160: 範囲指定されたブロックが設定された namespace に変換
+csharp_style_namespace_declarations = file_scoped
+
+# IDE0130: Namespace がフォルダー構造と一致しません
+dotnet_style_namespace_match_folder = false

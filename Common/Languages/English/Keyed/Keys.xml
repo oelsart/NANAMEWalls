@@ -5,6 +5,11 @@
 	<NAW.NanameSettings>NANAME Settings</NAW.NanameSettings>
 	<NAW.UpdateGraphic>Update Graphic</NAW.UpdateGraphic>
 	<NAW.NotGenerated>NANAME wall def not generated.</NAW.NotGenerated>
+	
+	<NAW.Walls>Walls</NAW.Walls>
 	<NAW.Settings.EnableNaname>Enable NANAME Wall</NAW.Settings.EnableNaname>
+	
+	<NAW.Options>Options</NAW.Options>
+	<NAW.Settings.GroupNanameWalls>Group NANAME walls into drop-down menus. (Reboot required)</NAW.Settings.GroupNanameWalls>
 	
 </LanguageData>

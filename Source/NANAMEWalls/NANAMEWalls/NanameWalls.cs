@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using RimWorld;
 using System.Reflection;
 using UnityEngine;
 using Verse;
@@ -18,29 +17,15 @@ public class NanameWalls : Mod
 
     public readonly Dictionary<ThingDef, ThingDef> nanameWalls = [];
 
-    private const float PreviewSize = 200f;
+    private readonly List<TabRecord> tabs = [];
+
+    private readonly List<SettingsTabDrawer> tabDrawers = [];
 
     public Thing selThing;
 
     public ThingDef selDef;
 
-    private Vector2 scrollPosition;
-
-    private readonly Dictionary<string, string[]> buffers = [];
-
-    private List<Vector2> texCoords;
-
-    private int repeat = 1;
-
-    private List<Vector3> selectedList;
-
-    private Vector2? selectedPoint;
-
-    private string prevFocusedControl = "";
-
-    private bool designationCategoryChanged;
-
-    private string defaultRequest;
+    internal SettingsTabDrawer CurrentTab { get; set; }
 
     public NanameWalls(ModContentPack content) : base(content)
     {
@@ -59,351 +44,30 @@ public class NanameWalls : Mod
     public override void WriteSettings()
     {
         base.WriteSettings();
-        Clear();
-
-        if (designationCategoryChanged)
-        {
-            designationCategoryChanged = false;
-            foreach (var designationCategory in Mod.designationCategories)
-            {
-                designationCategory.ResolveReferences();
-            }
-        }
-        selThing = null;
+        tabDrawers.Do(tab => tab.PreClose());
     }
 
-    private void Clear()
+    public void InitializeTabs()
     {
-        buffers.Clear();
-        repeat = 1;
-        selectedList = null;
-        texCoords = null;
-        selectedPoint = null;
-        prevFocusedControl = "";
+        tabs.Clear();
+        tabDrawers.AddRange(typeof(SettingsTabDrawer).AllSubclassesNonAbstract()
+            .Select(Activator.CreateInstance).Cast<SettingsTabDrawer>()
+            .OrderBy(tab => tab.Index));
+        CurrentTab = tabDrawers[0];
+        tabs.AddRange(tabDrawers.Select(tab => new TabRecord(tab.Label, () => CurrentTab = tab, () => CurrentTab == tab)));
     }
 
     public override void DoSettingsWindowContents(Rect inRect)
     {
-        Widgets.DrawMenuSection(inRect);
-        inRect.SplitVertically(200f, out var left, out var right);
-        DoDefNameList(left);
-        Widgets.DrawLineVertical(left.xMax, inRect.y, inRect.height);
-
-        if (selDef != null)
+        if (CurrentTab == null)
         {
-            DoMeshSettings(right.ContractedBy(10f));
-        }
-    }
-
-    private void DoDefNameList(Rect rect)
-    {
-        var outRect = rect;
-        var defs = nanameWalls.Keys.GroupBy(def => def.modContentPack).ToList();
-        var height = Text.LineHeight * (defs.Count + defs.SelectMany(group => group).Count());
-        var viewRect = new Rect(rect.x, rect.y, rect.width, height);
-        Widgets.AdjustRectsForScrollView(rect, ref outRect, ref viewRect);
-        Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
-        var curY = viewRect.y;
-        foreach (var group in defs)
-        {
-            if (group?.Key != null)
-            {
-                Text.Anchor = TextAnchor.MiddleCenter;
-                using (new TextBlock(TextAnchor.MiddleCenter))
-                {
-                    var name = group.Key.Name ?? "";
-                    var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                    Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white, 1);
-                    if (Text.CalcSize(name).x > rect2.width)
-                    {
-                        Text.Font = GameFont.Tiny;
-                    }
-                    Widgets.LabelEllipses(rect2, name);
-                }
-                Text.Font = GameFont.Small;
-                curY += Text.LineHeight;
-            }
-
-            foreach (var def in group)
-            {
-                var rect3 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                WidgetsEx.DefLabelEllipsesWithIcon(rect3, def, 5f);
-                if (selDef == def)
-                {
-                    Widgets.DrawHighlightSelected(rect3);
-                }
-                else if (Widgets.ButtonInvisible(rect3))
-                {
-                    selDef = def;
-                    Clear();
-                }
-                curY += Text.LineHeight;
-            }
-        }
-        Widgets.EndScrollView();
-    }
-
-    private void DoMeshSettings(Rect rect)
-    {
-        if (!nanameWalls.TryGetValue(selDef, out var nanameWall))
-        {
-            using (new TextBlock(TextAnchor.MiddleCenter))
-            {
-                Widgets.Label(rect, "NAW.NotGenerated".Translate());
-            }
-            return;
-        }
-        if (!Settings.meshSettings.TryGetValue(selDef.defName, out var meshSettings))
-        {
-            meshSettings = Settings.meshSettings[selDef.defName] = MeshSettings.DeepCopyDefaultFor(selDef);
+            InitializeTabs();
         }
 
-        rect.SplitHorizontally(200f, out var top, out var bottom);
-        top.SplitVertically(200f, out var left, out var right);
-
-        //壁のプレビュー
-        Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
-        var mat = selDef.graphic?.MatSingle;
-        if (mat != null)
-        {
-            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
-            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
-        }
-        if (selectedList != null)
-        {
-            Widgets.BeginGroup(left);
-            var mat2 = texCoords != null ? mat : null;
-            var color = texCoords != null ? Color.white : new Color(1f, 0.94f, 0.5f, 0.18f);
-            WidgetsEx.DrawQuadFilled(selectedList, color, mat2, texCoords, repeat);
-            Widgets.EndGroup();
-            if (selectedPoint != null)
-            {
-                var point = selectedPoint.Value + left.position;
-                point = new(Mathf.Floor(point.x), Mathf.Floor(point.y));
-                var tmpColor = GUI.color;
-                GUI.color = Color.red;
-                GUI.DrawTexture(new Rect(point.x - 2f, point.y, 5f, 1f), BaseContent.WhiteTex);
-                GUI.DrawTexture(new Rect(point.x, point.y - 2f, 1f, 5f), BaseContent.WhiteTex);
-                GUI.color = tmpColor;
-            }
-        }
-
-        //壁の説明
-        right = right.RightPartPixels(right.width - 10f);
-        Text.Font = GameFont.Medium;
-        Widgets.Label(right.TopPartPixels(Text.LineHeight), nanameWall.LabelCap);
-        Text.Font = GameFont.Small;
-        right = right.BottomPartPixels(right.height - Text.LineHeight);
-        Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
-        right = right.BottomPartPixels(right.height - Text.LineHeight);
-        var buttonOffset = selThing != null ? Text.LineHeight : 0f;
-        Widgets.Label(right.TopPartPixels(right.height - Text.LineHeight - buttonOffset), nanameWall.description);
-        var enabled = meshSettings.enabled;
-        right = right.BottomPartPixels(Text.LineHeight + buttonOffset);
-        Widgets.CheckboxLabeled(right.TopPartPixels(Text.LineHeight), "NAW.Settings.EnableNaname".Translate(), ref enabled);
-        if (selThing != null)
-        {
-            if (Widgets.ButtonText(right.BottomPartPixels(buttonOffset), "NAW.UpdateGraphic".Translate()))
-            {
-                selThing.DirtyMapMesh(selThing.Map);
-            }
-        }
-        if (meshSettings.enabled != enabled)
-        {
-            nanameWall.designationCategory = enabled ? selDef.designationCategory : null;
-            designationCategoryChanged = true;
-            meshSettings.enabled = enabled;
-        }
-
-        //デフォルトボタン
-        var item = bottom.TopPartPixels(Text.LineHeight);
-        item.y += 10f;
-        defaultRequest = "";
-        var lastRowRect = bottom.BottomPartPixels(Text.LineHeight);
-        var leftButtonRect = item.LeftPartPixels((item.width / 2f) - 2f);
-        var rightButtonRect = item.RightPartPixels((item.width / 2f) - 2f);
-        if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
-        {
-            defaultRequest = GUI.GetNameOfFocusedControl();
-            Clear();
-        }
-        if (Widgets.ButtonText(rightButtonRect, "ResetAll".Translate()))
-        {
-            meshSettings = Settings.meshSettings[selDef.defName] = MeshSettings.DeepCopyDefaultFor(selDef);
-            Clear();
-        }
-        item.y += Text.LineHeight + 5f;
-
-        //数値の設定
-        var labelPct = 0.2f;
-        var rect2 = item.RightPart(1f - labelPct).AtZero();
-        rect2.SplitVerticallyWithMargin(out var left2, out var right2, 5f);
-        left2.SplitVerticallyWithMargin(out var rect3, out var rect4, 5f);
-        right2.SplitVerticallyWithMargin(out var rect5, out var rect6, 5f);
-        List<Rect> rects = [rect3, rect4, rect5, rect6];
-        Text.Font = GameFont.Tiny;
-        var defaultSettings = MeshSettings.DefaultSettingsFor(selDef);
-        if (SettingItem(ref item, labelPct, "RepeatNorth", ref meshSettings.repeatNorth, defaultSettings.repeatSouth, rects[0]))
-        {
-            repeat = meshSettings.repeatNorth;
-            texCoords = [.. meshSettings.northUVs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
-            selectedList = [.. meshSettings.northVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * PreviewSize / 2f))];
-            selectedPoint = null;
-        }
-        SettingItem(ref item, labelPct, "NorthUVs", meshSettings.northUVs, defaultSettings.northUVs, rects);
-        SettingItem(ref item, labelPct, "NorthVerts", meshSettings.northVerts, defaultSettings.northVerts, rects, meshSettings.northUVs, meshSettings.repeatNorth);
-        SettingItem(ref item, labelPct, "NorthVertsFiller", meshSettings.northVertsFiller, defaultSettings.northVertsFiller, rects, meshSettings.topFillerUVs);
-        SettingItem(ref item, labelPct, "NorthUVsFinish", meshSettings.northUVsFinish, defaultSettings.northUVsFinish, rects);
-        SettingItem(ref item, labelPct, "NorthVertsFinish", meshSettings.northVertsFinish, defaultSettings.northVertsFinish, rects, meshSettings.northUVsFinish);
-        SettingItem(ref item, labelPct, "BorderFillerUVs", meshSettings.borderFillerUVs, defaultSettings.borderFillerUVs, rects);
-        SettingItem(ref item, labelPct, "NorthVertsFinishBorder", meshSettings.northVertsFinishBorder, defaultSettings.northVertsFinishBorder, rects, meshSettings.borderFillerUVs);
-        if (SettingItem(ref item, labelPct, "RepeatSouth", ref meshSettings.repeatSouth, defaultSettings.repeatSouth, rects[0]))
-        {
-            repeat = meshSettings.repeatSouth;
-            texCoords = [.. meshSettings.southUVs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
-            selectedList = [.. meshSettings.southVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * PreviewSize / 2f))];
-            selectedPoint = null;
-        }
-        SettingItem(ref item, labelPct, "SouthUVs", meshSettings.southUVs, defaultSettings.southUVs, rects);
-        SettingItem(ref item, labelPct, "SouthVerts", meshSettings.southVerts, defaultSettings.southVerts, rects, meshSettings.southUVs, meshSettings.repeatSouth);
-        SettingItem(ref item, labelPct, "SouthVertsFiller", meshSettings.southVertsFiller, defaultSettings.southVertsFiller, rects, meshSettings.topFillerUVs);
-        SettingItem(ref item, labelPct, "SouthUVsFinish", meshSettings.southUVsFinish, defaultSettings.southUVsFinish, rects);
-        SettingItem(ref item, labelPct, "SouthVertsFinish", meshSettings.southVertsFinish, defaultSettings.southVertsFinish, rects, meshSettings.southUVsFinish);
-        SettingItem(ref item, labelPct, "TopFillerUVs", meshSettings.topFillerUVs, defaultSettings.topFillerUVs, rects);
-        Text.Font = GameFont.Small;
-    }
-
-    private bool SettingItem(ref Rect rect, float labelPct, string label, ref int value, int defaultValue, Rect textFieldRect)
-    {
-        Widgets.Label(rect.LeftPart(labelPct), label);
-        var rect2 = rect.RightPart(1f - labelPct);
-        if (!buffers.TryGetValue(label, out var buffer))
-        {
-            buffer = buffers[label] = new string[1];
-        }
-        var rect3 = textFieldRect;
-        rect3.position += rect2.position;
-        var prevValue = value;
-        Widgets.TextFieldNumeric(rect3, ref value, ref buffer[0], 1, 9);
-
-        using (new TextBlock(GameFont.Small))
-        {
-            if (Widgets.ButtonText(new Rect(rect3.xMax + 2f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "+"))
-            {
-                value = Math.Min(value + 1, 9);
-                buffer[0] = value.ToStringCached();
-            }
-            if (Widgets.ButtonText(new Rect(rect3.xMax + rect3.height + 4f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "-"))
-            {
-                value = Math.Max(value - 1, 1);
-                buffer[0] = value.ToStringCached();
-            }
-        }
-        if (prevValue != value)
-        {
-            repeat = value;
-        }
-
-        var flag = false;
-        var controlName = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
-        var name = GUI.GetNameOfFocusedControl();
-        if (name == controlName)
-        {
-            Widgets.DrawHighlightSelected(rect);
-            if (prevFocusedControl != name)
-            {
-                prevFocusedControl = name;
-                flag = true;
-            }
-        }
-        if (defaultRequest == controlName)
-        {
-            value = defaultValue;
-            buffer[0] = value.ToStringCached();
-        }
-        rect.y += Text.LineHeightOf(GameFont.Small);
-        return flag;
-    }
-
-    private void SettingItem(ref Rect rect, float labelPct, string label, List<Vector3> values, List<Vector3> defaultValue, List<Rect> textFieldRects, List<Vector3> uvs = null, int repeat = 1)
-    {
-        Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * PreviewSize / 2f);
-        Vector3 ConvertUV(Vector3 v) => Invert(v * PreviewSize / 2f);
-
-        Widgets.Label(rect.LeftPart(labelPct), label);
-        var rect2 = rect.RightPart(1f - labelPct);
-        for (var i = 0; i < values.Count; i++)
-        {
-            var value = values[i];
-            var rect3 = textFieldRects[i];
-            rect3.position += rect2.position;
-            if (!buffers.TryGetValue(label + i, out var buffer))
-            {
-                buffer = buffers[label + i] = new string[3];
-            }
-            var prevValue = value;
-            var isVerts = uvs != null;
-            Widgets.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.5f : 0f, isVerts ? 1.5f : 1f);
-            values[i] = value;
-            if (prevValue != value)
-            {
-                if (isVerts)
-                {
-                    selectedPoint = ConvertVert(value);
-                    selectedList = [.. values.Select(ConvertVert)];
-                    texCoords = [.. uvs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
-                }
-                else
-                {
-                    selectedPoint = ConvertUV(value);
-                    selectedList = [.. values.Select(ConvertUV)];
-                }
-            }
-
-            if (i != values.Count - 1)
-            {
-                Widgets.Label(new(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
-            }
-
-            var offset = rect3.width / 3f;
-            var controlName1 = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
-            var controlName2 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset).ToString("F0");
-            var controlName3 = "TextField" + rect3.y.ToString("F0") + (rect3.x + (offset * 2)).ToString("F0");
-            var name = GUI.GetNameOfFocusedControl();
-            if (name == controlName1 || name == controlName2 || name == controlName3)
-            {
-                Widgets.DrawHighlightSelected(rect);
-                if (prevFocusedControl != name)
-                {
-                    prevFocusedControl = name;
-                    if (isVerts)
-                    {
-                        this.repeat = repeat;
-                        selectedPoint = ConvertVert(value);
-                        selectedList = [.. values.Select(ConvertVert)];
-                        texCoords = [.. uvs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
-                    }
-                    else
-                    {
-                        selectedPoint = ConvertUV(value);
-                        selectedList = [.. values.Select(ConvertUV)];
-                        texCoords = null;
-                    }
-                }
-            }
-            if (defaultRequest == controlName1 || defaultRequest == controlName2 || defaultRequest == controlName3)
-            {
-                values[i] = defaultValue[i];
-                buffers[label + i] = new string[3];
-            }
-        }
-
-        rect.y += Text.LineHeightOf(GameFont.Small);
-    }
-
-    private Vector3 Invert(Vector3 vector)
-    {
-        vector.y = PreviewSize - vector.y;
-        return vector;
+        base.DoSettingsWindowContents(inRect);
+        var rect = new Rect(inRect.x, inRect.y + TabDrawer.TabHeight, inRect.width, inRect.height - TabDrawer.TabHeight);
+        Widgets.DrawMenuSection(rect);
+        TabDrawer.DrawTabs(rect, tabs);
+        CurrentTab.Draw(rect.ContractedBy(10f));
     }
 }

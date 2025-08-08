@@ -17,54 +17,79 @@ public static class GenerateDefs
     {
         static bool IsWallProbably(ThingDef def)
         {
-            return (def.IsWall || def.defName.Contains("Wall")) &&
+            return (def.IsWall || (def.defName.Contains("Wall"))) &&
                 def.graphicData?.linkType == LinkDrawerType.CornerFiller &&
                 def.Size == IntVec2.One &&
-                def.passability == Traversability.Impassable &&
-                def.BuildableByPlayer;
+                def.passability == Traversability.Impassable;
         }
 
         var GiveShortHash = AccessTools.MethodDelegate<GetGiveShortHash>(AccessTools.Method(typeof(ShortHashGiver), "GiveShortHash"));
         var NewBlueprintDef_Thing = AccessTools.MethodDelegate<GetNewBlueprintDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewBlueprintDef_Thing"));
         var NewFrameDef_Thing = AccessTools.MethodDelegate<GetNewFrameDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewFrameDef_Thing"));
         var takenHashes = AccessTools.StaticFieldRefAccess<Dictionary<Type, HashSet<ushort>>>(typeof(ShortHashGiver), "takenHashesPerDeftype");
-        foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(IsWallProbably).ToArray())
+        foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(def => IsWallProbably(def) && def.BuildableByPlayer).ToArray())
         {
-            var newDef = new ThingDef();
-            foreach (var field in typeof(ThingDef).GetFields())
+            var newDef = GenerateInner(wallDef, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
+            if (newDef.IsSmoothable)
             {
-                if (!field.IsLiteral && field.Name != "cachedLabelCap") field.SetValue(newDef, field.GetValue(wallDef));
-            }
-            newDef.defName += NanameWalls.Suffix;
-            newDef.label = "NAW.Diagonal".Translate() + wallDef.LabelCap;
-            newDef.graphicData = new GraphicData();
-            newDef.graphicData.CopyFrom(wallDef.graphicData);
-            newDef.graphicData.linkType = (LinkDrawerType)217;
-            newDef.shortHash = 0;
-            GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
-            newDef.modContentPack = NanameWalls.Mod.Content;
-            DefGenerator.AddImpliedDef(newDef);
-            var bluePrintDef = NewBlueprintDef_Thing(newDef, false);
-            bluePrintDef.shortHash = 0;
-            GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
-            DefGenerator.AddImpliedDef(bluePrintDef);
-            var frameDef = NewFrameDef_Thing(newDef, false);
-            frameDef.shortHash = 0;
-            GiveShortHash(frameDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
-            DefGenerator.AddImpliedDef(frameDef);
+                newDef.building = Gen.MemberwiseClone(newDef.building);
+                ref var smoothedThing = ref newDef.building.smoothedThing;
+                if (!IsWallProbably(smoothedThing)) continue;
 
-            var meshSettingsDict = NanameWalls.Mod.Settings.meshSettings;
-            if (!meshSettingsDict.TryGetValue(wallDef.defName, out var meshSettings))
-            {
-                meshSettings = meshSettingsDict[wallDef.defName] = MeshSettings.DeepCopyDefaultFor(wallDef);
+                smoothedThing = GenerateInner(smoothedThing, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
+                smoothedThing.building.unsmoothedThing = newDef;
             }
-            if (!meshSettings.enabled) newDef.designationCategory = null;
-            NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
-            NanameWalls.Mod.nanameWalls[wallDef] = newDef;
         }
         foreach (var designationCategory in NanameWalls.Mod.designationCategories)
         {
             designationCategory.ResolveReferences();
         }
+    }
+
+    private static ThingDef GenerateInner(ThingDef wallDef, GetGiveShortHash GiveShortHash, Dictionary<Type, HashSet<ushort>> takenHashes, GetNewBlueprintDef_Thing NewBlueprintDef_Thing, GetNewFrameDef_Thing NewFrameDef_Thing)
+    {
+        var newDef = new ThingDef();
+        foreach (var field in typeof(ThingDef).GetFields())
+        {
+            if (!field.IsLiteral && field.Name != "cachedLabelCap") field.SetValue(newDef, field.GetValue(wallDef));
+        }
+        newDef.defName += NanameWalls.Suffix;
+        newDef.label = "NAW.Diagonal".Translate() + wallDef.LabelCap;
+        newDef.graphicData = new GraphicData();
+        newDef.graphicData.CopyFrom(wallDef.graphicData);
+        newDef.graphicData.linkType = (LinkDrawerType)217;
+        newDef.shortHash = 0;
+        GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
+        newDef.modContentPack = NanameWalls.Mod.Content;
+        DefGenerator.AddImpliedDef(newDef);
+        var bluePrintDef = NewBlueprintDef_Thing(newDef, false);
+        bluePrintDef.shortHash = 0;
+        GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
+        DefGenerator.AddImpliedDef(bluePrintDef);
+        var frameDef = NewFrameDef_Thing(newDef, false);
+        frameDef.shortHash = 0;
+        GiveShortHash(frameDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
+        DefGenerator.AddImpliedDef(frameDef);
+
+        var meshSettingsDict = NanameWalls.Mod.Settings.meshSettings;
+        if (!meshSettingsDict.TryGetValue(wallDef.defName, out var meshSettings))
+        {
+            meshSettings = meshSettingsDict[wallDef.defName] = MeshSettings.DeepCopyDefaultFor(wallDef);
+        }
+        if (!meshSettings.enabled) newDef.designationCategory = null;
+        var buildableByPlayer = wallDef.BuildableByPlayer;
+        if (buildableByPlayer)
+            NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
+        NanameWalls.Mod.nanameWalls[wallDef] = newDef;
+        if (NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer && wallDef.designatorDropdown is null)
+        {
+            var dropdown = new DesignatorDropdownGroupDef()
+            {
+                defName = wallDef.defName
+            };
+            wallDef.designatorDropdown = dropdown;
+            newDef.designatorDropdown = dropdown;
+        }
+        return newDef;
     }
 }
