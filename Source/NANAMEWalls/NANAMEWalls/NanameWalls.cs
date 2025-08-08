@@ -166,8 +166,8 @@ public class NanameWalls : Mod
         var mat = selDef.graphic?.MatSingle;
         if (mat != null)
         {
-            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
-            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
+            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
+            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(PreviewSize / 2f, PreviewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
         }
         if (selectedList != null)
         {
