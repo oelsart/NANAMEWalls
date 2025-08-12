@@ -147,11 +147,15 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
         //壁のプレビュー
         Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
-        var mat = selDef.graphic?.MatSingle;
+        var mat = selThing != null ? selThing.Graphic.MatSingleFor(selThing) : selDef.graphicData?.Graphic?.MatSingle;
         if (mat != null)
         {
-            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
-            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f);
+            var scale = mat.mainTextureScale;
+            var offset = mat.mainTextureOffset;
+            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
+            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
+            mat.mainTextureScale = scale;
+            mat.mainTextureOffset = offset;
         }
         if (selectedList != null)
         {
@@ -238,7 +242,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         if (SettingItem(ref item, labelPct, "RepeatNorth", ref meshSettings.repeatNorth, defaultSettings.repeatSouth, rects[0]))
         {
             repeat = meshSettings.repeatNorth;
-            texCoords = [.. meshSettings.northUVs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
+            texCoords = [.. meshSettings.northUVs];
             selectedList = [.. meshSettings.northVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
             selectedPoint = null;
         }
@@ -252,7 +256,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         if (SettingItem(ref item, labelPct, "RepeatSouth", ref meshSettings.repeatSouth, defaultSettings.repeatSouth, rects[0]))
         {
             repeat = meshSettings.repeatSouth;
-            texCoords = [.. meshSettings.southUVs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
+            texCoords = [.. meshSettings.southUVs];
             selectedList = [.. meshSettings.southVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
             selectedPoint = null;
         }
@@ -346,7 +350,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 {
                     selectedPoint = ConvertVert(value);
                     selectedList = [.. values.Select(ConvertVert)];
-                    texCoords = [.. uvs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
+                    texCoords = [.. uvs];
                 }
                 else
                 {
@@ -376,7 +380,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                         this.repeat = repeat;
                         selectedPoint = ConvertVert(value);
                         selectedList = [.. values.Select(ConvertVert)];
-                        texCoords = [.. uvs.Select(uv => ((Vector2)uv * 0.1875f) + new Vector2(0.03125f, 0.03125f))];
+                        texCoords = [.. uvs];
                     }
                     else
                     {
