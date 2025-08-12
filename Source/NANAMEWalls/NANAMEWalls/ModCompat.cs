@@ -47,5 +47,12 @@ namespace NanameWalls
                 }
             }
         }
+
+        public static class MoreGroupedBuildings
+        {
+            public static readonly bool Active = ModsConfig.IsActive("WSP.GroupedBuildings");
+
+            public const string PatchCategory = "Patches_MoreGroupedBuildings";
+        }
     }
 }

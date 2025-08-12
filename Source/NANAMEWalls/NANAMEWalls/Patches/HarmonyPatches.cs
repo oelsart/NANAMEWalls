@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using RimWorld;
-using UnityEngine;
 using Verse;
 using Verse.Sound;
 
@@ -74,7 +73,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
         return NanameWalls.Mod.Settings.groupNanameWalls;
     }
 
-    public static bool Prefix(Designator_Dropdown __instance, Event ev, List<Designator> ___elements, ref Window __result)
+    public static bool Prefix(Designator_Dropdown __instance, List<Designator> ___elements, ref Window __result)
     {
         if (___elements.ElementAtOrDefault(0) is Designator_Build designator_Build && ___elements.ElementAtOrDefault(1) is Designator_Build designator_Build2)
         {
@@ -100,10 +99,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                             {
                                 return;
                             }
-                            if (designator_Build.CurActivateSound != null)
-                            {
-                                designator_Build.CurActivateSound.PlayOneShotOnCamera(null);
-                            }
+                            designator_Build.CurActivateSound?.PlayOneShotOnCamera(null);
                             Find.DesignatorManager.Select(designator_Build);
                             stuffDef(designator_Build) = localStuffDef;
                             writeStuff(designator_Build) = true;
@@ -137,7 +133,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
 
                 __result = new FloatMenu(list)
                 {
-                    onCloseCallback = delegate
+                    onCloseCallback = () =>
                     {
                         activeDesignatorSet(__instance) = true;
                         writeStuff(designator_Build) = true;

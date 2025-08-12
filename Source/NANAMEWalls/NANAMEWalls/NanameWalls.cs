@@ -48,10 +48,17 @@ public class NanameWalls : Mod
                     if (patchClass.Category.NullOrEmpty())
                     {
                         patchClass.Patch();
+                        return;
                     }
                     if (ViviRace.Active && patchClass.Category == ViviRace.PatchCategory)
                     {
                         patchClass.Patch();
+                        return;
+                    }
+                    if (MoreGroupedBuildings.Active && patchClass.Category == MoreGroupedBuildings.PatchCategory)
+                    {
+                        patchClass.Patch();
+                        return;
                     }
                 }
                 catch (Exception ex)
