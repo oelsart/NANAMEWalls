@@ -88,11 +88,17 @@ public class MeshSettings : IExposable
 
     public static MeshSettings DeepCopyDefaultFor(ThingDef def)
     {
-        //return AccessTools.MakeDeepCopy<MeshSettings>(DefaultSettingsFor(def));
+        static bool IsWallProbably(ThingDef def)
+        {
+            return (def.IsWall || (def.defName.Contains("Wall"))) &&
+                def.passability == Traversability.Impassable;
+        }
+
         var defaultSettings = DefaultSettingsFor(def);
+        var enabled = defaultSettings == commonDefaultSettings ? IsWallProbably(def) : defaultSettings.enabled;
         return new MeshSettings
         {
-            enabled = defaultSettings.enabled,
+            enabled = enabled,
             repeatNorth = defaultSettings.repeatNorth,
             northUVs = [.. defaultSettings.northUVs],
             northVerts = [.. defaultSettings.northVerts],

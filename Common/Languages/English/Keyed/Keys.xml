@@ -11,5 +11,6 @@
 	
 	<NAW.Options>Options</NAW.Options>
 	<NAW.Settings.GroupNanameWalls>Group NANAME walls into drop-down menus. (Reboot required)</NAW.Settings.GroupNanameWalls>
+	<NAW.Settings.LinkWithDifferentWall>Link with different wall types. (Vanilla-like)</NAW.Settings.LinkWithDifferentWall>
 	
 </LanguageData>

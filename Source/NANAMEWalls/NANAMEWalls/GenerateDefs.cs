@@ -22,12 +22,6 @@ public static class GenerateDefs
             return def.Size == IntVec2.One && (linkType == LinkDrawerType.CornerFiller || linkType == LinkDrawerType.Basic);
         }
 
-        static bool IsWallProbably(ThingDef def)
-        {
-            return (def.IsWall || (def.defName.Contains("Wall"))) &&
-                def.passability == Traversability.Impassable;
-        }
-
         var GiveShortHash = AccessTools.MethodDelegate<GetGiveShortHash>(AccessTools.Method(typeof(ShortHashGiver), "GiveShortHash"));
         var NewBlueprintDef_Thing = AccessTools.MethodDelegate<GetNewBlueprintDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewBlueprintDef_Thing"));
         var NewFrameDef_Thing = AccessTools.MethodDelegate<GetNewFrameDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewFrameDef_Thing"));
@@ -41,7 +35,7 @@ public static class GenerateDefs
             {
                 newDef.building = Gen.MemberwiseClone(newDef.building);
                 ref var smoothedThing = ref newDef.building.smoothedThing;
-                if (!IsWallProbably(smoothedThing)) continue;
+                if (!IsLinkedThing(smoothedThing)) continue;
 
                 smoothedThing = GenerateInner(smoothedThing, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
                 smoothedThing.building.unsmoothedThing = newDef;

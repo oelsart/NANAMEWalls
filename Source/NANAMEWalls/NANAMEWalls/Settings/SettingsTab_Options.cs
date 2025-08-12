@@ -23,6 +23,7 @@ internal class SettingsTab_Options : SettingsTabDrawer
         var listing_Standard = new Listing_Standard();
         listing_Standard.Begin(inRect);
         listing_Standard.CheckboxLabeled("NAW.Settings.GroupNanameWalls".Translate(), ref NanameWalls.Mod.Settings.groupNanameWalls);
+        listing_Standard.CheckboxLabeled("NAW.Settings.LinkWithDifferentWall".Translate(), ref NanameWalls.Mod.Settings.linkWithDifferentWall);
         listing_Standard.End();
     }
 }

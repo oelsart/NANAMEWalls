@@ -30,6 +30,21 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         };
     }
 
+    public override bool ShouldLinkWith(IntVec3 c, Thing parent)
+    {
+        var flag = base.ShouldLinkWith(c, parent);
+        if (NanameWalls.Mod.Settings.linkWithDifferentWall)
+        {
+            return flag;
+        }
+        var edifice = c.GetEdificeSafe(parent.Map);
+        if (edifice is null)
+        {
+            return false;
+        }
+        return flag && edifice.def == parent.def && edifice.Stuff == parent.Stuff;
+    }
+
     protected override Material LinkedDrawMatFrom(Thing parent, IntVec3 cell)
     {
         int num = 0;
@@ -62,6 +77,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         {
             linkDirections |= LinkDirections.Left;
         }
+
         var southEast = ShouldLinkWith(pos + IntVec3.SouthEast, parent);
         var southWest = ShouldLinkWith(pos + IntVec3.SouthWest, parent);
         var northEast = ShouldLinkWith(pos + IntVec3.NorthEast, parent);

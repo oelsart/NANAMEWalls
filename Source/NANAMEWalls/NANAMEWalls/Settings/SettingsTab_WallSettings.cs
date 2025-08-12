@@ -342,7 +342,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             }
             var prevValue = value;
             var isVerts = uvs != null;
-            Widgets.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.5f : 0f, isVerts ? 1.5f : 1f);
+            Widgets.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
             values[i] = value;
             if (prevValue != value)
             {

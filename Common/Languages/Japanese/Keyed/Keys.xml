@@ -11,5 +11,6 @@
 	
 	<NAW.Options>Options</NAW.Options>
 	<NAW.Settings.GroupNanameWalls>斜め壁をドロップダウンメニューにまとめる. (要再起動)</NAW.Settings.GroupNanameWalls>
+	<NAW.Settings.LinkWithDifferentWall>違うタイプの壁ともリンクする.（バニラと同じ挙動）</NAW.Settings.LinkWithDifferentWall>
 	
 </LanguageData>
