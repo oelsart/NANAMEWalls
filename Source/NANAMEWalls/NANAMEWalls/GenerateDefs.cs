@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using RimWorld;
 using Verse;
+using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
 
@@ -34,6 +35,7 @@ public static class GenerateDefs
         foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(def => IsLinkedThing(def) && def.BuildableByPlayer).ToArray())
         {
             if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
+
             var newDef = GenerateInner(wallDef, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
             if (newDef.IsSmoothable)
             {
@@ -43,6 +45,24 @@ public static class GenerateDefs
 
                 smoothedThing = GenerateInner(smoothedThing, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
                 smoothedThing.building.unsmoothedThing = newDef;
+
+                if (!ViviRace.Active) continue;
+                var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
+                if (index != -1)
+                {
+                    smoothedThing.comps = [.. smoothedThing.comps];
+                    smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
+                    ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
+                    replaceThing = GenerateInner(replaceThing, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
+                }
+            }
+        }
+        if (ViviRace.Active)
+        {
+            var VV_ViviHardenHoneycombWall = DefDatabase<ThingDef>.GetNamedSilentFail("VV_ViviHardenHoneycombWall");
+            if (VV_ViviHardenHoneycombWall != null)
+            {
+                GenerateInner(VV_ViviHardenHoneycombWall, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
             }
         }
         foreach (var designationCategory in NanameWalls.Mod.designationCategories)

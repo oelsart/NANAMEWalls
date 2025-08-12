@@ -122,10 +122,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                             {
                                 return;
                             }
-                            if (designator_Build2.CurActivateSound != null)
-                            {
-                                designator_Build2.CurActivateSound.PlayOneShotOnCamera(null);
-                            }
+                            designator_Build2.CurActivateSound?.PlayOneShotOnCamera(null);
                             Find.DesignatorManager.Select(designator_Build2);
                             stuffDef(designator_Build2) = localStuffDef;
                             writeStuff(designator_Build2) = true;

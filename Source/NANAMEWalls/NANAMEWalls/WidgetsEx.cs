@@ -5,8 +5,6 @@ namespace NanameWalls;
 
 public class WidgetsEx
 {
-    private const int IntEntryButtonWidth = 40;
-
     public static void DrawQuadFilled(List<Vector3> points, Color color, Material mat = null, List<Vector2> texCoords = null, int repeat = 1)
     {
         if (Event.current.type != EventType.Repaint)
