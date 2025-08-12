@@ -15,6 +15,8 @@ public class NanameWalls : Mod
 
     public readonly HashSet<DesignationCategoryDef> designationCategories = [];
 
+    public readonly Dictionary<ThingDef, ThingDef> originalDefs = [];
+
     public readonly Dictionary<ThingDef, ThingDef> nanameWalls = [];
 
     private readonly List<TabRecord> tabs = [];

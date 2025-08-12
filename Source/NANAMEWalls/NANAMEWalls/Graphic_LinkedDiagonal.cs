@@ -183,7 +183,11 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var mat = GetMaterial(thing);
         var subMesh = layer.GetSubMesh(mat);
         var center = thing.TrueCenter().WithYOffset(Altitudes.AltInc);
-        var defName = thing.def.defName[..^NanameWalls.Suffix.Length];
+        if (!NanameWalls.Mod.originalDefs.TryGetValue(thing.def, out var originalDef))
+        {
+            originalDef = thing.def;
+        }
+        var defName = originalDef.defName;
         if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(defName, out var settings))
         {
             settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(thing.def);
@@ -208,6 +212,9 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             FinalizePrint(subMesh, settings, center, extraRotation, Diagonals.SouthWest);
         }
 
+        if (originalDef.graphicData?.linkType != LinkDrawerType.CornerFiller) return;
+
+        //CornerFillers
         Vector2[] cornerFiller = [.. settings.topFillerUVs];
         if (north)
         {

@@ -5,105 +5,11 @@ namespace NanameWalls;
 
 public class MeshSettings : IExposable
 {
+    private const string DefaultName = "NAW_DefaultWall";
+
     private static Dictionary<string, MeshSettings> defaultSettings = [];
 
-    private static readonly MeshSettings commonDefaultSettings = new()
-    {
-        enabled = true,
-        repeatNorth = 3,
-        northUVs =
-        [
-            new(0.283f, 0.47f),
-            new(0f, 0.47f),
-            new(0f, 0.89f),
-            new(0.283f, 0.89f)
-        ],
-        northVerts =
-        [
-            new(-0.216f, 0f, 0.45f),
-            new(-0.5f, 0.01f, 0.45f),
-            new(0.5f, 0.01f, 1.45f),
-            new(0.783f, 0f, 1.45f)
-        ],
-        northVertsFiller =
-        [
-            new(-0.216f, 0f, 0.45f),
-            new(0.708f, 0.01f, 1.375f),
-            new(1.005f, 0.01f, 1.195f),
-            new(0.08f, 0f, 0.27f)
-        ],
-        northUVsFinish =
-        [
-            new(0.29f, 0.55f),
-            new(0.29f, 0.945f),
-            new(0.71f, 0.945f),
-            new(0.71f, 0.55f)
-        ],
-        northVertsFinish =
-        [
-            new(0.38f, 0f, 0.097f),
-            new(0.201f, 0.01f, 0.433f),
-            new(0.701f, 0.01f, 0.933f),
-            new(1.217f, 0f, 0.933f)
-        ],
-        borderFillerUVs =
-        [
-            new Vector3(0.5f, 0.025f),
-            new Vector3(0.5f, 0.025f),
-            new Vector3(0.5f, 0.025f),
-            new Vector3(0.5f, 0.025f)
-        ],
-        northVertsFinishBorder =
-        [
-            new(0.202f, 0f, 0.434f),
-            new(0.202f, 0.01f, 0.5f),
-            new(0.5f, 0.01f, 0.798f),
-            new(0.5f, 0f, 0.732f)
-        ],
-        repeatSouth = 3,
-        southUVs =
-        [
-            new(0.29f, 0f),
-            new(0.29f, 0.467f),
-            new(0.71f, 0.467f),
-            new(0.71f, 0f)
-        ],
-        southVerts =
-        [
-            new(0.475f, 0f, -0.5f),
-            new(0.25f, 0.01f, -0.033f),
-            new(1.25f, 0.01f, 0.967f),
-            new(1.475f, 0f, 0.5f)
-        ],
-        southVertsFiller =
-        [
-            new(0.25f, 0f, -0.033f),
-            new(0.08f, 0f, 0.27f),
-            new(1.005f, 0.01f, 1.195f),
-            new(1.175f, 0.01f, 0.892f)
-        ],
-        southUVsFinish =
-        [
-            new(0.29f, 0f),
-            new(0.29f, 0.467f),
-            new(0.71f, 0.467f),
-            new(0.71f, 0f)
-        ],
-        southVertsFinish =
-        [
-            new(0.5f, 0f, 0.227f),
-            new(0.217f, 0.01f, 0.407f),
-            new(0.777f, 0.01f, 0.967f),
-            new(0.777f, 0f, 0.5f)
-        ],
-        topFillerUVs =
-        [
-            new Vector3(0.5f, 0.6f),
-            new Vector3(0.5f, 0.6f),
-            new Vector3(0.5f, 0.6f),
-            new Vector3(0.5f, 0.6f)
-        ]
-    };
+    private static MeshSettings commonDefaultSettings;
 
     public bool enabled;
 
@@ -149,6 +55,7 @@ public class MeshSettings : IExposable
                 Scribe.loader.InitLoading(settingsFilename);
                 try
                 {
+                    Scribe_Deep.Look(ref commonDefaultSettings, "commonDefaultSettings");
                     Scribe_StringKeyDictionary.Look(ref defaultSettings, "meshSettings", LookMode.Deep);
                 }
                 finally
@@ -212,26 +119,27 @@ public class MeshSettings : IExposable
             {
                 Scribe_Collections.Look(ref value, label, LookMode.Value);
             }
-            value ??= [.. defaultValue];
+            value ??= [.. defaultValue ?? []];
         }
 
-        var curDefault = DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey);
-        Scribe_Values.Look(ref enabled, "enabled", curDefault.enabled);
-        Scribe_Values.Look(ref repeatNorth, "repeatNorth", curDefault.repeatNorth);
-        Scribe_Values.Look(ref repeatSouth, "repeatSouth", curDefault.repeatSouth);
+        var key = Scribe_StringKeyDictionary.ProcessingKey;
+        var curDefault = key != DefaultName ? DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey) : default;
+        Scribe_Values.Look(ref enabled, "enabled", curDefault?.enabled ?? default);
+        Scribe_Values.Look(ref repeatNorth, "repeatNorth", curDefault?.repeatNorth ?? default);
+        Scribe_Values.Look(ref repeatSouth, "repeatSouth", curDefault?.repeatSouth ?? default);
 
-        CheckAndLook(ref northUVs, curDefault.northUVs, "northUVs");
-        CheckAndLook(ref northVerts, curDefault.northVerts, "northVerts");
-        CheckAndLook(ref northVertsFiller, curDefault.northVertsFiller, "northVertsFiller");
-        CheckAndLook(ref northUVsFinish, curDefault.northUVsFinish, "northUVsFinish");
-        CheckAndLook(ref northVertsFinish, curDefault.northVertsFinish, "northVertsFinish");
-        CheckAndLook(ref borderFillerUVs, curDefault.borderFillerUVs, "borderFillerUVs");
-        CheckAndLook(ref northVertsFinishBorder, curDefault.northVertsFinishBorder, "northVertsFinishBorder");
-        CheckAndLook(ref southUVs, curDefault.southUVs, "southUVs");
-        CheckAndLook(ref southVerts, curDefault.southVerts, "southVerts");
-        CheckAndLook(ref southVertsFiller, curDefault.southVertsFiller, "southVertsFiller");
-        CheckAndLook(ref southUVsFinish, curDefault.southUVsFinish, "southUVsFinish");
-        CheckAndLook(ref southVertsFinish, curDefault.southVertsFinish, "southVertsFinish");
-        CheckAndLook(ref topFillerUVs, curDefault.topFillerUVs, "topFillerUVs");
+        CheckAndLook(ref northUVs, curDefault?.northUVs, "northUVs");
+        CheckAndLook(ref northVerts, curDefault?.northVerts, "northVerts");
+        CheckAndLook(ref northVertsFiller, curDefault?.northVertsFiller, "northVertsFiller");
+        CheckAndLook(ref northUVsFinish, curDefault?.northUVsFinish, "northUVsFinish");
+        CheckAndLook(ref northVertsFinish, curDefault?.northVertsFinish, "northVertsFinish");
+        CheckAndLook(ref borderFillerUVs, curDefault?.borderFillerUVs, "borderFillerUVs");
+        CheckAndLook(ref northVertsFinishBorder, curDefault?.northVertsFinishBorder, "northVertsFinishBorder");
+        CheckAndLook(ref southUVs, curDefault?.southUVs, "southUVs");
+        CheckAndLook(ref southVerts, curDefault?.southVerts, "southVerts");
+        CheckAndLook(ref southVertsFiller, curDefault?.southVertsFiller, "southVertsFiller");
+        CheckAndLook(ref southUVsFinish, curDefault?.southUVsFinish, "southUVsFinish");
+        CheckAndLook(ref southVertsFinish, curDefault?.southVertsFinish, "southVertsFinish");
+        CheckAndLook(ref topFillerUVs, curDefault?.topFillerUVs, "topFillerUVs");
     }
 }

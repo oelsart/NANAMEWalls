@@ -15,11 +15,15 @@ public static class GenerateDefs
 
     static GenerateDefs()
     {
+        static bool IsLinkedThing(ThingDef def)
+        {
+            var linkType = def.graphicData?.linkType;
+            return def.Size == IntVec2.One && (linkType == LinkDrawerType.CornerFiller || linkType == LinkDrawerType.Basic);
+        }
+
         static bool IsWallProbably(ThingDef def)
         {
             return (def.IsWall || (def.defName.Contains("Wall"))) &&
-                def.graphicData?.linkType == LinkDrawerType.CornerFiller &&
-                def.Size == IntVec2.One &&
                 def.passability == Traversability.Impassable;
         }
 
@@ -27,8 +31,9 @@ public static class GenerateDefs
         var NewBlueprintDef_Thing = AccessTools.MethodDelegate<GetNewBlueprintDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewBlueprintDef_Thing"));
         var NewFrameDef_Thing = AccessTools.MethodDelegate<GetNewFrameDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewFrameDef_Thing"));
         var takenHashes = AccessTools.StaticFieldRefAccess<Dictionary<Type, HashSet<ushort>>>(typeof(ShortHashGiver), "takenHashesPerDeftype");
-        foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(def => IsWallProbably(def) && def.BuildableByPlayer).ToArray())
+        foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(def => IsLinkedThing(def) && def.BuildableByPlayer).ToArray())
         {
+            if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
             var newDef = GenerateInner(wallDef, GiveShortHash, takenHashes, NewBlueprintDef_Thing, NewFrameDef_Thing);
             if (newDef.IsSmoothable)
             {
@@ -81,6 +86,7 @@ public static class GenerateDefs
         if (buildableByPlayer)
             NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
         NanameWalls.Mod.nanameWalls[wallDef] = newDef;
+        NanameWalls.Mod.originalDefs[newDef] = wallDef;
         if (NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer && wallDef.designatorDropdown is null)
         {
             var dropdown = new DesignatorDropdownGroupDef()
