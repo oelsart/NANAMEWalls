@@ -81,6 +81,7 @@ public static class GenerateDefs
         GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
         newDef.modContentPack = NanameWalls.Mod.Content;
         DefGenerator.AddImpliedDef(newDef);
+        DefDatabase<BuildableDef>.Add(newDef);
         var bluePrintDef = NewBlueprintDef_Thing(newDef, false);
         bluePrintDef.shortHash = 0;
         GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
@@ -101,7 +102,8 @@ public static class GenerateDefs
             NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
         NanameWalls.Mod.nanameWalls[wallDef] = newDef;
         NanameWalls.Mod.originalDefs[newDef] = wallDef;
-        if (NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer && wallDef.designatorDropdown is null)
+
+        if (meshSettings.enabled && NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer && wallDef.designatorDropdown is null)
         {
             var dropdown = new DesignatorDropdownGroupDef()
             {
