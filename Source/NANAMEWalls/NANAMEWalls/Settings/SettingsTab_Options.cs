@@ -7,7 +7,7 @@ internal class SettingsTab_Options : SettingsTabDrawer
 {
     public override int Index => 1;
 
-    public override string Label => "NAW.Options".Translate();
+    public override string Label => "NAW.Settings.Options".Translate();
 
     public override bool DrawDefaultButton => true;
 

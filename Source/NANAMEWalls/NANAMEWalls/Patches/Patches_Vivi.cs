@@ -79,7 +79,7 @@ public static class Patch_Designator_FortifyHoneycombWall_DesignateThing
     public static bool IsWallDefOrNanameWallDef(ThingDef thingDef, ThingDef wallDef)
     {
         if (thingDef == wallDef) return true;
-        if (NanameWalls.Mod.nanameWalls.TryGetValue(wallDef, out var nanameDef) )
+        if (NanameWalls.Mod.nanameWalls.TryGetValue(wallDef, out var nanameDef))
         {
             return thingDef == nanameDef;
         }

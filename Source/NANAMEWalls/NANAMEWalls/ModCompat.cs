@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Verse;
-using Verse.Noise;
 
 namespace NanameWalls
 {

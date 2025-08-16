@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Xml;
+using UnityEngine;
 using Verse;
 
 namespace NanameWalls;
@@ -9,39 +10,21 @@ public class MeshSettings : IExposable
 
     private static Dictionary<string, MeshSettings> defaultSettings = [];
 
-    private static MeshSettings commonDefaultSettings;
-
     public bool enabled;
 
-    public int repeatNorth;
+    public SortedDictionary<string, SettingItem> settingItems = [];
 
-    public List<Vector3> northUVs;
-
-    public List<Vector3> northVerts;
-
-    public List<Vector3> northVertsFiller;
-
-    public List<Vector3> northUVsFinish;
-
-    public List<Vector3> northVertsFinish;
-
-    public List<Vector3> borderFillerUVs;
-
-    public List<Vector3> northVertsFinishBorder;
-
-    public int repeatSouth;
-
-    public List<Vector3> southUVs;
-
-    public List<Vector3> southVerts;
-
-    public List<Vector3> southVertsFiller;
-
-    public List<Vector3> southUVsFinish;
-
-    public List<Vector3> southVertsFinish;
-
-    public List<Vector3> topFillerUVs;
+    private static MeshSettings CommonDefaultSettings
+    {
+        get
+        {
+            if (defaultSettings.TryGetValue(DefaultName, out var settings))
+            {
+                return settings;
+            }
+            return null;
+        }
+    }
 
     private MeshSettings() { }
 
@@ -55,8 +38,14 @@ public class MeshSettings : IExposable
                 Scribe.loader.InitLoading(settingsFilename);
                 try
                 {
-                    Scribe_Deep.Look(ref commonDefaultSettings, "commonDefaultSettings");
-                    Scribe_StringKeyDictionary.Look(ref defaultSettings, "meshSettings", LookMode.Deep);
+                    var childs = Scribe.loader.curXmlParent.ChildNodes;
+
+                    foreach (XmlNode child in childs)
+                    {
+                        MeshSettings settings = null;
+                        Scribe_Deep.Look(ref settings, child.Name);
+                        defaultSettings[child.Name] = settings;
+                    }
                 }
                 finally
                 {
@@ -83,69 +72,287 @@ public class MeshSettings : IExposable
         {
             return settings;
         }
-        return commonDefaultSettings;
+        return CommonDefaultSettings;
     }
 
     public static MeshSettings DeepCopyDefaultFor(ThingDef def)
     {
         static bool IsWallProbably(ThingDef def)
         {
-            return (def.IsWall || (def.defName.Contains("Wall"))) &&
+            return (def.IsWall || def.defName.Contains("Wall")) &&
                 def.passability == Traversability.Impassable;
         }
 
         var defaultSettings = DefaultSettingsFor(def);
-        var enabled = defaultSettings == commonDefaultSettings ? IsWallProbably(def) : defaultSettings.enabled;
-        return new MeshSettings
+        var enabled = defaultSettings == CommonDefaultSettings ? IsWallProbably(def) : defaultSettings.enabled;
+        var copy = new MeshSettings
         {
-            enabled = enabled,
-            repeatNorth = defaultSettings.repeatNorth,
-            northUVs = [.. defaultSettings.northUVs],
-            northVerts = [.. defaultSettings.northVerts],
-            northVertsFiller = [.. defaultSettings.northVertsFiller],
-            northUVsFinish = [.. defaultSettings.northUVsFinish],
-            northVertsFinish = [.. defaultSettings.northVertsFinish],
-            borderFillerUVs = [.. defaultSettings.borderFillerUVs],
-            northVertsFinishBorder = [.. defaultSettings.northVertsFinishBorder],
-            repeatSouth = defaultSettings.repeatSouth,
-            southUVs = [.. defaultSettings.southUVs],
-            southVerts = [.. defaultSettings.southVerts],
-            southVertsFiller = [.. defaultSettings.southVertsFiller],
-            southUVsFinish = [.. defaultSettings.southUVsFinish],
-            southVertsFinish = [.. defaultSettings.southVertsFinish],
-            topFillerUVs = [.. defaultSettings.topFillerUVs]
+            enabled = enabled
         };
+        foreach (var item in defaultSettings.settingItems)
+        {
+            copy.settingItems[item.Key] = item.Value.DeepCopy();
+        }
+        return copy;
     }
 
     public void ExposeData()
     {
-        static void CheckAndLook(ref List<Vector3> value, List<Vector3> defaultValue, string label)
+        var curDefault = DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey);
+        Scribe_Values.Look(ref enabled, "enabled", curDefault?.enabled ?? default);
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            if (Scribe.mode != LoadSaveMode.Saving || (defaultValue != null && value != null && !value.SequenceEqual(defaultValue)))
+            settingItems ??= [];
+            List<string> ignoreList = [];
+            var childs = Scribe.loader.curXmlParent.ChildNodes;
+            foreach (XmlNode child in childs)
             {
-                Scribe_Collections.Look(ref value, label, LookMode.Value);
+                if (child.Name == "enabled") continue;
+                XmlAttribute xmlAttribute = child.Attributes["IsNull"];
+                if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ignoreList.Add(child.Name);
+                    continue;
+                }
+
+                SettingItem item = new();
+                if (!LookBackCompatibility(ref item, child.Name))
+                {
+                    Scribe_Deep.Look(ref item, child.Name);
+                }
+                settingItems[item.label] = item;
             }
-            value ??= [.. defaultValue ?? []];
+            if (curDefault != null)
+            {
+                foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label) && !ignoreList.Contains(i.label)))
+                {
+                    settingItems[defaultItem.label] = defaultItem.DeepCopy();
+                }
+            }
+
+        }
+        else if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            foreach (var item in settingItems)
+            {
+                var value = item.Value;
+                if (!curDefault.settingItems.TryGetValue(item.Key, out var item2) || !value.Equals(item2))
+                {
+                    Scribe_Deep.Look(ref value, $"{item.Key}_{value.type}");
+                }
+            }
+            if (curDefault != null)
+            {
+                SettingItem item = null;
+                foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label)))
+                {
+                    Scribe_Deep.Look(ref item, defaultItem.label);
+                }
+            }
+        }
+    }
+
+    private bool LookBackCompatibility(ref SettingItem item, string label)
+    {
+        switch (label)
+        {
+            case "repeatNorth":
+                Scribe_Values.Look(ref item.repeat, label);
+                item.label = "NorthVertsRepeat";
+                item.type = SettingItem.SettingType.Repeat;
+                item.link = "SorthVerts";
+                return true;
+
+            case "repeatSouth":
+                Scribe_Values.Look(ref item.repeat, label);
+                item.label = "SouthVertsRepeat";
+                item.type = SettingItem.SettingType.Repeat;
+                item.link = "SouthVerts";
+                return true;
+
+            case "northUVs":
+            case "northUVsFinish":
+            case "borderFillerUVs":
+            case "southUVs":
+            case "southUVsFinish":
+            case "topFillerUVs":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.type = SettingItem.SettingType.UVs;
+                return true;
+
+            case "northVerts":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "NorthUVs";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.North;
+                return true;
+
+            case "northVertsFiller":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "TopFillerUVs";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.North;
+                return true;
+
+            case "northVertsFinish":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "NorthUVsFinish";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.NorthFinish;
+                return true;
+
+            case "northVertsFinishBorder":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "BorderFillerUVs";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.NorthFinish;
+                return true;
+
+            case "southVerts":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "SouthUVs";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.South;
+                return true;
+
+            case "southVertsFiller":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "TopFillerUVs";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.South;
+                return true;
+
+            case "southVertsFinish":
+                Scribe_Collections.Look(ref item.vectors, label);
+                item.label = label.CapitalizeFirst();
+                item.link = "SouthUVsFinish";
+                item.type = SettingItem.SettingType.Verts;
+                item.direction = SettingItem.Direction.SouthFinish;
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public class SettingItem : IExposable, IRenameable
+    {
+        public string label = "";
+
+        public SettingType type;
+
+        public Direction direction;
+
+        public int repeat = 1;
+
+        public List<Vector3> vectors =
+        [
+            new(0f, 0f, 0f),
+            new(0f, 0f, 0f),
+            new(0f, 0f, 0f),
+            new(0f, 0f, 0f)
+        ];
+
+        public string link = "";
+
+        public string RenamableLabel
+        {
+            get
+            {
+                return label;
+            }
+            set
+            {
+                label = value;
+            }
         }
 
-        var key = Scribe_StringKeyDictionary.ProcessingKey;
-        var curDefault = key != DefaultName ? DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey) : default;
-        Scribe_Values.Look(ref enabled, "enabled", curDefault?.enabled ?? default);
-        Scribe_Values.Look(ref repeatNorth, "repeatNorth", curDefault?.repeatNorth ?? default);
-        Scribe_Values.Look(ref repeatSouth, "repeatSouth", curDefault?.repeatSouth ?? default);
+        public string BaseLabel => label;
 
-        CheckAndLook(ref northUVs, curDefault?.northUVs, "northUVs");
-        CheckAndLook(ref northVerts, curDefault?.northVerts, "northVerts");
-        CheckAndLook(ref northVertsFiller, curDefault?.northVertsFiller, "northVertsFiller");
-        CheckAndLook(ref northUVsFinish, curDefault?.northUVsFinish, "northUVsFinish");
-        CheckAndLook(ref northVertsFinish, curDefault?.northVertsFinish, "northVertsFinish");
-        CheckAndLook(ref borderFillerUVs, curDefault?.borderFillerUVs, "borderFillerUVs");
-        CheckAndLook(ref northVertsFinishBorder, curDefault?.northVertsFinishBorder, "northVertsFinishBorder");
-        CheckAndLook(ref southUVs, curDefault?.southUVs, "southUVs");
-        CheckAndLook(ref southVerts, curDefault?.southVerts, "southVerts");
-        CheckAndLook(ref southVertsFiller, curDefault?.southVertsFiller, "southVertsFiller");
-        CheckAndLook(ref southUVsFinish, curDefault?.southUVsFinish, "southUVsFinish");
-        CheckAndLook(ref southVertsFinish, curDefault?.southVertsFinish, "southVertsFinish");
-        CheckAndLook(ref topFillerUVs, curDefault?.topFillerUVs, "topFillerUVs");
+        public string InspectLabel => label;
+
+        public void ExposeData()
+        {
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                var name = Scribe.loader.curXmlParent.Name;
+                var values = name.Split("_");
+                var last = values.Last();
+                label = string.Join("_", values.Except(last));
+                if (!Enum.IsDefined(typeof(SettingType), last))
+                {
+                    Log.Error($"[NanameWalls] Invalid element in settings: {name}");
+                    return;
+                }
+                Enum.TryParse(last, true, out type);
+            }
+            switch (type)
+            {
+                case SettingType.UVs:
+                    Scribe_Collections.Look(ref vectors, "UVs", LookMode.Value);
+                    break;
+
+                case SettingType.Verts:
+                    Scribe_Values.Look(ref link, "linkUVs");
+                    Scribe_Values.Look(ref direction, "direction");
+                    Scribe_Collections.Look(ref vectors, "Verts", LookMode.Value);
+                    break;
+
+                case SettingType.Repeat:
+                    Scribe_Values.Look(ref link, "linkVerts");
+                    Scribe_Values.Look(ref repeat, "repeat");
+                    break;
+            }
+        }
+
+        public bool Equals(SettingItem other)
+        {
+            if (other is null) return false;
+            if (type != other.type) return false;
+            if (direction != other.direction) return false;
+            if (repeat != other.repeat) return false;
+            var flag = vectors != null;
+            var flag2 = other.vectors != null;
+            if ((flag ^ flag2) || (flag && !vectors.SequenceEqual(other.vectors))) return false;
+            if (link != other.link) return false;
+            return true;
+        }
+
+        public SettingItem DeepCopy()
+        {
+            var copy = new SettingItem()
+            {
+                label = label,
+                type = type,
+                direction = direction,
+                repeat = repeat,
+                link = link,
+            };
+            if (vectors != null) copy.vectors = [.. vectors];
+            return copy;
+        }
+
+        public enum SettingType
+        {
+            UVs,
+            Verts,
+            Repeat
+        }
+
+        public enum Direction
+        {
+            None,
+            North,
+            NorthFinish,
+            South,
+            SouthFinish
+        }
     }
 }

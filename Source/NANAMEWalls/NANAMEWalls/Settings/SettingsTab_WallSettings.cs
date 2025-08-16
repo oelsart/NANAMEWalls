@@ -1,12 +1,14 @@
-﻿using RimWorld;
+﻿using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using static NanameWalls.MeshSettings;
 
 namespace NanameWalls;
 
 internal class SettingsTab_WallSettings : SettingsTabDrawer
 {
-    private const float PreviewSizeRatio = 0.3f;
+    private const float PreviewSizeRatio = 0.315f;
 
     private Vector2 scrollPosition;
 
@@ -30,11 +32,22 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     private float viewRectYMax;
 
+    private List<TabRecord> tabs;
+
+    private bool valueSettingMode = true;
+
     public override int Index => 0;
 
-    public override string Label => "NAW.Walls".Translate();
+    public override string Label => "NAW.Settings.Walls".Translate();
 
     public override bool DrawDefaultButton => false;
+
+    private void InitializeTabs()
+    {
+        tabs = [];
+        tabs.Add(new TabRecord("NAW.Settings.Values".Translate(), () => valueSettingMode = true, () => valueSettingMode));
+        tabs.Add(new TabRecord("NAW.Settings.Items".Translate(), () => valueSettingMode = false, () => !valueSettingMode));
+    }
 
     private void Clear()
     {
@@ -126,8 +139,8 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     private void DoMeshSettings(Rect rect)
     {
-        ref var selDef = ref NanameWalls.Mod.selDef;
-        ref var selThing = ref NanameWalls.Mod.selThing;
+        var selDef = NanameWalls.Mod.selDef;
+        var selThing = NanameWalls.Mod.selThing;
         var previewSize = rect.height * PreviewSizeRatio;
         if (!NanameWalls.Mod.nanameWalls.TryGetValue(selDef, out var nanameWall))
         {
@@ -139,7 +152,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         }
         if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(selDef.defName, out var meshSettings))
         {
-            meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = MeshSettings.DeepCopyDefaultFor(selDef);
+            meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
         }
 
         rect.SplitHorizontally(previewSize, out var top, out var bottom);
@@ -203,78 +216,102 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             meshSettings.enabled = enabled;
         }
 
-        //デフォルトボタン
-        var item = bottom.TopPartPixels(Text.LineHeight);
-        item.y += 5f;
-        defaultRequest = "";
-        var lastRowRect = bottom.BottomPartPixels(Text.LineHeight);
-        var leftButtonRect = item.LeftPartPixels((item.width / 2f) - 2f);
-        var rightButtonRect = item.RightPartPixels((item.width / 2f) - 2f);
-        if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
+        //タブドロワー
+        var tabRect = bottom.BottomPartPixels(bottom.height - Text.LineHeight - 5f);
+        if (tabs is null)
         {
-            defaultRequest = GUI.GetNameOfFocusedControl();
-            Clear();
+            InitializeTabs();
         }
+        Widgets.DrawMenuSection(tabRect);
+        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 4f);
+
+        //デフォルトボタン
+        var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels((bottom.width / 2f) - 2f);
+        buttonRect.y = tabRect.y - Text.LineHeight;
+        var rightButtonRect = buttonRect.RightPartPixels((buttonRect.width / 2f) - 1f);
         if (Widgets.ButtonText(rightButtonRect, "ResetAll".Translate()))
         {
-            meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = MeshSettings.DeepCopyDefaultFor(selDef);
-            Clear();
+            Find.WindowStack.Add(new Dialog_Confirm("NAW.Settings.DefaultAll".Translate(), () =>
+            {
+                meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
+                Clear();
+            }));
         }
-        item.y += Text.LineHeight + 5f;
 
-        //数値の設定
-        var outRect = item;
-        outRect.height = rect.yMax - item.y;
-        var viewRect = outRect;
-        item.xMax -= GenUI.ScrollBarWidth;
-        viewRect.xMax = item.xMax;
-        viewRect.height = viewRectYMax - item.y;
-        //Widgets.AdjustRectsForScrollView(outRect, ref outRect, ref viewRect);
-        Widgets.BeginScrollView(outRect, ref scrollPosition2, viewRect);
+        if (valueSettingMode)
+        {
+            defaultRequest = "";
+            var leftButtonRect = buttonRect.LeftPartPixels((buttonRect.width / 2f) - 1f);
+            if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
+            {
+                defaultRequest = GUI.GetNameOfFocusedControl();
+                Clear();
+            }
+            DoValuesSection(tabRect.ContractedBy(2f), previewSize, meshSettings);
+        }
+        else
+        {
+            DoItemsSection(tabRect.ContractedBy(2f), meshSettings);
+        }
+    }
+
+    private void DoValuesSection(Rect rect, float previewSize, MeshSettings meshSettings)
+    {
+        var viewRect = rect;
+        viewRect.height = viewRectYMax - rect.y;
+        Widgets.AdjustRectsForScrollView(rect, ref rect, ref viewRect);
+        var itemRect = viewRect.TopPartPixels(Text.LineHeight);
+        Widgets.BeginScrollView(rect, ref scrollPosition2, viewRect);
         var labelPct = 0.2f;
-        var rect2 = item.RightPart(1f - labelPct).AtZero();
+        var rect2 = itemRect.RightPart(1f - labelPct).AtZero();
         rect2.SplitVerticallyWithMargin(out var left2, out var right2, 5f);
         left2.SplitVerticallyWithMargin(out var rect3, out var rect4, 5f);
         right2.SplitVerticallyWithMargin(out var rect5, out var rect6, 5f);
         List<Rect> rects = [rect3, rect4, rect5, rect6];
         Text.Font = GameFont.Tiny;
-        var defaultSettings = MeshSettings.DefaultSettingsFor(selDef);
-        if (SettingItem(ref item, labelPct, "RepeatNorth", ref meshSettings.repeatNorth, defaultSettings.repeatSouth, rects[0]))
+
+        var defaultSettings = DefaultSettingsFor(NanameWalls.Mod.selDef);
+        SettingItem newUVs = null;
+        foreach (var item in meshSettings.settingItems.Values)
         {
-            repeat = meshSettings.repeatNorth;
-            texCoords = [.. meshSettings.northUVs];
-            selectedList = [.. meshSettings.northVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
-            selectedPoint = null;
+            if (!defaultSettings.settingItems.TryGetValue(item.label, out var defaultItem))
+            {
+                defaultItem = item.DeepCopy();
+            }
+            switch (item.type)
+            {
+                case SettingItem.SettingType.Repeat:
+                    if (DoItem(ref itemRect, labelPct, item.label, ref item.repeat, defaultItem.repeat, rects[0]))
+                    {
+                        repeat = item.repeat;
+                        selectedPoint = null;
+                        if (!meshSettings.settingItems.TryGetValue(item.link, out var linkVerts)) continue;
+                        selectedList = [.. linkVerts.vectors.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
+
+                        if (!meshSettings.settingItems.TryGetValue(linkVerts.link, out var linkUVs)) continue;
+                        texCoords = [.. linkUVs.vectors];
+                    }
+                    break;
+
+                case SettingItem.SettingType.UVs:
+                case SettingItem.SettingType.Verts:
+                    DoItem(ref itemRect, previewSize, labelPct, item.label, item, defaultItem, rects, meshSettings);
+                    break;
+            }
         }
-        SettingItem(ref item, previewSize, labelPct, "NorthUVs", meshSettings.northUVs, defaultSettings.northUVs, rects);
-        SettingItem(ref item, previewSize, labelPct, "NorthVerts", meshSettings.northVerts, defaultSettings.northVerts, rects, meshSettings.northUVs, meshSettings.repeatNorth);
-        SettingItem(ref item, previewSize, labelPct, "NorthVertsFiller", meshSettings.northVertsFiller, defaultSettings.northVertsFiller, rects, meshSettings.topFillerUVs);
-        SettingItem(ref item, previewSize, labelPct, "NorthUVsFinish", meshSettings.northUVsFinish, defaultSettings.northUVsFinish, rects);
-        SettingItem(ref item, previewSize, labelPct, "NorthVertsFinish", meshSettings.northVertsFinish, defaultSettings.northVertsFinish, rects, meshSettings.northUVsFinish);
-        SettingItem(ref item, previewSize, labelPct, "BorderFillerUVs", meshSettings.borderFillerUVs, defaultSettings.borderFillerUVs, rects);
-        SettingItem(ref item, previewSize, labelPct, "NorthVertsFinishBorder", meshSettings.northVertsFinishBorder, defaultSettings.northVertsFinishBorder, rects, meshSettings.borderFillerUVs);
-        if (SettingItem(ref item, labelPct, "RepeatSouth", ref meshSettings.repeatSouth, defaultSettings.repeatSouth, rects[0]))
+        if (newUVs is not null)
         {
-            repeat = meshSettings.repeatSouth;
-            texCoords = [.. meshSettings.southUVs];
-            selectedList = [.. meshSettings.southVerts.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
-            selectedPoint = null;
+            meshSettings.settingItems[newUVs.label] = newUVs;
         }
-        SettingItem(ref item, previewSize, labelPct, "SouthUVs", meshSettings.southUVs, defaultSettings.southUVs, rects);
-        SettingItem(ref item, previewSize, labelPct, "SouthVerts", meshSettings.southVerts, defaultSettings.southVerts, rects, meshSettings.southUVs, meshSettings.repeatSouth);
-        SettingItem(ref item, previewSize, labelPct, "SouthVertsFiller", meshSettings.southVertsFiller, defaultSettings.southVertsFiller, rects, meshSettings.topFillerUVs);
-        SettingItem(ref item, previewSize, labelPct, "SouthUVsFinish", meshSettings.southUVsFinish, defaultSettings.southUVsFinish, rects);
-        SettingItem(ref item, previewSize, labelPct, "SouthVertsFinish", meshSettings.southVertsFinish, defaultSettings.southVertsFinish, rects, meshSettings.southUVsFinish);
-        SettingItem(ref item, previewSize, labelPct, "TopFillerUVs", meshSettings.topFillerUVs, defaultSettings.topFillerUVs, rects);
         Widgets.EndScrollView();
 
-        viewRectYMax = item.y;
+        viewRectYMax = itemRect.y;
         Text.Font = GameFont.Small;
     }
 
-    private bool SettingItem(ref Rect rect, float labelPct, string label, ref int value, int defaultValue, Rect textFieldRect)
+    private bool DoItem(ref Rect rect, float labelPct, string label, ref int value, int defaultValue, Rect textFieldRect)
     {
-        Widgets.Label(rect.LeftPart(labelPct), label);
+        Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
         var rect2 = rect.RightPart(1f - labelPct);
         if (!buffers.TryGetValue(label, out var buffer))
         {
@@ -324,16 +361,18 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         return flag;
     }
 
-    private void SettingItem(ref Rect rect, float previewSize, float labelPct, string label, List<Vector3> values, List<Vector3> defaultValue, List<Rect> textFieldRects, List<Vector3> uvs = null, int repeat = 1)
+    private void DoItem(ref Rect rect, float previewSize, float labelPct, string label, SettingItem item, SettingItem defaultItem, List<Rect> textFieldRects, MeshSettings meshSettings)
     {
         Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize);
         Vector3 ConvertUV(Vector3 v) => Invert(v * previewSize / 2f, previewSize);
 
-        Widgets.Label(rect.LeftPart(labelPct), label);
+        var isVerts = item.type == SettingItem.SettingType.Verts;
+        Widgets.DrawRectFast(rect, isVerts ? new Color(0f, 0.1f, 0.85f, 0.05f) : new Color(0.85f, 0.8f, 0f, 0.05f));
+        Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
         var rect2 = rect.RightPart(1f - labelPct);
-        for (var i = 0; i < values.Count; i++)
+        for (var i = 0; i < item.vectors.Count; i++)
         {
-            var value = values[i];
+            var value = item.vectors[i];
             var rect3 = textFieldRects[i];
             rect3.position += rect2.position;
             if (!buffers.TryGetValue(label + i, out var buffer))
@@ -341,25 +380,27 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 buffer = buffers[label + i] = new string[3];
             }
             var prevValue = value;
-            var isVerts = uvs != null;
             Widgets.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
-            values[i] = value;
+            item.vectors[i] = value;
             if (prevValue != value)
             {
                 if (isVerts)
                 {
                     selectedPoint = ConvertVert(value);
-                    selectedList = [.. values.Select(ConvertVert)];
-                    texCoords = [.. uvs];
+                    selectedList = [.. item.vectors.Select(ConvertVert)];
+                    if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
+                    {
+                        texCoords = [.. uvs.vectors];
+                    }
                 }
                 else
                 {
                     selectedPoint = ConvertUV(value);
-                    selectedList = [.. values.Select(ConvertUV)];
+                    selectedList = [.. item.vectors.Select(ConvertUV)];
                 }
             }
 
-            if (i != values.Count - 1)
+            if (i != item.vectors.Count - 1)
             {
                 Widgets.Label(new(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
             }
@@ -377,22 +418,25 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                     prevFocusedControl = name;
                     if (isVerts)
                     {
-                        this.repeat = repeat;
+                        repeat = meshSettings.settingItems.Values.FirstOrDefault(item2 => item2.link == item.label)?.repeat ?? 1;
                         selectedPoint = ConvertVert(value);
-                        selectedList = [.. values.Select(ConvertVert)];
-                        texCoords = [.. uvs];
+                        selectedList = [.. item.vectors.Select(ConvertVert)];
+                        if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
+                        {
+                            texCoords = [.. uvs.vectors];
+                        }
                     }
                     else
                     {
                         selectedPoint = ConvertUV(value);
-                        selectedList = [.. values.Select(ConvertUV)];
+                        selectedList = [.. item.vectors.Select(ConvertUV)];
                         texCoords = null;
                     }
                 }
             }
             if (defaultRequest == controlName1 || defaultRequest == controlName2 || defaultRequest == controlName3)
             {
-                values[i] = defaultValue[i];
+                item.vectors[i] = defaultItem.vectors[i];
                 buffers[label + i] = new string[3];
             }
         }
@@ -404,5 +448,172 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
     {
         vector.y = previewSize - vector.y;
         return vector;
+    }
+
+    private void DoItemsSection(Rect rect, MeshSettings meshSettings)
+    {
+        var labelPct = 0.3f;
+
+        rect.SplitHorizontally(Text.LineHeight, out var top, out var bottom);
+        var viewRect = bottom;
+        viewRect.height = viewRectYMax - bottom.y;
+        Widgets.AdjustRectsForScrollView(bottom, ref bottom, ref viewRect);
+
+        using (new TextBlock(TextAnchor.MiddleCenter))
+        {
+            top.width = viewRect.width;
+            top.SplitVertically(top.width * labelPct, out var left, out var right);
+            Widgets.DrawBox(left);
+            Widgets.Label(left, "NAW.Settings.Label".Translate());
+            right.SplitVertically(right.width / 3f, out var rect2, out var rect3);
+            Widgets.DrawBox(rect2);
+            Widgets.Label(rect2, "NAW.Settings.Type".Translate());
+            rect3.SplitVertically(rect3.width / 2f, out var rect4, out var rect5);
+            Widgets.DrawBox(rect4);
+            Widgets.Label(rect4, "NAW.Settings.Related".Translate());
+            Widgets.DrawBox(rect5);
+            Widgets.Label(rect5, "NAW.Settings.Direction".Translate());
+        }
+
+        var itemRect = viewRect.TopPartPixels(Text.LineHeight);
+        Widgets.BeginScrollView(bottom, ref scrollPosition2, viewRect);
+        Text.Font = GameFont.Tiny;
+        foreach (var item in meshSettings.settingItems.Values)
+        {
+            DoItem(ref itemRect, labelPct, item, meshSettings);
+        }
+        if (Widgets.ButtonImageWithBG(itemRect.LeftPart(labelPct), TexUI.CopyTex, new(itemRect.height - 4f, itemRect.height - 4f)))
+        {
+            var item = new SettingItem();
+            Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
+            {
+                meshSettings.settingItems[item.label] = item;
+            }));
+        }
+        itemRect.y += Text.LineHeightOf(GameFont.Small);
+        Widgets.EndScrollView();
+
+        viewRectYMax = itemRect.y;
+        Text.Font = GameFont.Small;
+    }
+
+    private void DoItem(ref Rect rect, float labelPct, SettingItem item, MeshSettings meshSettings)
+    {
+        var labelRect = rect.LeftPart(labelPct);
+        var lineHeight = Text.LineHeightOf(GameFont.Small);
+        labelRect.SplitVertically(labelRect.width - (lineHeight * 2f), out var left, out var right);
+        Widgets.LabelEllipses(left, item.label);
+
+        var buttonRect = right.LeftHalf().ContractedBy(1f);
+        TooltipHandler.TipRegionByKey(buttonRect, "Rename");
+        if (Widgets.ButtonImageFitted(buttonRect, TexUI.RenameTex))
+        {
+            var prevName = item.label;
+            Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
+            {
+                meshSettings.settingItems.Remove(prevName);
+                meshSettings.settingItems[item.label] = item;
+                meshSettings.settingItems.Values.Where(i => i.link == prevName).Do(i => i.link = item.label);
+            }));
+        }
+        var buttonRect2 = right.RightHalf().ContractedBy(1f);
+        TooltipHandler.TipRegionByKey(buttonRect2, "Delete");
+        if (Widgets.ButtonImageFitted(buttonRect2, TexUI.DismissTex))
+        {
+            Delay.AfterNSeconds(0, () =>
+            {
+                meshSettings.settingItems.Remove(item.label);
+                meshSettings.settingItems.Values.Where(i => i.link == item.label).Do(i => i.link = "");
+            });
+        }
+
+        var rect2 = rect.RightPartPixels(rect.xMax - right.xMax - 2f);
+        Widgets.Dropdown(rect2.LeftPart(0.33f), item, item => item.type, item =>
+        {
+            return ((IEnumerable<SettingItem.SettingType>)Enum.GetValues(typeof(SettingItem.SettingType))).Select(type =>
+            {
+                return new Widgets.DropdownMenuElement<SettingItem.SettingType>()
+                {
+                    option = new FloatMenuOption(type.ToString(), () =>
+                    {
+                        item.type = type;
+                    }),
+                    payload = type
+                };
+            });
+        }, item.type.ToString());
+        if (item.type == SettingItem.SettingType.Repeat)
+        {
+            Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+            {
+                return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.Verts).Select(item2 =>
+                {
+                    return new Widgets.DropdownMenuElement<string>()
+                    {
+                        option = new FloatMenuOption(item2.label, () =>
+                        {
+                            item.link = item2.label;
+                        }),
+                        payload = item2.label
+                    };
+                });
+            }, item.link);
+        }
+        if (item.type == SettingItem.SettingType.Verts)
+        {
+            Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+            {
+                return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.UVs).Select(item2 =>
+                {
+                    return new Widgets.DropdownMenuElement<string>()
+                    {
+                        option = new FloatMenuOption(item2.label, () =>
+                        {
+                            item.link = item2.label;
+                        }),
+                        payload = item2.label
+                    };
+                });
+            }, item.link);
+            Widgets.Dropdown(rect2.RightPart(0.33f), item, item => item.direction, item =>
+            {
+                return ((IEnumerable<SettingItem.Direction>)Enum.GetValues(typeof(SettingItem.Direction))).Where(d => d != SettingItem.Direction.None).Select(direction =>
+                {
+                    return new Widgets.DropdownMenuElement<SettingItem.Direction>()
+                    {
+                        option = new FloatMenuOption(direction.ToString(), () =>
+                        {
+                            item.direction = direction;
+                        }),
+                        payload = direction
+                    };
+                });
+            }, item.direction.ToString());
+        }
+
+        rect.y += lineHeight;
+    }
+
+    public class Dialog_RenameItem(SettingItem item, MeshSettings meshSettings, Action action) : Dialog_Rename<SettingItem>(item)
+    {
+        private readonly MeshSettings meshSettings = meshSettings;
+
+        private readonly Action action = action;
+
+        protected override AcceptanceReport NameIsValid(string name)
+        {
+            AcceptanceReport acceptanceReport = base.NameIsValid(name);
+            if (!acceptanceReport.Accepted)
+            {
+                return acceptanceReport;
+            }
+            if (name != renaming.label && meshSettings.settingItems.TryGetValue(name, out _))
+            {
+                return "NameIsInUse".Translate();
+            }
+            return true;
+        }
+
+        protected override void OnRenamed(string name) => action();
     }
 }

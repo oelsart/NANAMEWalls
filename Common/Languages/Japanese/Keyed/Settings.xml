@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+	<NAW.Settings.Walls>壁設定</NAW.Settings.Walls>
+	<NAW.Settings.EnableNaname>斜め壁を有効化</NAW.Settings.EnableNaname>
+	<NAW.Settings.DefaultAll>全てデフォルトに戻す</NAW.Settings.DefaultAll>
+	<NAW.Settings.Values>数値設定</NAW.Settings.Values>
+	<NAW.Settings.Items>項目設定</NAW.Settings.Items>
+	<NAW.Settings.Label>ラベル</NAW.Settings.Label>
+	<NAW.Settings.Type>タイプ</NAW.Settings.Type>
+	<NAW.Settings.Related>関連項目</NAW.Settings.Related>
+	<NAW.Settings.Direction>向き</NAW.Settings.Direction>
+	
+	<NAW.Settings.Options>オプション</NAW.Settings.Options>
+	<NAW.Settings.GroupNanameWalls>斜め壁をドロップダウンメニューにまとめる. (要再起動)</NAW.Settings.GroupNanameWalls>
+	<NAW.Settings.LinkWithDifferentWall>違うタイプの壁ともリンクする.（バニラと同じ挙動）</NAW.Settings.LinkWithDifferentWall>
+	
+</LanguageData>

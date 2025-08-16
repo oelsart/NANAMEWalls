@@ -1,6 +1,7 @@
 ﻿using RimWorld;
 using UnityEngine;
 using Verse;
+using static NanameWalls.MeshSettings.SettingItem;
 using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
@@ -13,6 +14,14 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
     private static readonly int[] TrisIndex = [0, 1, 2, 0, 2, 3];
 
     private static readonly int[] TrisIndexFlipped = [0, 2, 1, 0, 3, 2];
+
+    private static readonly Vector2[] CornerFillerUVs =
+    [
+        new(0.5f, 0.6f),
+        new(0.5f, 0.6f),
+        new(0.5f, 0.6f),
+        new(0.5f, 0.6f)
+    ];
 
     protected Diagonals diagonalFlag;
 
@@ -124,6 +133,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         }
         mat = new Material(baseMat);
         mat.SetColor(ShaderPropertyIDs.Color, thing.DrawColor);
+        mat.SetColor(ShaderPropertyIDs.ColorTwo, thing.DrawColorTwo);
         materialCache[baseMat] = mat;
         return mat;
     }
@@ -208,9 +218,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         {
             settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(thing.def);
         }
-        foreach (var obj in Enum.GetValues(typeof(Diagonals)))
+        foreach (Diagonals direction in Enum.GetValues(typeof(Diagonals)))
         {
-            var direction = (Diagonals)obj;
             if (direction == Diagonals.None || direction == Diagonals.NoFinalize) continue;
             if (flag.HasFlag(direction))
             {
@@ -220,119 +229,70 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
         if (flag != Diagonals.None && (flag & (flag - 1)) == 0)
         {
-            FinalizePrint(subMesh, settings, center, extraRotation, flag);
+            PrintDiagonal(subMesh, settings, center, extraRotation, flag, true);
         }
         if (flag.HasFlag(Diagonals.SouthEast | Diagonals.SouthWest) && !north)
         {
-            FinalizePrint(subMesh, settings, center, extraRotation, Diagonals.SouthEast);
-            FinalizePrint(subMesh, settings, center, extraRotation, Diagonals.SouthWest);
+            PrintDiagonal(subMesh, settings, center, extraRotation, Diagonals.SouthEast, true);
+            PrintDiagonal(subMesh, settings, center, extraRotation, Diagonals.SouthWest, true);
         }
 
         if (originalDef.graphicData?.linkType != LinkDrawerType.CornerFiller) return;
 
         //CornerFillers
-        Vector2[] cornerFiller = [.. settings.topFillerUVs];
         if (north)
         {
             if (flag.HasFlag(Diagonals.SouthEast))
             {
-                Printer_Plane.PrintPlane(layer, center + new Vector3(0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, cornerFiller);
+                Printer_Plane.PrintPlane(layer, center + new Vector3(0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             }
             if (flag.HasFlag(Diagonals.SouthWest))
             {
-                Printer_Plane.PrintPlane(layer, center + new Vector3(-0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, cornerFiller);
+                Printer_Plane.PrintPlane(layer, center + new Vector3(-0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             }
         }
         if (east && flag.HasFlag(Diagonals.NorthWest))
         {
-            Printer_Plane.PrintPlane(layer, center + new Vector3(0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, cornerFiller);
-            Printer_Plane.PrintPlane(layer, center + new Vector3(0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, cornerFiller);
+            Printer_Plane.PrintPlane(layer, center + new Vector3(0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
+            Printer_Plane.PrintPlane(layer, center + new Vector3(0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, CornerFillerUVs);
         }
         if (west && flag.HasFlag(Diagonals.NorthEast))
         {
-            Printer_Plane.PrintPlane(layer, center + new Vector3(-0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, cornerFiller);
-            Printer_Plane.PrintPlane(layer, center + new Vector3(-0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, cornerFiller);
+            Printer_Plane.PrintPlane(layer, center + new Vector3(-0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
+            Printer_Plane.PrintPlane(layer, center + new Vector3(-0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, CornerFillerUVs);
         }
     }
 
-    /// <summary>
-    /// 斜め4方向の基本的なPrintを行う
-    /// </summary>
-    private void PrintDiagonal(LayerSubMesh subMesh, MeshSettings settings, Vector3 center, float extraRotation, Diagonals direction)
+    private void PrintDiagonal(LayerSubMesh subMesh, MeshSettings settings, Vector3 center, float extraRotation, Diagonals direction, bool finishPrint = false)
     {
         var north = direction == Diagonals.NorthEast || direction == Diagonals.NorthWest;
         var flipped = direction == Diagonals.NorthEast || direction == Diagonals.SouthWest;
+        var index = flipped ? TrisIndexFlipped : TrisIndex;
         var count = subMesh.verts.Count;
         var count2 = count;
 
+        var vertsDirection = north ? finishPrint ? Direction.SouthFinish : Direction.North : finishPrint ? Direction.NorthFinish : Direction.South;
+        foreach (var vertsItem in settings.settingItems.Values.Where(item => item.direction == vertsDirection))
+        {
+            if (!settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
+            var verts = vertsItem.vectors;
+            var uvs = linkUVs.vectors;
+            var repeat = settings.settingItems.Values.FirstOrDefault(item => item.link == vertsItem.label)?.repeat ?? 1;
 
-        subMesh.verts.AddRange(north ? settings.northVertsFiller : settings.southVertsFiller);
-        subMesh.uvs.AddRange(settings.topFillerUVs);
-        var index = flipped ? TrisIndexFlipped : TrisIndex;
-        for (var j = 0; j < 6; j++)
-        {
-            subMesh.tris.Add(count + index[j]);
-        }
-        count2 += 4;
-
-        var verts = north ? settings.northVerts : settings.southVerts;
-        IEnumerable<Vector3> uvs = north ? settings.northUVs : settings.southUVs;
-        if (flipped)
-        {
-            uvs = [.. uvs.Reverse()];
-        }
-        var repeat = north ? settings.repeatNorth : settings.repeatSouth;
-        index = flipped ? TrisIndexFlipped : TrisIndex;
-        for (var i = 0; i < repeat; i++)
-        {
-            var num = i / (float)repeat;
-            var num2 = (i + 1) / (float)repeat;
-            subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num));
-            subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num));
-            subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num2));
-            subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num2));
-            subMesh.uvs.AddRange(uvs);
-            var offset = i * 4;
-            for (var j = 0; j < 6; j++)
+            for (var i = 0; i < repeat; i++)
             {
-                subMesh.tris.Add(count2 + index[j] + offset);
-            }
-        }
-
-        FinalizeVerts(subMesh, count, center, flipped, extraRotation);
-    }
-
-    /// <summary>
-    /// directionの反対側が非接続状態の時、最終的に見た目を整えるPrintを行う。
-    /// </summary>
-    private void FinalizePrint(LayerSubMesh subMesh, MeshSettings settings, Vector3 center, float extraRotation, Diagonals direction)
-    {
-        var count = subMesh.verts.Count;
-        var north = direction == Diagonals.NorthEast || direction == Diagonals.NorthWest;
-        var flipped = direction == Diagonals.NorthEast || direction == Diagonals.SouthWest;
-        var index = flipped ? TrisIndexFlipped : TrisIndex;
-        if (north)
-        {
-            subMesh.verts.AddRange(settings.southVertsFinish);
-            subMesh.uvs.AddRange(settings.southUVsFinish);
-            for (var j = 0; j < 6; j++)
-            {
-                subMesh.tris.Add(count + index[j]);
-            }
-        }
-        else
-        {
-            subMesh.verts.AddRange(settings.northVertsFinish);
-            subMesh.uvs.AddRange(settings.northUVsFinish);
-            subMesh.verts.AddRange(settings.northVertsFinishBorder);
-            subMesh.uvs.AddRange(settings.borderFillerUVs);
-            for (var i = 0; i < 2; i++)
-            {
-                var offset = i * 4;
+                var num = i / (float)repeat;
+                var num2 = (i + 1) / (float)repeat;
+                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num));
+                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num));
+                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num2));
+                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num2));
+                subMesh.uvs.AddRange(uvs);
                 for (var j = 0; j < 6; j++)
                 {
-                    subMesh.tris.Add(count + index[j] + offset);
+                    subMesh.tris.Add(count2 + index[j]);
                 }
+                count2 += 4;
             }
         }
 
