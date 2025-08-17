@@ -132,8 +132,6 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             return mat;
         }
         mat = new Material(baseMat);
-        mat.SetColor(ShaderPropertyIDs.Color, thing.DrawColor);
-        mat.SetColor(ShaderPropertyIDs.ColorTwo, thing.DrawColorTwo);
         materialCache[baseMat] = mat;
         return mat;
     }

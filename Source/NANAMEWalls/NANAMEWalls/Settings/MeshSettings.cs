@@ -160,7 +160,7 @@ public class MeshSettings : IExposable
                 Scribe_Values.Look(ref item.repeat, label);
                 item.label = "NorthVertsRepeat";
                 item.type = SettingItem.SettingType.Repeat;
-                item.link = "SorthVerts";
+                item.link = "NorthVerts";
                 return true;
 
             case "repeatSouth":
