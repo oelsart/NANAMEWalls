@@ -129,6 +129,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 else if (Widgets.ButtonInvisible(rect3))
                 {
                     selDef = def;
+                    NanameWalls.Mod.selThing = null;
                     Clear();
                 }
                 curY += Text.LineHeight;

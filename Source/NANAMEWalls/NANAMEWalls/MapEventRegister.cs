@@ -2,10 +2,8 @@
 
 namespace NanameWalls
 {
-    public class MapEventRegister : MapComponent
+    public class MapEventRegister(Map map) : MapComponent(map)
     {
-        public MapEventRegister(Map map) : base(map) { }
-
         public override void FinalizeInit()
         {
             base.FinalizeInit();
@@ -18,7 +16,7 @@ namespace NanameWalls
             foreach (var c in GenAdj.CellsAdjacentCardinal(building))
             {
                 var edifice = c.GetEdificeSafe(map);
-                if (edifice != null && edifice.Graphic is Graphic_LinkedDiagonal)
+                if (edifice?.def?.graphicData?.linkType == Graphic_LinkedDiagonal.LinkerTypeStatic)
                 {
                     edifice.DirtyMapMesh(map);
                 }
