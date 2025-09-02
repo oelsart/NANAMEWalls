@@ -6,7 +6,7 @@
 	<RootNamespace>NanameWalls</RootNamespace>
 	<AssemblyName>NanameWalls</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
-    <OutputPath>E:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\HullStyleNANAMEWalls\1.6\Assemblies\</OutputPath>
+    <OutputPath>E:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\NANAMEWalls\1.6\Assemblies</OutputPath>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	<LangVersion>preview</LangVersion>
   </PropertyGroup>
@@ -20,8 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4535" />
-    <PackageReference Include="Lib.Harmony" Version="2.3.6">
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4566" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.1">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">

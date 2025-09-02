@@ -14,5 +14,6 @@
 	<NAW.Settings.Options>Options</NAW.Settings.Options>
 	<NAW.Settings.GroupNanameWalls>Group NANAME walls into drop-down menus. (Reboot required)</NAW.Settings.GroupNanameWalls>
 	<NAW.Settings.LinkWithDifferentWall>Link with different wall types. (Vanilla-like)</NAW.Settings.LinkWithDifferentWall>
+	<NAW.Settings.RenderSubstructure>Render substructures of the gravship beneath NANAME walls. (Reboot required)</NAW.Settings.RenderSubstructure>
 	
 </LanguageData>

@@ -14,5 +14,6 @@
 	<NAW.Settings.Options>オプション</NAW.Settings.Options>
 	<NAW.Settings.GroupNanameWalls>斜め壁をドロップダウンメニューにまとめる. (要再起動)</NAW.Settings.GroupNanameWalls>
 	<NAW.Settings.LinkWithDifferentWall>違うタイプの壁ともリンクする.（バニラと同じ挙動）</NAW.Settings.LinkWithDifferentWall>
+	<NAW.Settings.RenderSubstructure>斜め壁の下にグラヴシップの下部構造を描画する. (要再起動)</NAW.Settings.RenderSubstructure>
 	
 </LanguageData>

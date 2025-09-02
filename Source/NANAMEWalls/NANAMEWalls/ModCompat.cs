@@ -53,5 +53,12 @@ namespace NanameWalls
 
             public const string PatchCategory = "Patches_MoreGroupedBuildings";
         }
+
+        public static class Odyssey
+        {
+            public static readonly bool Active = ModsConfig.OdysseyActive;
+
+            public const string PatchCategory = "Patches_Odyssey";
+        }
     }
 }

@@ -38,34 +38,6 @@ public class NanameWalls : Mod
         MeshSettings.Init();
         Settings = GetSettings<Settings>();
         Harmony = new Harmony("OELS.NanameWalls");
-
-        var assembly = Assembly.GetExecutingAssembly();
-        GenTypes.AllTypes.Where(t => t.Assembly == assembly).Select(Harmony.CreateClassProcessor)
-            .Do(patchClass =>
-            {
-                try
-                {
-                    if (patchClass.Category.NullOrEmpty())
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                    if (ViviRace.Active && patchClass.Category == ViviRace.PatchCategory)
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                    if (MoreGroupedBuildings.Active && patchClass.Category == MoreGroupedBuildings.PatchCategory)
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"[NanameWalls] Error while apply patch: {ex}");
-                }
-            });
     }
 
     public override string SettingsCategory()
