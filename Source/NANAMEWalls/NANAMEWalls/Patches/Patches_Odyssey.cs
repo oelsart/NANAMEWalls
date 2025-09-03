@@ -16,8 +16,7 @@ public static class Patch_SectionLayer_GravshipHull_ShouldDrawCornerPiece
         return NanameWalls.Mod.Settings.renderSubstructure;
     }
 
-    public static void Postfix(SectionLayer_GravshipHull __instance, IntVec3 pos, Map map, TerrainGrid terrGrid,
-        IntVec3[] ___Directions, bool[] ___tmpChecks, ref CornerType cornerType, ref Color color, ref bool __result)
+    public static void Postfix(IntVec3 pos, Map map, TerrainGrid terrGrid, IntVec3[] ___Directions, bool[] ___tmpChecks, ref CornerType cornerType, ref Color color, ref bool __result)
     {
         if (__result || pos.GetEdifice(map) != null)
         {
@@ -30,9 +29,12 @@ public static class Patch_SectionLayer_GravshipHull_ShouldDrawCornerPiece
         }
         for (int i = 0; i < 4; i++)
         {
-            var edifice = (pos + ___Directions[i]).GetEdificeSafe(map);
-            if (edifice is null) continue;
-            ___tmpChecks[i] = NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def);
+            var c = pos + ___Directions[i];
+            if (!c.InBounds(map)) continue;
+            var edifice = c.GetEdifice(map);
+            var substructure = terrGrid.FoundationAt(pos + ___Directions[i]);
+            if (edifice is null || substructure is null) continue;
+            ___tmpChecks[i] = NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def) && substructure.IsSubstructure;
         }
 
         if (___tmpChecks[0])
