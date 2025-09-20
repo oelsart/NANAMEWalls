@@ -47,11 +47,11 @@ namespace NanameWalls
             }
         }
 
-        public static class MoreGroupedBuildings
+        public static class MaterialSubMenu
         {
-            public static readonly bool Active = ModsConfig.IsActive("WSP.GroupedBuildings");
+            public static readonly bool Active = ModsConfig.IsActive("cedaro.material.submenu") || ModsConfig.IsActive("WSP.GroupedBuildings");
 
-            public const string PatchCategory = "Patches_MoreGroupedBuildings";
+            public const string PatchCategory = "Patches_MaterialSubMenu";
         }
 
         public static class Odyssey

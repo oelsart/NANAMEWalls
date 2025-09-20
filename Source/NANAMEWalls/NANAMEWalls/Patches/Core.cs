@@ -26,7 +26,7 @@ internal class Core
                         patchClass.Patch();
                         return;
                     }
-                    if (MoreGroupedBuildings.Active && patchClass.Category == MoreGroupedBuildings.PatchCategory)
+                    if (MaterialSubMenu.Active && patchClass.Category == MaterialSubMenu.PatchCategory)
                     {
                         patchClass.Patch();
                         return;

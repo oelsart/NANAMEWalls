@@ -1,8 +1,6 @@
 ﻿using HarmonyLib;
-using System.Reflection;
 using UnityEngine;
 using Verse;
-using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
 
