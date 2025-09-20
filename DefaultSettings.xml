@@ -46,12 +46,14 @@
 			<li>(0.5, 0, 0.732)</li>
 		</northVertsFinishBorder>
 		<repeatSouth>3</repeatSouth>
-		<southUVs>
-			<li>(0.29, 0, 0)</li>
-			<li>(0.29, 0.467, 0)</li>
-			<li>(0.71, 0.467, 0)</li>
-			<li>(0.71, 0, 0)</li>
-		</southUVs>
+		<SouthUVs_UVs>
+			<UVs>
+				<li>(0.230000004, 0, 0)</li>
+				<li>(0.230000004, 0.467000008, 0)</li>
+				<li>(0.769999981, 0.467000008, 0)</li>
+				<li>(0.769999981, 0, 0)</li>
+			</UVs>
+		</SouthUVs_UVs>
 		<southVerts>
 			<li>(0.475, 0, -0.5)</li>
 			<li>(0.25, 0.01, -0.033)</li>
@@ -64,12 +66,14 @@
 			<li>(1.005, 0.01, 1.195)</li>
 			<li>(1.175, 0, 0.892)</li>
 		</southVertsFiller>
-		<southUVsFinish>
-			<li>(0.29, 0, 0)</li>
-			<li>(0.29, 0.467, 0)</li>
-			<li>(0.71, 0.467, 0)</li>
-			<li>(0.71, 0, 0)</li>
-		</southUVsFinish>
+		<SouthUVsFinish_UVs>
+			<UVs>
+				<li>(0.230000004, 0, 0)</li>
+				<li>(0.230000004, 0.467000008, 0)</li>
+				<li>(0.769999981, 0.467000008, 0)</li>
+				<li>(0.769999981, 0, 0)</li>
+			</UVs>
+		</SouthUVsFinish_UVs>
 		<southVertsFinish>
 			<li>(0.5, 0, 0.227)</li>
 			<li>(0.217, 0.01, 0.407)</li>
