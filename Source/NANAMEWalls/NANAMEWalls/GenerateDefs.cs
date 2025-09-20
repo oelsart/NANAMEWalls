@@ -31,27 +31,34 @@ public static class GenerateDefs
         var f_styleDef = AccessTools.FieldRefAccess<ThingDefStyle, ThingStyleDef>("styleDef");
         foreach (var wallDef in DefDatabase<ThingDef>.AllDefs.Where(def => IsLinkedThing(def) && def.BuildableByPlayer).ToArray())
         {
-            if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
-
-            var newDef = GenerateInner(wallDef);
-            if (newDef.IsSmoothable)
+            try
             {
-                newDef.building = Gen.MemberwiseClone(newDef.building);
-                ref var smoothedThing = ref newDef.building.smoothedThing;
-                if (!IsLinkedThing(smoothedThing)) continue;
+                if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
 
-                smoothedThing = GenerateInner(smoothedThing);
-                smoothedThing.building.unsmoothedThing = newDef;
-
-                if (!ViviRace.Active) continue;
-                var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
-                if (index != -1)
+                var newDef = GenerateInner(wallDef);
+                if (newDef.IsSmoothable)
                 {
-                    smoothedThing.comps = [.. smoothedThing.comps];
-                    smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
-                    ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
-                    replaceThing = GenerateInner(replaceThing);
+                    newDef.building = Gen.MemberwiseClone(newDef.building);
+                    ref var smoothedThing = ref newDef.building.smoothedThing;
+                    if (!IsLinkedThing(smoothedThing)) continue;
+
+                    smoothedThing = GenerateInner(smoothedThing);
+                    smoothedThing.building.unsmoothedThing = newDef;
+
+                    if (!ViviRace.Active) continue;
+                    var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
+                    if (index != -1)
+                    {
+                        smoothedThing.comps = [.. smoothedThing.comps];
+                        smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
+                        ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
+                        replaceThing = GenerateInner(replaceThing);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[NANAME Walls] Error while generating Naname wall def from {wallDef.defName}: {ex}");
             }
         }
         if (ViviRace.Active)
@@ -137,7 +144,7 @@ public static class GenerateDefs
 
     private static T MakeShallowCopy<T>(T from, params string[] exceptFields)
     {
-        var to = Activator.CreateInstance(typeof(T));
+        var to = Activator.CreateInstance(from.GetType());
         foreach (FieldInfo fieldInfo in from.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (exceptFields.Contains(fieldInfo.Name))
