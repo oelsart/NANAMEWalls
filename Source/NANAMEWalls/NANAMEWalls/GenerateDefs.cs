@@ -76,7 +76,7 @@ public static class GenerateDefs
 
         ThingDef GenerateInner(ThingDef wallDef)
         {
-            var newDef = MakeShallowCopy(wallDef, "cachedLabelCap");
+            var newDef = MakeShallowCopy(wallDef, "cachedLabelCap", "designationHotKey");
             newDef.defName += NanameWalls.Suffix;
             newDef.label = "NAW.Diagonal".Translate() + wallDef.LabelCap;
             newDef.graphicData = new GraphicData();
