@@ -271,6 +271,186 @@
 		<SouthUVsFinish IsNull="True" />
 		<SouthVertsRepeat IsNull="True" />
 	</Barricade>
+	<Fence>
+		<noChangeLinkState>True</noChangeLinkState>
+		<skipOriginalPrint>True</skipOriginalPrint>
+		<allowVShaped>True</allowVShaped>
+		<BeamSideUVs_UVs>
+			<UVs>
+				<li>(0.289999992, 0.119999997, 0)</li>
+				<li>(0.289999992, 0.270000011, 0)</li>
+				<li>(0.310000002, 0.270000011, 0)</li>
+				<li>(0.310000002, 0.119999997, 0)</li>
+			</UVs>
+		</BeamSideUVs_UVs>
+		<BeamTopUVs_UVs>
+			<UVs>
+				<li>(0.289999992, 0.270000011, 0)</li>
+				<li>(0.289999992, 0.379999995, 0)</li>
+				<li>(0.310000002, 0.379999995, 0)</li>
+				<li>(0.310000002, 0.270000011, 0)</li>
+			</UVs>
+		</BeamTopUVs_UVs>
+		<HalfLinkedUVs1_UVs>
+			<UVs>
+				<li>(0.180000007, 0, 0)</li>
+				<li>(0.180000007, 1, 0)</li>
+				<li>(0.340000004, 1, 0)</li>
+				<li>(0.340000004, 0, 0)</li>
+			</UVs>
+		</HalfLinkedUVs1_UVs>
+		<HalfLinkedUVs2_UVs>
+			<UVs>
+				<li>(0.675000012, 0, 0)</li>
+				<li>(0.675000012, 1, 0)</li>
+				<li>(1, 1, 0)</li>
+				<li>(1, 0, 0)</li>
+			</UVs>
+		</HalfLinkedUVs2_UVs>
+		<HalfLinkedVerts1_Verts>
+			<linkUVs>HalfLinkedUVs1</linkUVs>
+			<condition>HalfLinked</condition>
+			<Verts>
+				<li>(-0.5, 0, -0.5)</li>
+				<li>(-0.5, -0.00999999978, 0.5)</li>
+				<li>(-0.200000003, -0.00999999978, 0.5)</li>
+				<li>(-0.200000003, 0, -0.5)</li>
+			</Verts>
+		</HalfLinkedVerts1_Verts>
+		<HalfLinkedVerts2_Verts>
+			<linkUVs>HalfLinkedUVs2</linkUVs>
+			<condition>HalfLinked</condition>
+			<Verts>
+				<li>(-0.200000003, 0, -0.5)</li>
+				<li>(-0.200000003, -0.00999999978, 0.5)</li>
+				<li>(0.159999996, -0.00999999978, 0.5)</li>
+				<li>(0.159999996, 0, -0.5)</li>
+			</Verts>
+		</HalfLinkedVerts2_Verts>
+		<NoLinkedUVs_UVs>
+			<UVs>
+				<li>(0.354999989, 0, 0)</li>
+				<li>(0.354999989, 0.654999971, 0)</li>
+				<li>(0.660000026, 0.654999971, 0)</li>
+				<li>(0.660000026, 0, 0)</li>
+			</UVs>
+		</NoLinkedUVs_UVs>
+		<NoLinkedVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(-0.150000006, 0, -0.474999994)</li>
+				<li>(-0.150000006, -0.00999999978, 0.319999993)</li>
+				<li>(0.150000006, -0.00999999978, 0.319999993)</li>
+				<li>(0.150000006, 0, -0.474999994)</li>
+			</Verts>
+		</NoLinkedVerts_Verts>
+		<SouthBeamSideVerts1_Verts>
+			<linkUVs>BeamSideUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.115000002, 0.00999999978, -0.219999999)</li>
+				<li>(0.115000002, 0.00999999978, -0.0700000003)</li>
+				<li>(0.504999995, 0.00999999978, 0.319999993)</li>
+				<li>(0.504999995, 0.00999999978, 0.170000002)</li>
+			</Verts>
+		</SouthBeamSideVerts1_Verts>
+		<SouthBeamSideVerts2_Verts>
+			<linkUVs>BeamSideUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.115000002, 0.0199999996, 0.0299999993)</li>
+				<li>(0.115000002, 0.0299999993, 0.180000007)</li>
+				<li>(0.504999995, 0.0299999993, 0.569999993)</li>
+				<li>(0.504999995, 0.0199999996, 0.419999987)</li>
+			</Verts>
+		</SouthBeamSideVerts2_Verts>
+		<SouthBeamSideVerts3_Verts>
+			<linkUVs>BeamSideUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.61500001, 0.00999999978, 0.280000001)</li>
+				<li>(0.61500001, 0.00999999978, 0.430000007)</li>
+				<li>(1.005, 0.00999999978, 0.819999993)</li>
+				<li>(1.005, 0.00999999978, 0.670000017)</li>
+			</Verts>
+		</SouthBeamSideVerts3_Verts>
+		<SouthBeamSideVerts4_Verts>
+			<linkUVs>BeamSideUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.61500001, 0.0199999996, 0.529999971)</li>
+				<li>(0.61500001, 0.0299999993, 0.680000007)</li>
+				<li>(1.005, 0.0299999993, 1.07000005)</li>
+				<li>(1.005, 0.0199999996, 0.920000017)</li>
+			</Verts>
+		</SouthBeamSideVerts4_Verts>
+		<SouthBeamTopVerts1_Verts>
+			<linkUVs>BeamTopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.115000002, 0.00999999978, -0.0700000003)</li>
+				<li>(0.115000002, 0.0199999996, 0.0700000003)</li>
+				<li>(0.36500001, 0.0199999996, 0.319999993)</li>
+				<li>(0.504999995, 0.00999999978, 0.319999993)</li>
+			</Verts>
+		</SouthBeamTopVerts1_Verts>
+		<SouthBeamTopVerts2_Verts>
+			<linkUVs>BeamTopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.115000002, 0.0199999996, 0.180000007)</li>
+				<li>(0.115000002, 0.0299999993, 0.319999993)</li>
+				<li>(0.36500001, 0.0299999993, 0.569999993)</li>
+				<li>(0.504999995, 0.0199999996, 0.569999993)</li>
+			</Verts>
+		</SouthBeamTopVerts2_Verts>
+		<SouthBeamTopVerts3_Verts>
+			<linkUVs>BeamTopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.61500001, 0.00999999978, 0.430000007)</li>
+				<li>(0.61500001, 0.0199999996, 0.569999993)</li>
+				<li>(0.86500001, 0.0199999996, 0.819999993)</li>
+				<li>(1.005, 0.00999999978, 0.819999993)</li>
+			</Verts>
+		</SouthBeamTopVerts3_Verts>
+		<SouthBeamTopVerts4_Verts>
+			<linkUVs>BeamTopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.61500001, 0.0199999996, 0.680000007)</li>
+				<li>(0.61500001, 0.0299999993, 0.819999993)</li>
+				<li>(0.86500001, 0.0299999993, 1.07000005)</li>
+				<li>(1.005, 0.0199999996, 1.07000005)</li>
+			</Verts>
+		</SouthBeamTopVerts4_Verts>
+		<SouthPostVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.349999994, 0, 0.0250000004)</li>
+				<li>(0.349999994, 0.00999999978, 0.819999993)</li>
+				<li>(0.649999976, 0.00999999978, 0.819999993)</li>
+				<li>(0.649999976, 0, 0.0250000004)</li>
+			</Verts>
+		</SouthPostVerts_Verts>
+		<BorderFillerUVs IsNull="True" />
+		<NorthUVs IsNull="True" />
+		<NorthUVsFinish IsNull="True" />
+		<NorthVerts IsNull="True" />
+		<NorthVertsFiller IsNull="True" />
+		<NorthVertsFinish IsNull="True" />
+		<NorthVertsFinishBorder IsNull="True" />
+		<NorthVertsRepeat IsNull="True" />
+		<SouthUVs IsNull="True" />
+		<SouthUVsFinish IsNull="True" />
+		<SouthVerts IsNull="True" />
+		<SouthVertsFiller IsNull="True" />
+		<SouthVertsFinish IsNull="True" />
+		<SouthVertsRepeat IsNull="True" />
+		<TopFillerUVs IsNull="True" />
+	</Fence>
 	<RB_RusticWall>
 		<northUVs>
 			<li>(0.282999992, 0.535000026, 0)</li>
@@ -487,7 +667,128 @@
 		</southVertsFinish>
 	</VV_ViviCreamWall>
 	<CE_BarbedWire>
-		<enabled>False</enabled>
+		<noChangeLinkState>True</noChangeLinkState>
+		<skipOriginalPrint>True</skipOriginalPrint>
+		<allowVShaped>True</allowVShaped>
+		<BorderUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+			</UVs>
+		</BorderUVs_UVs>
+		<HalfLinkedUVs_UVs>
+			<UVs>
+				<li>(0.119999997, 0, 0)</li>
+				<li>(0.119999997, 1, 0)</li>
+				<li>(0.959999979, 1, 0)</li>
+				<li>(0.959999979, 0, 0)</li>
+			</UVs>
+		</HalfLinkedUVs_UVs>
+		<HalfLinkedVerts_Verts>
+			<linkUVs>HalfLinkedUVs</linkUVs>
+			<condition>HalfLinked</condition>
+			<Verts>
+				<li>(-0.5, 0, -0.625)</li>
+				<li>(-0.5, 0, 0.375)</li>
+				<li>(0.100000001, -0.0199999996, 0.375)</li>
+				<li>(0.100000001, -0.0199999996, -0.625)</li>
+			</Verts>
+		</HalfLinkedVerts_Verts>
+		<NoLinkedUVs_UVs>
+			<UVs>
+				<li>(0.0399999991, 0, 0)</li>
+				<li>(0.0399999991, 1, 0)</li>
+				<li>(0.200000003, 1, 0)</li>
+				<li>(0.200000003, 0, 0)</li>
+			</UVs>
+		</NoLinkedUVs_UVs>
+		<NoLinkedVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(-0.0700000003, -0.0199999996, -0.625)</li>
+				<li>(-0.0700000003, -0.0199999996, 0.375)</li>
+				<li>(0.0700000003, -0.00999999978, 0.375)</li>
+				<li>(0.0700000003, -0.00999999978, -0.625)</li>
+			</Verts>
+		</NoLinkedVerts_Verts>
+		<SouthBorderVerts_Verts>
+			<linkUVs>BorderUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.104999997, 0.00999999978, -0.349999994)</li>
+				<li>(0.104999997, 0.0199999996, -0.300000012)</li>
+				<li>(1.10500002, 0.0199999996, 0.699999988)</li>
+				<li>(1.10500002, 0.00999999978, 0.649999976)</li>
+			</Verts>
+		</SouthBorderVerts_Verts>
+		<SouthPoleVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.430000007, -0.00999999978, -0.170000002)</li>
+				<li>(0.430000007, -0.00999999978, 0.829999983)</li>
+				<li>(0.569999993, 0.00999999978, 0.829999983)</li>
+				<li>(0.569999993, 0.00999999978, -0.170000002)</li>
+			</Verts>
+		</SouthPoleVerts_Verts>
+		<SouthTopVerts_Verts>
+			<linkUVs>TopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.104999997, 0.0199999996, 0.270000011)</li>
+				<li>(-0.109999999, 0.0299999993, 0.479999989)</li>
+				<li>(0.889999986, 0.0299999993, 1.48000002)</li>
+				<li>(1.10500002, 0.0199999996, 1.26999998)</li>
+			</Verts>
+		</SouthTopVerts_Verts>
+		<SouthWallRepeat_Repeat>
+			<linkVerts>SouthWallVerts</linkVerts>
+			<repeat>2</repeat>
+		</SouthWallRepeat_Repeat>
+		<SouthWallVerts_Verts>
+			<linkUVs>WallUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.075000003, -0.0399999991, -0.449999988)</li>
+				<li>(0.075000003, -0.0399999991, 0.209999993)</li>
+				<li>(1, 0.0474999994, 1.21000004)</li>
+				<li>(1, 0.0474999994, 0.550000012)</li>
+			</Verts>
+		</SouthWallVerts_Verts>
+		<TopUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.769999981, 0)</li>
+				<li>(0.5, 0.980000019, 0)</li>
+				<li>(0.5, 0.980000019, 0)</li>
+				<li>(0.5, 0.769999981, 0)</li>
+			</UVs>
+		</TopUVs_UVs>
+		<WallUVs_UVs>
+			<UVs>
+				<li>(0.219999999, 0.209999993, 0)</li>
+				<li>(0.219999999, 0.850000024, 0)</li>
+				<li>(0.779999971, 0.850000024, 0)</li>
+				<li>(0.779999971, 0.209999993, 0)</li>
+			</UVs>
+		</WallUVs_UVs>
+		<BorderFillerUVs IsNull="True" />
+		<NorthUVs IsNull="True" />
+		<NorthUVsFinish IsNull="True" />
+		<NorthVerts IsNull="True" />
+		<NorthVertsFiller IsNull="True" />
+		<NorthVertsFinish IsNull="True" />
+		<NorthVertsFinishBorder IsNull="True" />
+		<NorthVertsRepeat IsNull="True" />
+		<SouthUVs IsNull="True" />
+		<SouthUVsFinish IsNull="True" />
+		<SouthVerts IsNull="True" />
+		<SouthVertsFiller IsNull="True" />
+		<SouthVertsFinish IsNull="True" />
+		<SouthVertsRepeat IsNull="True" />
+		<TopFillerUVs IsNull="True" />
 	</CE_BarbedWire>
 	<CE_Embrasure>
 		<NorthUVs_UVs>
@@ -1048,4 +1349,191 @@
 		<NorthVertsFinishBorder IsNull="True" />
 		<SouthUVsFinish IsNull="True" />
 	</DankPyon_RTrench>
+	<PFS_FloorlineLight>
+		<noChangeLinkState>True</noChangeLinkState>
+		<allowVShaped>True</allowVShaped>
+		<LineUVs_UVs>
+			<UVs>
+				<li>(0, 0.5, 0)</li>
+				<li>(0, 0.5, 0)</li>
+				<li>(1, 0.5, 0)</li>
+				<li>(1, 0.5, 0)</li>
+			</UVs>
+		</LineUVs_UVs>
+		<NorthVerts_Verts>
+			<linkUVs>LineUVs</linkUVs>
+			<direction>North</direction>
+			<Verts>
+				<li>(-0.349999994, 0, 0.349999994)</li>
+				<li>(0.649999976, 0.00999999978, 1.35000002)</li>
+				<li>(1.35000002, 0.00999999978, 0.649999976)</li>
+				<li>(0.349999994, 0, -0.349999994)</li>
+			</Verts>
+		</NorthVerts_Verts>
+		<NorthVertsFinish_Verts>
+			<linkUVs>LineUVs</linkUVs>
+			<direction>NorthFinish</direction>
+			<Verts>
+				<li>(-0.349999994, 0, 0.349999994)</li>
+				<li>(0.649999976, 0.00999999978, 1.35000002)</li>
+				<li>(1.35000002, 0.00999999978, 0.649999976)</li>
+				<li>(0.349999994, 0, -0.349999994)</li>
+			</Verts>
+		</NorthVertsFinish_Verts>
+		<SouthVerts_Verts>
+			<linkUVs>LineUVs</linkUVs>
+			<direction>South</direction>
+			<Verts>
+				<li>(-0.349999994, 0, 0.349999994)</li>
+				<li>(0.649999976, 0.00999999978, 1.35000002)</li>
+				<li>(1.35000002, 0.00999999978, 0.649999976)</li>
+				<li>(0.349999994, 0, -0.349999994)</li>
+			</Verts>
+		</SouthVerts_Verts>
+		<SouthVertsFinish_Verts>
+			<linkUVs>LineUVs</linkUVs>
+			<direction>SouthFinish</direction>
+			<Verts>
+				<li>(-0.349999994, 0, 0.349999994)</li>
+				<li>(0.649999976, 0.00999999978, 1.35000002)</li>
+				<li>(1.35000002, 0.00999999978, 0.649999976)</li>
+				<li>(0.349999994, 0, -0.349999994)</li>
+			</Verts>
+		</SouthVertsFinish_Verts>
+		<BorderFillerUVs IsNull="True" />
+		<NorthUVs IsNull="True" />
+		<NorthUVsFinish IsNull="True" />
+		<NorthVertsFiller IsNull="True" />
+		<NorthVertsFinishBorder IsNull="True" />
+		<NorthVertsRepeat IsNull="True" />
+		<SouthUVs IsNull="True" />
+		<SouthUVsFinish IsNull="True" />
+		<SouthVertsFiller IsNull="True" />
+		<SouthVertsRepeat IsNull="True" />
+		<TopFillerUVs IsNull="True" />
+	</PFS_FloorlineLight>
+	<PFS_Barricade>
+		<noChangeLinkState>True</noChangeLinkState>
+		<skipOriginalPrint>True</skipOriginalPrint>
+		<allowVShaped>True</allowVShaped>
+		<BorderUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+				<li>(0.5, 0.180000007, 0)</li>
+			</UVs>
+		</BorderUVs_UVs>
+		<HalfLinkedUVs_UVs>
+			<UVs>
+				<li>(0.335000008, 0, 0)</li>
+				<li>(0.335000008, 1, 0)</li>
+				<li>(0.829999983, 1, 0)</li>
+				<li>(0.829999983, 0, 0)</li>
+			</UVs>
+		</HalfLinkedUVs_UVs>
+		<HalfLinkedVerts_Verts>
+			<linkUVs>HalfLinkedUVs</linkUVs>
+			<condition>HalfLinked</condition>
+			<Verts>
+				<li>(-0.5, 0, -0.5)</li>
+				<li>(-0.5, 0.00999999978, 0.5)</li>
+				<li>(0.100000001, 0.00999999978, 0.5)</li>
+				<li>(0.100000001, 0, -0.5)</li>
+			</Verts>
+		</HalfLinkedVerts_Verts>
+		<NoLinkedBorderVerts_Verts>
+			<linkUVs>BorderUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(0.0500000007, 0.00999999978, -0.340000004)</li>
+				<li>(0.0500000007, 0.0199999996, 0.479999989)</li>
+				<li>(0.100000001, 0.0199999996, 0.479999989)</li>
+				<li>(0.100000001, 0.00999999978, -0.340000004)</li>
+			</Verts>
+		</NoLinkedBorderVerts_Verts>
+		<NoLinkedUVs_UVs>
+			<UVs>
+				<li>(0, 0, 0)</li>
+				<li>(0, 1, 0)</li>
+				<li>(0.349999994, 1, 0)</li>
+				<li>(0.349999994, 0, 0)</li>
+			</UVs>
+		</NoLinkedUVs_UVs>
+		<NoLinkedVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(-0.319999993, 0, -0.5)</li>
+				<li>(-0.319999993, 0.00999999978, 0.5)</li>
+				<li>(0.100000001, 0.00999999978, 0.5)</li>
+				<li>(0.100000001, 0, -0.5)</li>
+			</Verts>
+		</NoLinkedVerts_Verts>
+		<SouthBorderVerts_Verts>
+			<linkUVs>BorderUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.104999997, 0.00999999978, -0.349999994)</li>
+				<li>(0.104999997, 0.0199999996, -0.300000012)</li>
+				<li>(1.10500002, 0.0199999996, 0.699999988)</li>
+				<li>(1.10500002, 0.00999999978, 0.649999976)</li>
+			</Verts>
+		</SouthBorderVerts_Verts>
+		<SouthTopVerts_Verts>
+			<linkUVs>TopUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.104999997, 0.0199999996, 0.270000011)</li>
+				<li>(-0.109999999, 0.0299999993, 0.479999989)</li>
+				<li>(0.889999986, 0.0299999993, 1.48000002)</li>
+				<li>(1.10500002, 0.0199999996, 1.26999998)</li>
+			</Verts>
+		</SouthTopVerts_Verts>
+		<SouthWallRepeat_Repeat>
+			<linkVerts>SouthWallVerts</linkVerts>
+			<repeat>2</repeat>
+		</SouthWallRepeat_Repeat>
+		<SouthWallVerts_Verts>
+			<linkUVs>WallUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.104999997, 0.00999999978, -0.300000012)</li>
+				<li>(0.104999997, 0.0199999996, 0.270000011)</li>
+				<li>(1.10500002, 0.0199999996, 1.26999998)</li>
+				<li>(1.10500002, 0.00999999978, 0.699999988)</li>
+			</Verts>
+		</SouthWallVerts_Verts>
+		<TopUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.769999981, 0)</li>
+				<li>(0.5, 0.980000019, 0)</li>
+				<li>(0.5, 0.980000019, 0)</li>
+				<li>(0.5, 0.769999981, 0)</li>
+			</UVs>
+		</TopUVs_UVs>
+		<WallUVs_UVs>
+			<UVs>
+				<li>(0.219999999, 0.209999993, 0)</li>
+				<li>(0.219999999, 0.769999981, 0)</li>
+				<li>(0.779999971, 0.769999981, 0)</li>
+				<li>(0.779999971, 0.209999993, 0)</li>
+			</UVs>
+		</WallUVs_UVs>
+		<BorderFillerUVs IsNull="True" />
+		<NorthUVs IsNull="True" />
+		<NorthUVsFinish IsNull="True" />
+		<NorthVerts IsNull="True" />
+		<NorthVertsFiller IsNull="True" />
+		<NorthVertsFinish IsNull="True" />
+		<NorthVertsFinishBorder IsNull="True" />
+		<NorthVertsRepeat IsNull="True" />
+		<SouthUVs IsNull="True" />
+		<SouthUVsFinish IsNull="True" />
+		<SouthVerts IsNull="True" />
+		<SouthVertsFiller IsNull="True" />
+		<SouthVertsFinish IsNull="True" />
+		<SouthVertsRepeat IsNull="True" />
+		<TopFillerUVs IsNull="True" />
+	</PFS_Barricade>
 </DefaultSettings>

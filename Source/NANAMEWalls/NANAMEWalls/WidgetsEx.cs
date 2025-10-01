@@ -132,4 +132,23 @@ public class WidgetsEx
         }
         return val;
     }
+
+    public static void CheckboxLabeled(Rect rect, string label, ref bool checkOn, float height = 24f, bool disabled = false, Texture2D texChecked = null, Texture2D texUnchecked = null, bool placeCheckboxNearText = false, bool paintable = false)
+    {
+        TextAnchor anchor = Text.Anchor;
+        Text.Anchor = TextAnchor.MiddleLeft;
+        if (placeCheckboxNearText)
+        {
+            rect.width = Mathf.Min(rect.width, Text.CalcSize(label).x + height + 10f);
+        }
+        Rect rect2 = rect;
+        rect2.xMax -= height;
+        Widgets.Label(rect2, label);
+        if (!disabled)
+        {
+            Widgets.ToggleInvisibleDraggable(rect, ref checkOn, true, paintable);
+        }
+        Widgets.CheckboxDraw(rect.x + rect.width - height, rect.y + (rect.height - height) / 2f, checkOn, disabled, height, texChecked, texUnchecked);
+        Text.Anchor = anchor;
+    }
 }

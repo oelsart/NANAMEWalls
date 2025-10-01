@@ -20,7 +20,7 @@ public static class GenerateDefs
         static bool IsLinkedThing(ThingDef def)
         {
             var linkType = def.graphicData?.linkType;
-            return def.Size == IntVec2.One && (linkType == LinkDrawerType.CornerFiller || linkType == LinkDrawerType.Basic);
+            return def.Size == IntVec2.One && (linkType == LinkDrawerType.Basic || linkType == LinkDrawerType.CornerFiller || linkType == LinkDrawerType.Asymmetric);
         }
 
         var GiveShortHash = AccessTools.MethodDelegate<GetGiveShortHash>(AccessTools.Method(typeof(ShortHashGiver), "GiveShortHash"));

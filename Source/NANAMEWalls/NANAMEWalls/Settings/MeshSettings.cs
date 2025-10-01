@@ -8,9 +8,15 @@ public class MeshSettings : IExposable
 {
     private const string DefaultName = "NAW_DefaultWall";
 
-    private static Dictionary<string, MeshSettings> defaultSettings = [];
+    private static Dictionary<string, MeshSettings> defaultSettings;
 
     public bool enabled;
+
+    public bool noChangeLinkState;
+
+    public bool skipOriginalPrint;
+
+    public bool allowVShaped;
 
     public SortedDictionary<string, SettingItem> settingItems = [];
 
@@ -30,6 +36,7 @@ public class MeshSettings : IExposable
 
     public static void Init()
     {
+        defaultSettings = [];
         var settingsFilename = Path.Combine(NanameWalls.Mod.Content.RootDir, "DefaultSettings.xml");
         try
         {
@@ -100,6 +107,9 @@ public class MeshSettings : IExposable
     {
         var curDefault = DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey);
         Scribe_Values.Look(ref enabled, "enabled", curDefault?.enabled ?? default);
+        Scribe_Values.Look(ref noChangeLinkState, "noChangeLinkState", curDefault?.noChangeLinkState ?? default);
+        Scribe_Values.Look(ref skipOriginalPrint, "skipOriginalPrint", curDefault?.skipOriginalPrint ?? default);
+        Scribe_Values.Look(ref allowVShaped, "allowVShaped", curDefault?.allowVShaped ?? default);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             settingItems ??= [];
@@ -107,7 +117,7 @@ public class MeshSettings : IExposable
             var childs = Scribe.loader.curXmlParent.ChildNodes;
             foreach (XmlNode child in childs)
             {
-                if (child.Name == "enabled") continue;
+                if (child.Name == "enabled" || child.Name == "noChangeLinkState" || child.Name == "skipOriginalPrint" || child.Name == "allowVShaped") continue;
                 XmlAttribute xmlAttribute = child.Attributes["IsNull"];
                 if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -129,7 +139,6 @@ public class MeshSettings : IExposable
                     settingItems[defaultItem.label] = defaultItem.DeepCopy();
                 }
             }
-
         }
         else if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -186,7 +195,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "NorthUVs";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.North;
+                item.condition = SettingItem.Condition.North;
                 return true;
 
             case "northVertsFiller":
@@ -194,7 +203,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "TopFillerUVs";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.North;
+                item.condition = SettingItem.Condition.North;
                 return true;
 
             case "northVertsFinish":
@@ -202,7 +211,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "NorthUVsFinish";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.NorthFinish;
+                item.condition = SettingItem.Condition.NorthFinish;
                 return true;
 
             case "northVertsFinishBorder":
@@ -210,7 +219,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "BorderFillerUVs";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.NorthFinish;
+                item.condition = SettingItem.Condition.NorthFinish;
                 return true;
 
             case "southVerts":
@@ -218,7 +227,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "SouthUVs";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.South;
+                item.condition = SettingItem.Condition.South;
                 return true;
 
             case "southVertsFiller":
@@ -226,7 +235,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "TopFillerUVs";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.South;
+                item.condition = SettingItem.Condition.South;
                 return true;
 
             case "southVertsFinish":
@@ -234,7 +243,7 @@ public class MeshSettings : IExposable
                 item.label = label.CapitalizeFirst();
                 item.link = "SouthUVsFinish";
                 item.type = SettingItem.SettingType.Verts;
-                item.direction = SettingItem.Direction.SouthFinish;
+                item.condition = SettingItem.Condition.SouthFinish;
                 return true;
 
             default:
@@ -248,7 +257,7 @@ public class MeshSettings : IExposable
 
         public SettingType type;
 
-        public Direction direction;
+        public Condition condition;
 
         public int repeat = 1;
 
@@ -301,7 +310,8 @@ public class MeshSettings : IExposable
 
                 case SettingType.Verts:
                     Scribe_Values.Look(ref link, "linkUVs");
-                    Scribe_Values.Look(ref direction, "direction");
+                    Scribe_Values.Look(ref condition, "condition");
+                    LoadWithOldName(ref condition, "direction");
                     Scribe_Collections.Look(ref vectors, "Verts", LookMode.Value);
                     break;
 
@@ -312,11 +322,29 @@ public class MeshSettings : IExposable
             }
         }
 
+        private void LoadWithOldName<T>(ref T value, string name, T defaultValue = default) where T : struct
+        {
+            if (Scribe.mode != LoadSaveMode.LoadingVars || !value.Equals(defaultValue))
+                return;
+            var childNodes = Scribe.loader.curXmlParent?.ChildNodes;
+            if (childNodes == null)
+                return;
+            for (var i = 0; i < childNodes.Count; i++)
+            {
+                var child = childNodes[i];
+                if (child?.Name == name)
+                {
+                    Scribe_Values.Look(ref value, name, defaultValue);
+                    return;
+                }
+            }
+        }
+
         public bool Equals(SettingItem other)
         {
             if (other is null) return false;
             if (type != other.type) return false;
-            if (direction != other.direction) return false;
+            if (condition != other.condition) return false;
             if (repeat != other.repeat) return false;
             var flag = vectors != null;
             var flag2 = other.vectors != null;
@@ -331,7 +359,7 @@ public class MeshSettings : IExposable
             {
                 label = label,
                 type = type,
-                direction = direction,
+                condition = condition,
                 repeat = repeat,
                 link = link,
             };
@@ -346,13 +374,15 @@ public class MeshSettings : IExposable
             Repeat
         }
 
-        public enum Direction
+        public enum Condition
         {
             None,
             North,
             NorthFinish,
             South,
-            SouthFinish
+            SouthFinish,
+            NoLinked,
+            HalfLinked
         }
     }
 }

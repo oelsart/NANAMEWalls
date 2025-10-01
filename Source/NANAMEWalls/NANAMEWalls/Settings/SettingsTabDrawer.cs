@@ -18,7 +18,7 @@ internal abstract class SettingsTabDrawer
         SoundDefOf.Click.PlayOneShotOnCamera(null);
     }
 
-    private readonly Vector2 ResetButtonSize = new(150f, 35f);
+    protected readonly Vector2 ResetButtonSize = new(150f, 35f);
 
     public virtual void Draw(Rect inRect)
     {

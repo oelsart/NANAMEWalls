@@ -3,6 +3,9 @@
 
 	<NAW.Settings.Walls>Walls</NAW.Settings.Walls>
 	<NAW.Settings.EnableNaname>Enable NANAME Wall</NAW.Settings.EnableNaname>
+	<NAW.Settings.NoChangeLinkState>Keep the vanilla cardinal link state.</NAW.Settings.NoChangeLinkState>
+	<NAW.Settings.SkipOriginalPrint>Skip original printing conditionally (NoLinked|HalfLinked).</NAW.Settings.SkipOriginalPrint>
+	<NAW.Settings.AllowVShaped>Allow V-shaped links.</NAW.Settings.AllowVShaped>
 	<NAW.Settings.DefaultAll>Reset all to default</NAW.Settings.DefaultAll>
 	<NAW.Settings.Values>Values</NAW.Settings.Values>
 	<NAW.Settings.Items>Items</NAW.Settings.Items>
@@ -15,5 +18,6 @@
 	<NAW.Settings.GroupNanameWalls>Group NANAME walls into drop-down menus. (Reboot required)</NAW.Settings.GroupNanameWalls>
 	<NAW.Settings.LinkWithDifferentWall>Link with different wall types. (Vanilla-like)</NAW.Settings.LinkWithDifferentWall>
 	<NAW.Settings.RenderSubstructure>Render substructures of the gravship beneath NANAME walls. (Reboot required)</NAW.Settings.RenderSubstructure>
+	<NAW.Settings.ReloadDefaultSettings>Reload Default Settings</NAW.Settings.ReloadDefaultSettings>
 	
 </LanguageData>

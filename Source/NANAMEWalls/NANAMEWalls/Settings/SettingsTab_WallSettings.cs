@@ -6,6 +6,7 @@ using static NanameWalls.MeshSettings;
 
 namespace NanameWalls;
 
+[HotSwap]
 internal class SettingsTab_WallSettings : SettingsTabDrawer
 {
     private const float PreviewSizeRatio = 0.315f;
@@ -13,6 +14,8 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
     private Vector2 scrollPosition;
 
     private Vector2 scrollPosition2;
+
+    private Vector2 scrollPosition3;
 
     private readonly Dictionary<string, string[]> buffers = [];
 
@@ -34,7 +37,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     private List<TabRecord> tabs;
 
-    private bool valueSettingMode = true;
+    private string settingMode = "Values";
 
     public override int Index => 0;
 
@@ -45,8 +48,9 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
     private void InitializeTabs()
     {
         tabs = [];
-        tabs.Add(new TabRecord("NAW.Settings.Values".Translate(), () => valueSettingMode = true, () => valueSettingMode));
-        tabs.Add(new TabRecord("NAW.Settings.Items".Translate(), () => valueSettingMode = false, () => !valueSettingMode));
+        tabs.Add(new TabRecord("NAW.Settings.Values".Translate(), () => settingMode = "Values", () => settingMode == "Values"));
+        tabs.Add(new TabRecord("NAW.Settings.Items".Translate(), () => settingMode = "Items", () => settingMode == "Items"));
+        tabs.Add(new TabRecord("NAW.Settings.Options".Translate(), () => settingMode = "Options", () => settingMode == "Options"));
     }
 
     private void Clear()
@@ -161,7 +165,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
         //壁のプレビュー
         Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
-        var mat = selThing != null ? selThing.Graphic.MatSingleFor(selThing) : selDef.graphicData?.Graphic?.MatSingle;
+        var mat = selThing != null ? selThing.Graphic.MatSingle : selDef.graphicData?.Graphic?.MatSingle;
         if (mat != null)
         {
             var scale = mat.mainTextureScale;
@@ -192,17 +196,45 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
         //壁の説明
         right = right.RightPartPixels(right.width - 10f);
-        Text.Font = GameFont.Medium;
-        Widgets.Label(right.TopPartPixels(Text.LineHeight), nanameWall.LabelCap);
-        Text.Font = GameFont.Small;
-        right = right.BottomPartPixels(right.height - Text.LineHeight);
-        Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
-        right = right.BottomPartPixels(right.height - Text.LineHeight);
+        using (new TextBlock(GameFont.Medium))
+        {
+            Widgets.Label(right.TopPartPixels(Text.LineHeight), nanameWall.LabelCap);
+            right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
+        }
+
         var buttonOffset = selThing != null ? Text.LineHeight : 0f;
-        Widgets.Label(right.TopPartPixels(right.height - Text.LineHeight - buttonOffset), nanameWall.description);
+        var settingsCount = 1;
+        var settingItemHeight = 18f;
+        var settingsHeight = settingItemHeight * settingsCount;
+        using (new TextBlock(GameFont.Tiny, TextAnchor.MiddleLeft))
+        {
+            Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
+            right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
+
+            var outRect = right.TopPartPixels(right.height - settingsHeight - buttonOffset);
+            var viewRect = outRect;
+            viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
+            if (viewRect.height >= outRect.height)
+            {
+                viewRect.width -= 20f;
+                viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
+            }
+            Widgets.BeginScrollView(outRect, ref scrollPosition3, viewRect);
+            Widgets.Label(viewRect, nanameWall.description);
+            Widgets.EndScrollView();
+        }
+
+        //基本設定
+        right = right.BottomPartPixels(settingsHeight + buttonOffset);
         var enabled = meshSettings.enabled;
-        right = right.BottomPartPixels(Text.LineHeight + buttonOffset);
-        Widgets.CheckboxLabeled(right.TopPartPixels(Text.LineHeight), "NAW.Settings.EnableNaname".Translate(), ref enabled);
+        var curY = right.y;
+        Rect CurRect()
+        {
+            Rect rect = new(right.x, curY, right.width, Text.LineHeight);
+            curY += Text.LineHeight;
+            return rect;
+        }
+        WidgetsEx.CheckboxLabeled(CurRect(), "NAW.Settings.EnableNaname".Translate(), ref enabled, settingItemHeight);
         if (selThing != null)
         {
             if (Widgets.ButtonText(right.BottomPartPixels(buttonOffset), "NAW.UpdateGraphic".Translate()))
@@ -224,7 +256,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             InitializeTabs();
         }
         Widgets.DrawMenuSection(tabRect);
-        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 4f);
+        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs.Count);
 
         //デフォルトボタン
         var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels((bottom.width / 2f) - 2f);
@@ -239,20 +271,26 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             }));
         }
 
-        if (valueSettingMode)
+        tabRect = tabRect.ContractedBy(2f);
+        switch (settingMode)
         {
-            defaultRequest = "";
-            var leftButtonRect = buttonRect.LeftPartPixels((buttonRect.width / 2f) - 1f);
-            if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
-            {
-                defaultRequest = GUI.GetNameOfFocusedControl();
-                Clear();
-            }
-            DoValuesSection(tabRect.ContractedBy(2f), previewSize, meshSettings);
-        }
-        else
-        {
-            DoItemsSection(tabRect.ContractedBy(2f), meshSettings);
+            case "Items":
+                DoItemsSection(tabRect, meshSettings);
+                break;
+            case "Options":
+                DoOptionsSection(tabRect, meshSettings);
+                break;
+            case "Values":
+            default:
+                defaultRequest = "";
+                var leftButtonRect = buttonRect.LeftPartPixels((buttonRect.width / 2f) - 1f);
+                if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
+                {
+                    defaultRequest = GUI.GetNameOfFocusedControl();
+                    Clear();
+                }
+                DoValuesSection(tabRect, previewSize, meshSettings);
+                break;
         }
     }
 
@@ -545,54 +583,70 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         }, item.type.ToString());
         if (item.type == SettingItem.SettingType.Repeat)
         {
-            Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+            if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
             {
-                return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.Verts).Select(item2 =>
+                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
                 {
-                    return new Widgets.DropdownMenuElement<string>()
+                    return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.Verts).Select(item2 =>
                     {
-                        option = new FloatMenuOption(item2.label, () =>
+                        return new Widgets.DropdownMenuElement<string>()
                         {
-                            item.link = item2.label;
-                        }),
-                        payload = item2.label
-                    };
-                });
-            }, item.link);
+                            option = new FloatMenuOption(item2.label, () =>
+                            {
+                                item.link = item2.label;
+                            }),
+                            payload = item2.label
+                        };
+                    });
+                }, item.link);
+            }
         }
         if (item.type == SettingItem.SettingType.Verts)
         {
-            Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+            if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
             {
-                return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.UVs).Select(item2 =>
+                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
                 {
-                    return new Widgets.DropdownMenuElement<string>()
+                    return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.UVs).Select(item2 =>
                     {
-                        option = new FloatMenuOption(item2.label, () =>
+                        return new Widgets.DropdownMenuElement<string>()
                         {
-                            item.link = item2.label;
-                        }),
-                        payload = item2.label
-                    };
-                });
-            }, item.link);
-            Widgets.Dropdown(rect2.RightPart(0.33f), item, item => item.direction, item =>
+                            option = new FloatMenuOption(item2.label, () =>
+                            {
+                                item.link = item2.label;
+                            }),
+                            payload = item2.label
+                        };
+                    });
+                }, item.link);
+            }
+            Widgets.Dropdown(rect2.RightPart(0.33f), item, item => item.condition, item =>
             {
-                return ((IEnumerable<SettingItem.Direction>)Enum.GetValues(typeof(SettingItem.Direction))).Where(d => d != SettingItem.Direction.None).Select(direction =>
+                return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition))).Where(d => d != SettingItem.Condition.None).Select(direction =>
                 {
-                    return new Widgets.DropdownMenuElement<SettingItem.Direction>()
+                    return new Widgets.DropdownMenuElement<SettingItem.Condition>()
                     {
                         option = new FloatMenuOption(direction.ToString(), () =>
                         {
-                            item.direction = direction;
+                            item.condition = direction;
                         }),
                         payload = direction
                     };
                 });
-            }, item.direction.ToString());
+            }, item.condition.ToString());
         }
 
         rect.y += lineHeight;
+    }
+
+    private void DoOptionsSection(Rect rect, MeshSettings meshSettings)
+    {
+        var listing_standard = new Listing_Standard();
+        listing_standard.Begin(rect);
+        listing_standard.CheckboxLabeled("NAW.Settings.NoChangeLinkState".Translate(), ref meshSettings.noChangeLinkState);
+        listing_standard.CheckboxLabeled("NAW.Settings.SkipOriginalPrint".Translate(), ref meshSettings.skipOriginalPrint);
+        listing_standard.CheckboxLabeled("NAW.Settings.AllowVShaped".Translate(), ref meshSettings.allowVShaped);
+        listing_standard.End();
     }
 
     public class Dialog_RenameItem(SettingItem item, MeshSettings meshSettings, Action action) : Dialog_Rename<SettingItem>(item)
