@@ -77,33 +77,33 @@ public class WidgetsEx
     public static TTabRecord DrawTabs<TTabRecord>(Rect baseRect, List<TTabRecord> tabs, float tabHeight = 32f, float maxTabWidth = 200f) where TTabRecord : TabRecord
     {
         TTabRecord val = null;
-        TTabRecord val2 = tabs.Find((TTabRecord t) => t.Selected);
-        float num = baseRect.width + ((tabs.Count - 1) * 10f);
-        float tabWidth = num / tabs.Count;
+        var val2 = tabs.Find((TTabRecord t) => t.Selected);
+        var num = baseRect.width + ((tabs.Count - 1) * 10f);
+        var tabWidth = num / tabs.Count;
         if (tabWidth > maxTabWidth)
         {
             tabWidth = maxTabWidth;
         }
-        Rect rect = new Rect(baseRect);
+        var rect = new Rect(baseRect);
         rect.y -= tabHeight;
         rect.height = 9999f;
         Widgets.BeginGroup(rect);
         Text.Anchor = TextAnchor.MiddleCenter;
         Text.Font = GameFont.Small;
         Rect Func(TTabRecord tab) => new(tabs.IndexOf(tab) * (tabWidth - 10f), 1f, tabWidth, tabHeight);
-        List<TTabRecord> list = tabs.ListFullCopy();
+        var list = tabs.ListFullCopy();
         if (val2 != null)
         {
             list.Remove(val2);
             list.Add(val2);
         }
         TabRecord tabRecord = null;
-        List<TTabRecord> list2 = list.ListFullCopy();
+        var list2 = list.ListFullCopy();
         list2.Reverse();
-        for (int num2 = 0; num2 < list2.Count; num2++)
+        for (var num2 = 0; num2 < list2.Count; num2++)
         {
-            TTabRecord val3 = list2[num2];
-            Rect rect2 = Func(val3);
+            var val3 = list2[num2];
+            var rect2 = Func(val3);
             if (tabRecord == null && Mouse.IsOver(rect2))
             {
                 tabRecord = val3;
@@ -118,9 +118,9 @@ public class WidgetsEx
                 val = val3;
             }
         }
-        foreach (TTabRecord item in list)
+        foreach (var item in list)
         {
-            Rect rect3 = Func(item);
+            var rect3 = Func(item);
             item.Draw(rect3);
         }
         Text.Anchor = TextAnchor.UpperLeft;
@@ -135,13 +135,13 @@ public class WidgetsEx
 
     public static void CheckboxLabeled(Rect rect, string label, ref bool checkOn, float height = 24f, bool disabled = false, Texture2D texChecked = null, Texture2D texUnchecked = null, bool placeCheckboxNearText = false, bool paintable = false)
     {
-        TextAnchor anchor = Text.Anchor;
+        var anchor = Text.Anchor;
         Text.Anchor = TextAnchor.MiddleLeft;
         if (placeCheckboxNearText)
         {
             rect.width = Mathf.Min(rect.width, Text.CalcSize(label).x + height + 10f);
         }
-        Rect rect2 = rect;
+        var rect2 = rect;
         rect2.xMax -= height;
         Widgets.Label(rect2, label);
         if (!disabled)

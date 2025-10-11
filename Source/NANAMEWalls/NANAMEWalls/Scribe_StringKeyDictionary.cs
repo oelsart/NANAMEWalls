@@ -35,7 +35,7 @@ namespace NanameWalls
             {
                 if (Scribe.mode == LoadSaveMode.LoadingVars)
                 {
-                    XmlAttribute xmlAttribute = Scribe.loader.curXmlParent.Attributes["IsNull"];
+                    var xmlAttribute = Scribe.loader.curXmlParent.Attributes["IsNull"];
                     if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                     {
                         dict = null;
@@ -51,7 +51,7 @@ namespace NanameWalls
                     valuesWorkingList = [];
                     if (Scribe.mode == LoadSaveMode.Saving && dict != null)
                     {
-                        foreach (KeyValuePair<string, V> item in dict)
+                        foreach (var item in dict)
                         {
                             keysWorkingList.Add(item.Key);
                             valuesWorkingList.Add(item.Value);
@@ -75,7 +75,7 @@ namespace NanameWalls
                         valuesWorkingList = null;
                     }
                 }
-                bool flag = valueLookMode == LookMode.Reference;
+                var flag = valueLookMode == LookMode.Reference;
                 if ((flag && Scribe.mode == LoadSaveMode.ResolvingCrossRefs) || (!flag && Scribe.mode == LoadSaveMode.LoadingVars))
                 {
                     BuildDictionary(dict, keysWorkingList, valuesWorkingList, label, logNullErrors);
@@ -124,43 +124,43 @@ namespace NanameWalls
                                 {
                                     case LookMode.Value:
                                         {
-                                            T value4 = valueList[i];
+                                            var value4 = valueList[i];
                                             Scribe_Values.Look(ref value4, keyList[i], default, forceSave: true);
                                             break;
                                         }
                                     case LookMode.LocalTargetInfo:
                                         {
-                                            LocalTargetInfo value3 = (LocalTargetInfo)(object)valueList[i];
+                                            var value3 = (LocalTargetInfo)(object)valueList[i];
                                             Scribe_TargetInfo.Look(ref value3, saveDestroyedThings, keyList[i]);
                                             break;
                                         }
                                     case LookMode.TargetInfo:
                                         {
-                                            TargetInfo value2 = (TargetInfo)(object)valueList[i];
+                                            var value2 = (TargetInfo)(object)valueList[i];
                                             Scribe_TargetInfo.Look(ref value2, saveDestroyedThings, keyList[i]);
                                             break;
                                         }
                                     case LookMode.GlobalTargetInfo:
                                         {
-                                            GlobalTargetInfo value = (GlobalTargetInfo)(object)valueList[i];
+                                            var value = (GlobalTargetInfo)(object)valueList[i];
                                             Scribe_TargetInfo.Look(ref value, saveDestroyedThings, keyList[i]);
                                             break;
                                         }
                                     case LookMode.Def:
                                         {
-                                            Def value5 = (Def)(object)valueList[i];
+                                            var value5 = (Def)(object)valueList[i];
                                             Scribe_Defs.Look(ref value5, keyList[i]);
                                             break;
                                         }
                                     case LookMode.BodyPart:
                                         {
-                                            BodyPartRecord part = (BodyPartRecord)(object)valueList[i];
+                                            var part = (BodyPartRecord)(object)valueList[i];
                                             Scribe_BodyParts.Look(ref part, keyList[i]);
                                             break;
                                         }
                                     case LookMode.Deep:
                                         {
-                                            T target = valueList[i];
+                                            var target = valueList[i];
                                             Scribe_Deep.Look(ref target, saveDestroyedThings, keyList[i], ctorArgs);
                                             break;
                                         }
@@ -170,7 +170,7 @@ namespace NanameWalls
                                             {
                                                 throw new InvalidOperationException("Cannot save reference to " + valueList[i]?.GetType()?.ToStringSafe() + " item if it is not ILoadReferenceable");
                                             }
-                                            ILoadReferenceable refee = valueList[i] as ILoadReferenceable;
+                                            var refee = valueList[i] as ILoadReferenceable;
                                             Scribe_References.Look(ref refee, keyList[i], saveDestroyedThings);
                                             break;
                                         }
@@ -183,8 +183,8 @@ namespace NanameWalls
                     }
                     else if (Scribe.mode == LoadSaveMode.LoadingVars)
                     {
-                        XmlNode curXmlParent = Scribe.loader.curXmlParent;
-                        XmlAttribute xmlAttribute = curXmlParent.Attributes["IsNull"];
+                        var curXmlParent = Scribe.loader.curXmlParent;
+                        var xmlAttribute = curXmlParent.Attributes["IsNull"];
                         if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                         {
                             if (lookMode == LookMode.Reference)
@@ -205,7 +205,7 @@ namespace NanameWalls
                                         foreach (XmlNode childNode in curXmlParent.ChildNodes)
                                         {
                                             ProcessingKey = childNode.Name;
-                                            T item = ScribeExtractor.ValueFromNode(childNode, default(T));
+                                            var item = ScribeExtractor.ValueFromNode(childNode, default(T));
                                             keyList.Add(childNode.Name);
                                             valueList.Add(item);
                                         }
@@ -218,7 +218,7 @@ namespace NanameWalls
                                         foreach (XmlNode childNode2 in curXmlParent.ChildNodes)
                                         {
                                             ProcessingKey = childNode2.Name;
-                                            T item7 = ScribeExtractor.SaveableFromNode<T>(childNode2, ctorArgs);
+                                            var item7 = ScribeExtractor.SaveableFromNode<T>(childNode2, ctorArgs);
                                             keyList.Add(childNode2.Name);
                                             valueList.Add(item7);
                                         }
@@ -231,7 +231,7 @@ namespace NanameWalls
                                         foreach (XmlNode childNode3 in curXmlParent.ChildNodes)
                                         {
                                             ProcessingKey = childNode3.Name;
-                                            T item6 = ScribeExtractor.DefFromNodeUnsafe<T>(childNode3);
+                                            var item6 = ScribeExtractor.DefFromNodeUnsafe<T>(childNode3);
                                             keyList.Add(childNode3.Name);
                                             valueList.Add(item6);
                                         }
@@ -241,12 +241,12 @@ namespace NanameWalls
                                 case LookMode.BodyPart:
                                     {
                                         valueList = new List<T>(curXmlParent.ChildNodes.Count);
-                                        int num4 = 0;
+                                        var num4 = 0;
                                         {
                                             foreach (XmlNode childNode4 in curXmlParent.ChildNodes)
                                             {
                                                 ProcessingKey = childNode4.Name;
-                                                T item5 = (T)(object)ScribeExtractor.BodyPartFromNode(childNode4, num4.ToString(), null);
+                                                var item5 = (T)(object)ScribeExtractor.BodyPartFromNode(childNode4, num4.ToString(), null);
                                                 keyList.Add(childNode4.Name);
                                                 valueList.Add(item5);
                                                 num4++;
@@ -258,12 +258,12 @@ namespace NanameWalls
                                 case LookMode.LocalTargetInfo:
                                     {
                                         valueList = new List<T>(curXmlParent.ChildNodes.Count);
-                                        int num3 = 0;
+                                        var num3 = 0;
                                         {
                                             foreach (XmlNode childNode5 in curXmlParent.ChildNodes)
                                             {
                                                 ProcessingKey = childNode5.Name;
-                                                T item4 = (T)(object)ScribeExtractor.LocalTargetInfoFromNode(childNode5, num3.ToString(), LocalTargetInfo.Invalid);
+                                                var item4 = (T)(object)ScribeExtractor.LocalTargetInfoFromNode(childNode5, num3.ToString(), LocalTargetInfo.Invalid);
                                                 keyList.Add(childNode5.Name);
                                                 valueList.Add(item4);
                                                 num3++;
@@ -275,12 +275,12 @@ namespace NanameWalls
                                 case LookMode.TargetInfo:
                                     {
                                         valueList = new List<T>(curXmlParent.ChildNodes.Count);
-                                        int num2 = 0;
+                                        var num2 = 0;
                                         {
                                             foreach (XmlNode childNode6 in curXmlParent.ChildNodes)
                                             {
                                                 ProcessingKey = childNode6.Name;
-                                                T item3 = (T)(object)ScribeExtractor.TargetInfoFromNode(childNode6, num2.ToString(), TargetInfo.Invalid);
+                                                var item3 = (T)(object)ScribeExtractor.TargetInfoFromNode(childNode6, num2.ToString(), TargetInfo.Invalid);
                                                 keyList.Add(childNode6.Name);
                                                 valueList.Add(item3);
                                                 num2++;
@@ -292,12 +292,12 @@ namespace NanameWalls
                                 case LookMode.GlobalTargetInfo:
                                     {
                                         valueList = new List<T>(curXmlParent.ChildNodes.Count);
-                                        int num = 0;
+                                        var num = 0;
                                         {
                                             foreach (XmlNode childNode7 in curXmlParent.ChildNodes)
                                             {
                                                 ProcessingKey = childNode7.Name;
-                                                T item2 = (T)(object)ScribeExtractor.GlobalTargetInfoFromNode(childNode7, num.ToString(), GlobalTargetInfo.Invalid);
+                                                var item2 = (T)(object)ScribeExtractor.GlobalTargetInfoFromNode(childNode7, num.ToString(), GlobalTargetInfo.Invalid);
                                                 keyList.Add(childNode7.Name);
                                                 valueList.Add(item2);
                                                 num++;
@@ -332,7 +332,7 @@ namespace NanameWalls
                             case LookMode.LocalTargetInfo:
                                 if (valueList != null)
                                 {
-                                    for (int j = 0; j < valueList.Count; j++)
+                                    for (var j = 0; j < valueList.Count; j++)
                                     {
                                         valueList[j] = (T)(object)ScribeExtractor.ResolveLocalTargetInfo((LocalTargetInfo)(object)valueList[j], j.ToString());
                                     }
@@ -341,7 +341,7 @@ namespace NanameWalls
                             case LookMode.TargetInfo:
                                 if (valueList != null)
                                 {
-                                    for (int k = 0; k < valueList.Count; k++)
+                                    for (var k = 0; k < valueList.Count; k++)
                                     {
                                         valueList[k] = (T)(object)ScribeExtractor.ResolveTargetInfo((TargetInfo)(object)valueList[k], k.ToString());
                                     }
@@ -350,7 +350,7 @@ namespace NanameWalls
                             case LookMode.GlobalTargetInfo:
                                 if (valueList != null)
                                 {
-                                    for (int i = 0; i < valueList.Count; i++)
+                                    for (var i = 0; i < valueList.Count; i++)
                                     {
                                         valueList[i] = (T)(object)ScribeExtractor.ResolveGlobalTargetInfo((GlobalTargetInfo)(object)valueList[i], i.ToString());
                                     }
@@ -389,8 +389,8 @@ namespace NanameWalls
             {
                 Log.Error("Keys count does not match the values count while loading a dictionary (maybe keys and values were resolved during different passes?). Some elements will be skipped. keys=" + keysWorkingList.Count + ", values=" + valuesWorkingList.Count + ", label=" + label);
             }
-            int num = Math.Min(keysWorkingList.Count, valuesWorkingList.Count);
-            for (int i = 0; i < num; i++)
+            var num = Math.Min(keysWorkingList.Count, valuesWorkingList.Count);
+            for (var i = 0; i < num; i++)
             {
                 if (keysWorkingList[i] == null)
                 {

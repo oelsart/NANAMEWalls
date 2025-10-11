@@ -18,7 +18,7 @@ public static class Patch_JobDriver_FortifyHoneycombWall_MakeNewToils
         {
             return type.GetDeclaredMethods().FirstOrDefault(method =>
             {
-                return method.Name.Contains("<MakeNewToils>") && method.GetMethodBody().LocalVariables.Select(l => l.LocalType).SequenceEqual(localTypes);
+                return method.Name.Contains("<MakeNewToils>") && method.GetMethodBody()!.LocalVariables.Select(l => l.LocalType).SequenceEqual(localTypes);
             });
         });
     }

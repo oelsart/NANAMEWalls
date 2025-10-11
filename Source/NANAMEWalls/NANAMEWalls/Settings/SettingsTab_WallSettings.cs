@@ -657,7 +657,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
         protected override AcceptanceReport NameIsValid(string name)
         {
-            AcceptanceReport acceptanceReport = base.NameIsValid(name);
+            var acceptanceReport = base.NameIsValid(name);
             if (!acceptanceReport.Accepted)
             {
                 return acceptanceReport;

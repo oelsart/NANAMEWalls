@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using RimWorld;
 using System.Reflection;
+using UnityEngine;
 using Verse;
 using static NanameWalls.ModCompat;
 
@@ -17,12 +18,6 @@ public static class GenerateDefs
 
     static GenerateDefs()
     {
-        static bool IsLinkedThing(ThingDef def)
-        {
-            var linkType = def.graphicData?.linkType;
-            return def.Size == IntVec2.One && (linkType == LinkDrawerType.Basic || linkType == LinkDrawerType.CornerFiller || linkType == LinkDrawerType.Asymmetric);
-        }
-
         var GiveShortHash = AccessTools.MethodDelegate<GetGiveShortHash>(AccessTools.Method(typeof(ShortHashGiver), "GiveShortHash"));
         var NewBlueprintDef_Thing = AccessTools.MethodDelegate<GetNewBlueprintDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewBlueprintDef_Thing"));
         var NewFrameDef_Thing = AccessTools.MethodDelegate<GetNewFrameDef_Thing>(AccessTools.Method(typeof(ThingDefGenerator_Buildings), "NewFrameDef_Thing"));
@@ -36,25 +31,22 @@ public static class GenerateDefs
                 if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
 
                 var newDef = GenerateInner(wallDef);
-                if (newDef.IsSmoothable)
-                {
-                    newDef.building = Gen.MemberwiseClone(newDef.building);
-                    ref var smoothedThing = ref newDef.building.smoothedThing;
-                    if (!IsLinkedThing(smoothedThing)) continue;
+                if (!newDef.IsSmoothable) continue;
+                
+                newDef.building = Gen.MemberwiseClone(newDef.building);
+                ref var smoothedThing = ref newDef.building.smoothedThing;
+                if (!IsLinkedThing(smoothedThing)) continue;
 
-                    smoothedThing = GenerateInner(smoothedThing);
-                    smoothedThing.building.unsmoothedThing = newDef;
+                smoothedThing = GenerateInner(smoothedThing);
+                smoothedThing.building.unsmoothedThing = newDef;
 
-                    if (!ViviRace.Active) continue;
-                    var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
-                    if (index != -1)
-                    {
-                        smoothedThing.comps = [.. smoothedThing.comps];
-                        smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
-                        ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
-                        replaceThing = GenerateInner(replaceThing);
-                    }
-                }
+                if (!ViviRace.Active) continue;
+                var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
+                if (index == -1) continue;
+                smoothedThing.comps = [.. smoothedThing.comps];
+                smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
+                ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
+                replaceThing = GenerateInner(replaceThing);
             }
             catch (Exception ex)
             {
@@ -74,6 +66,14 @@ public static class GenerateDefs
             designationCategory.ResolveReferences();
         }
 
+        return;
+
+        static bool IsLinkedThing(ThingDef def)
+        {
+            var linkType = def.graphicData?.linkType;
+            return def.Size == IntVec2.One && linkType is LinkDrawerType.Basic or LinkDrawerType.CornerFiller or LinkDrawerType.Asymmetric;
+        }
+
         ThingDef GenerateInner(ThingDef wallDef)
         {
             var newDef = MakeShallowCopy(wallDef, "cachedLabelCap", "designationHotKey");
@@ -91,7 +91,7 @@ public static class GenerateDefs
             bluePrintDef.shortHash = 0;
             GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
             DefGenerator.AddImpliedDef(bluePrintDef);
-            var frameDef = NewFrameDef_Thing(newDef, false);
+            var frameDef = NewFrameDef_Thing(newDef);
             frameDef.shortHash = 0;
             GiveShortHash(frameDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
             DefGenerator.AddImpliedDef(frameDef);
@@ -108,14 +108,21 @@ public static class GenerateDefs
             NanameWalls.Mod.nanameWalls[wallDef] = newDef;
             NanameWalls.Mod.originalDefs[newDef] = wallDef;
 
-            if (meshSettings.enabled && NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer && wallDef.designatorDropdown is null)
+            if (meshSettings.enabled && NanameWalls.Mod.Settings.groupNanameWalls && buildableByPlayer)
             {
-                var dropdown = new DesignatorDropdownGroupDef()
+                if (wallDef.designatorDropdown is null)
                 {
-                    defName = wallDef.defName
-                };
-                wallDef.designatorDropdown = dropdown;
-                newDef.designatorDropdown = dropdown;
+                    var dropdown = new DesignatorDropdownGroupDef
+                    {
+                        defName = wallDef.defName
+                    };
+                    wallDef.designatorDropdown = dropdown;
+                    newDef.designatorDropdown = dropdown;
+                }
+                else if (MaterialSubMenu.Active)
+                {
+                    newDef.designatorDropdown = wallDef.designatorDropdown;
+                }
             }
             foreach (var styleCategory in wallDef.RelevantStyleCategories)
             {
@@ -145,7 +152,7 @@ public static class GenerateDefs
     private static T MakeShallowCopy<T>(T from, params string[] exceptFields)
     {
         var to = Activator.CreateInstance(from.GetType());
-        foreach (FieldInfo fieldInfo in from.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        foreach (var fieldInfo in from.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (exceptFields.Contains(fieldInfo.Name))
                 continue;

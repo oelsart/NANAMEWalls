@@ -22,12 +22,12 @@ public static class Patch_SectionLayer_GravshipHull_ShouldDrawCornerPiece
         {
             return;
         }
-        TerrainDef terrainDef = terrGrid.FoundationAt(pos);
-        if (terrainDef != null && terrainDef.IsSubstructure)
+        var terrainDef = terrGrid.FoundationAt(pos);
+        if (terrainDef is { IsSubstructure: true })
         {
             return;
         }
-        for (int i = 0; i < 4; i++)
+        for (var i = 0; i < 4; i++)
         {
             var c = pos + ___Directions[i];
             if (!c.InBounds(map)) continue;

@@ -94,7 +94,10 @@ public class MeshSettings : IExposable
         var enabled = defaultSettings == CommonDefaultSettings ? IsWallProbably(def) : defaultSettings.enabled;
         var copy = new MeshSettings
         {
-            enabled = enabled
+            enabled = enabled,
+            noChangeLinkState = defaultSettings.noChangeLinkState,
+            skipOriginalPrint = defaultSettings.skipOriginalPrint,
+            allowVShaped = defaultSettings.allowVShaped
         };
         foreach (var item in defaultSettings.settingItems)
         {
@@ -118,7 +121,7 @@ public class MeshSettings : IExposable
             foreach (XmlNode child in childs)
             {
                 if (child.Name == "enabled" || child.Name == "noChangeLinkState" || child.Name == "skipOriginalPrint" || child.Name == "allowVShaped") continue;
-                XmlAttribute xmlAttribute = child.Attributes["IsNull"];
+                var xmlAttribute = child.Attributes["IsNull"];
                 if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ignoreList.Add(child.Name);

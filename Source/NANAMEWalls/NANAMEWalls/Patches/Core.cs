@@ -16,26 +16,10 @@ internal class Core
             {
                 try
                 {
-                    if (patchClass.Category.NullOrEmpty())
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                    if (ViviRace.Active && patchClass.Category == ViviRace.PatchCategory)
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                    if (MaterialSubMenu.Active && patchClass.Category == MaterialSubMenu.PatchCategory)
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
-                    if (Odyssey.Active && patchClass.Category == Odyssey.PatchCategory)
-                    {
-                        patchClass.Patch();
-                        return;
-                    }
+                    if (!patchClass.Category.NullOrEmpty() &&
+                        (!ViviRace.Active || patchClass.Category != ViviRace.PatchCategory) &&
+                        (!Odyssey.Active || patchClass.Category != Odyssey.PatchCategory)) return;
+                    patchClass.Patch();
                 }
                 catch (Exception ex)
                 {

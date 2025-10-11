@@ -77,18 +77,18 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             return base.LinkedDrawMatFrom(parent, cell);
         }
 
-        int num = 0;
-        int num2 = 1;
-        for (int i = 0; i < 4; i++)
+        var num = 0;
+        var num2 = 1;
+        for (var i = 0; i < 4; i++)
         {
-            IntVec3 intVec = cell + GenAdj.CardinalDirections[i];
+            var intVec = cell + GenAdj.CardinalDirections[i];
             if (ShouldLinkWith(intVec, parent))
             {
                 num += num2;
             }
             num2 *= 2;
         }
-        LinkDirections linkDirections = (LinkDirections)num;
+        var linkDirections = (LinkDirections)num;
 
         var pos = parent.Position;
         if (diagonalFlag.HasFlag(Diagonals.NorthEast))
@@ -137,6 +137,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
                 linkDirections |= LinkDirections.Down;
             }
         }
+        // ReSharper disable once InvertIf
         if (!linkDirections.HasFlag(LinkDirections.Up) && (northEast ^ northWest))
         {
             if (!north2 && (northEast ? ClearFor(Rot4.North, Rot4.West, parent) : ClearFor(Rot4.North, Rot4.East, parent)))
@@ -164,7 +165,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         return mat;
     }
 
-    private bool ClearFor(Rot4 rot, Rot4 rot2, Thing thing)
+    private static bool ClearFor(Rot4 rot, Rot4 rot2, Thing thing)
     {
         if (VehicleMapFramework.Active)
         {
@@ -174,6 +175,19 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         }
         var pos = thing.Position + rot.AsIntVec3;
         if (!pos.InBounds(thing.Map)) return false;
+        
+        // Substructureの境目では壁はへこまない: Propsの表示がうまくできないため
+        if (ModsConfig.OdysseyActive)
+        {
+            var terrainDef = thing.Map.terrainGrid.FoundationAt(pos);
+            var flag = terrainDef is { IsSubstructure: true };
+            terrainDef = thing.Map.terrainGrid.FoundationAt(thing.Position);
+            if (flag != terrainDef is { IsSubstructure: true })
+            {
+                return true;
+            }
+        }
+        
         if (pos.GetEdifice(thing.Map) != null) return false;
         var opposite = rot.Opposite;
         var opposite2 = rot2.Opposite;
@@ -261,8 +275,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             }
             else
             {
-                Material material = LinkedDrawMatFrom(thing, thing.Position);
-                Printer_Plane.PrintPlane(layer, thing.TrueCenter(), new Vector2(1f, 1f), material, extraRotation, false, null, null, 0.01f, 0f);
+                var material = LinkedDrawMatFrom(thing, thing.Position);
+                Printer_Plane.PrintPlane(layer, thing.TrueCenter(), new Vector2(1f, 1f), material, extraRotation);
                 if (ShadowGraphic != null && thing != null)
                 {
                     ShadowGraphic.Print(layer, thing, 0f);
