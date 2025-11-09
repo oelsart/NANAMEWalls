@@ -265,7 +265,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
         // Original printing
         var anyLinked = north || south || east || west;
-        var halfLinked = !north && !south && (east ^ west);
+        var halfLinked = !north && !south && east ^ west;
         var cornerFiller = originalDef.graphicData?.linkType == LinkDrawerType.CornerFiller;
         if (!settings.skipOriginalPrint || anyLinked && !halfLinked)
         {

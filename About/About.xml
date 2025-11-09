@@ -18,4 +18,7 @@ This mod generates diagonal walls that connect like the gravship hull.</descript
       <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
     </li>
   </modDependencies>
+  <loadBefore>
+	<li>zylle.MapDesigner</li>
+  </loadBefore>
 </ModMetaData>
