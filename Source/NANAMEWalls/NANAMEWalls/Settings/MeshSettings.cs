@@ -18,19 +18,13 @@ public class MeshSettings : IExposable
 
     public bool allowVShaped;
 
+    public bool forceDent;
+
+    public bool forceDentOpposite;
+
     public SortedDictionary<string, SettingItem> settingItems = [];
 
-    private static MeshSettings CommonDefaultSettings
-    {
-        get
-        {
-            if (defaultSettings.TryGetValue(DefaultName, out var settings))
-            {
-                return settings;
-            }
-            return null;
-        }
-    }
+    private static MeshSettings CommonDefaultSettings => defaultSettings.GetValueOrDefault(DefaultName);
 
     private MeshSettings() { }
 
@@ -45,9 +39,9 @@ public class MeshSettings : IExposable
                 Scribe.loader.InitLoading(settingsFilename);
                 try
                 {
-                    var childs = Scribe.loader.curXmlParent.ChildNodes;
+                    var children = Scribe.loader.curXmlParent.ChildNodes;
 
-                    foreach (XmlNode child in childs)
+                    foreach (XmlNode child in children)
                     {
                         MeshSettings settings = null;
                         Scribe_Deep.Look(ref settings, child.Name);
@@ -84,87 +78,109 @@ public class MeshSettings : IExposable
 
     public static MeshSettings DeepCopyDefaultFor(ThingDef def)
     {
-        static bool IsWallProbably(ThingDef def)
-        {
-            return (def.IsWall || def.defName.Contains("Wall")) &&
-                def.passability == Traversability.Impassable;
-        }
-
-        var defaultSettings = DefaultSettingsFor(def);
-        var enabled = defaultSettings == CommonDefaultSettings ? IsWallProbably(def) : defaultSettings.enabled;
+        var settings = DefaultSettingsFor(def);
+        var enabled = settings == CommonDefaultSettings ? IsWallProbably(def) : settings.enabled;
         var copy = new MeshSettings
         {
             enabled = enabled,
-            noChangeLinkState = defaultSettings.noChangeLinkState,
-            skipOriginalPrint = defaultSettings.skipOriginalPrint,
-            allowVShaped = defaultSettings.allowVShaped
+            noChangeLinkState = settings.noChangeLinkState,
+            skipOriginalPrint = settings.skipOriginalPrint,
+            allowVShaped = settings.allowVShaped,
+            forceDent = settings.forceDent,
+            forceDentOpposite = settings.forceDentOpposite
         };
-        foreach (var item in defaultSettings.settingItems)
+        foreach (var item in settings.settingItems)
         {
             copy.settingItems[item.Key] = item.Value.DeepCopy();
         }
         return copy;
     }
+    
+    private static bool IsWallProbably(ThingDef def) =>
+        (def.IsWall || def.defName.Contains("Wall")) &&
+        def.passability == Traversability.Impassable;
 
     public void ExposeData()
     {
+        var key = Scribe_StringKeyDictionary.ProcessingKey;
         var curDefault = DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey);
-        Scribe_Values.Look(ref enabled, "enabled", curDefault?.enabled ?? default);
-        Scribe_Values.Look(ref noChangeLinkState, "noChangeLinkState", curDefault?.noChangeLinkState ?? default);
-        Scribe_Values.Look(ref skipOriginalPrint, "skipOriginalPrint", curDefault?.skipOriginalPrint ?? default);
-        Scribe_Values.Look(ref allowVShaped, "allowVShaped", curDefault?.allowVShaped ?? default);
-        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        var def = key != null ? DefDatabase<ThingDef>.GetNamedSilentFail(key) : null;
+        var enabledDefault = curDefault != CommonDefaultSettings && def != null ? IsWallProbably(def) : curDefault?.enabled;
+        Scribe_Values.Look(ref enabled, "enabled", enabledDefault ?? false);
+        Scribe_Values.Look(ref noChangeLinkState, "noChangeLinkState", curDefault?.noChangeLinkState ?? false);
+        Scribe_Values.Look(ref skipOriginalPrint, "skipOriginalPrint", curDefault?.skipOriginalPrint ?? false);
+        Scribe_Values.Look(ref allowVShaped, "allowVShaped", curDefault?.allowVShaped ?? false);
+        Scribe_Values.Look(ref forceDent, "forceDent", curDefault?.forceDent ?? false);
+        Scribe_Values.Look(ref forceDentOpposite, "forceDentOpposite", curDefault?.forceDentOpposite ?? false);
+        switch (Scribe.mode)
         {
-            settingItems ??= [];
-            List<string> ignoreList = [];
-            var childs = Scribe.loader.curXmlParent.ChildNodes;
-            foreach (XmlNode child in childs)
+            case LoadSaveMode.LoadingVars:
             {
-                if (child.Name == "enabled" || child.Name == "noChangeLinkState" || child.Name == "skipOriginalPrint" || child.Name == "allowVShaped") continue;
-                var xmlAttribute = child.Attributes["IsNull"];
-                if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                settingItems ??= [];
+                List<string> ignoreList = [];
+                var children = Scribe.loader.curXmlParent.ChildNodes;
+                foreach (XmlNode child in children)
                 {
-                    ignoreList.Add(child.Name);
-                    continue;
+                    if (child.Name is "enabled" or "noChangeLinkState" or "skipOriginalPrint" or "allowVShaped" or "forceDent" or "forceDentOpposite")
+                        continue;
+                    var xmlAttribute = child.Attributes?["IsNull"];
+                    if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ignoreList.Add(child.Name);
+                        continue;
+                    }
+
+                    SettingItem item = new();
+                    if (!LookBackCompatibility(ref item, child.Name))
+                    {
+                        Scribe_Deep.Look(ref item, child.Name);
+                    }
+                    settingItems[item.label] = item;
+                }
+                if (curDefault != null)
+                {
+                    foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label) && !ignoreList.Contains(i.label)))
+                    {
+                        settingItems[defaultItem.label] = defaultItem.DeepCopy();
+                    }
                 }
 
-                SettingItem item = new();
-                if (!LookBackCompatibility(ref item, child.Name))
-                {
-                    Scribe_Deep.Look(ref item, child.Name);
-                }
-                settingItems[item.label] = item;
+                break;
             }
-            if (curDefault != null)
+            case LoadSaveMode.Saving:
             {
-                foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label) && !ignoreList.Contains(i.label)))
+                foreach (var item in settingItems)
                 {
-                    settingItems[defaultItem.label] = defaultItem.DeepCopy();
+                    var value = item.Value;
+                    if (curDefault != null)
+                    {
+                        if (!curDefault.settingItems.TryGetValue(item.Key, out var item2) || !value.Equals(item2))
+                        {
+                            Scribe_Deep.Look(ref value, $"{item.Key}_{value.type}");
+                        }
+                    }
                 }
-            }
-        }
-        else if (Scribe.mode == LoadSaveMode.Saving)
-        {
-            foreach (var item in settingItems)
-            {
-                var value = item.Value;
-                if (!curDefault.settingItems.TryGetValue(item.Key, out var item2) || !value.Equals(item2))
+                if (curDefault != null)
                 {
-                    Scribe_Deep.Look(ref value, $"{item.Key}_{value.type}");
+                    SettingItem item = null;
+                    foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label)))
+                    {
+                        Scribe_Deep.Look(ref item, defaultItem.label);
+                    }
                 }
+
+                break;
             }
-            if (curDefault != null)
-            {
-                SettingItem item = null;
-                foreach (var defaultItem in curDefault.settingItems.Values.Where(i => !settingItems.ContainsKey(i.label)))
-                {
-                    Scribe_Deep.Look(ref item, defaultItem.label);
-                }
-            }
+            case LoadSaveMode.Inactive:
+            case LoadSaveMode.ResolvingCrossRefs:
+            case LoadSaveMode.PostLoadInit:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
-    private bool LookBackCompatibility(ref SettingItem item, string label)
+    private static bool LookBackCompatibility(ref SettingItem item, string label)
     {
         switch (label)
         {
@@ -276,14 +292,8 @@ public class MeshSettings : IExposable
 
         public string RenamableLabel
         {
-            get
-            {
-                return label;
-            }
-            set
-            {
-                label = value;
-            }
+            get => label;
+            set => label = value;
         }
 
         public string BaseLabel => label;
@@ -322,10 +332,12 @@ public class MeshSettings : IExposable
                     Scribe_Values.Look(ref link, "linkVerts");
                     Scribe_Values.Look(ref repeat, "repeat");
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void LoadWithOldName<T>(ref T value, string name, T defaultValue = default) where T : struct
+        private static void LoadWithOldName<T>(ref T value, string name, T defaultValue = default) where T : struct
         {
             if (Scribe.mode != LoadSaveMode.LoadingVars || !value.Equals(defaultValue))
                 return;
@@ -351,9 +363,8 @@ public class MeshSettings : IExposable
             if (repeat != other.repeat) return false;
             var flag = vectors != null;
             var flag2 = other.vectors != null;
-            if ((flag ^ flag2) || (flag && !vectors.SequenceEqual(other.vectors))) return false;
-            if (link != other.link) return false;
-            return true;
+            if (flag ^ flag2 || (flag && !vectors.SequenceEqual(other.vectors))) return false;
+            return link == other.link;
         }
 
         public SettingItem DeepCopy()

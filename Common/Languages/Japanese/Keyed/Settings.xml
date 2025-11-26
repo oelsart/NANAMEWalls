@@ -6,6 +6,8 @@
 	<NAW.Settings.NoChangeLinkState>バニラの十字リンク状態を保つ.</NAW.Settings.NoChangeLinkState>
 	<NAW.Settings.SkipOriginalPrint>条件付きでオリジナルの描画をスキップする (NoLinked|HalfLinked).</NAW.Settings.SkipOriginalPrint>
 	<NAW.Settings.AllowVShaped>V字リンクを許可する.</NAW.Settings.AllowVShaped>
+	<NAW.Settings.ForceDent>壁が向く方向を強制的にへこませる.</NAW.Settings.ForceDent>
+	<NAW.Settings.ForceDentOpposite>壁が向く方向を強制的にへこませる (逆向き).</NAW.Settings.ForceDentOpposite>
 	<NAW.Settings.DefaultAll>全てデフォルトに戻す</NAW.Settings.DefaultAll>
 	<NAW.Settings.Values>数値設定</NAW.Settings.Values>
 	<NAW.Settings.Items>項目設定</NAW.Settings.Items>

@@ -12,9 +12,9 @@ internal class SettingsTab_Options : SettingsTabDrawer
 
     public override string Label => "NAW.Settings.Options".Translate();
 
-    public override bool DrawDefaultButton => true;
+    protected override bool DrawDefaultButton => true;
 
-    public override void ResetSettings()
+    protected override void ResetSettings()
     {
         NanameWalls.Mod.Settings.groupNanameWalls = Settings.Default.groupNanameWalls;
         base.ResetSettings();
@@ -35,9 +35,9 @@ internal class SettingsTab_Options : SettingsTabDrawer
         listing_Standard.End();
     }
 
-    private void ReloadDefaultSettings()
+    private static void ReloadDefaultSettings()
     {
         MeshSettings.Init();
-        SoundDefOf.Click.PlayOneShotOnCamera(null);
+        SoundDefOf.Click.PlayOneShotOnCamera();
     }
 }

@@ -70,6 +70,6 @@ public class NanameWalls : Mod
         var rect = new Rect(inRect.x, inRect.y + TabDrawer.TabHeight, inRect.width, inRect.height - TabDrawer.TabHeight);
         Widgets.DrawMenuSection(rect);
         TabDrawer.DrawTabs(rect, tabs);
-        CurrentTab.Draw(rect.ContractedBy(5f));
+        CurrentTab?.Draw(rect.ContractedBy(5f));
     }
 }

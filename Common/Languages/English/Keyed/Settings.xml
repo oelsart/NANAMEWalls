@@ -6,6 +6,8 @@
 	<NAW.Settings.NoChangeLinkState>Keep the vanilla cardinal link state.</NAW.Settings.NoChangeLinkState>
 	<NAW.Settings.SkipOriginalPrint>Skip original printing conditionally (NoLinked|HalfLinked).</NAW.Settings.SkipOriginalPrint>
 	<NAW.Settings.AllowVShaped>Allow V-shaped links.</NAW.Settings.AllowVShaped>
+	<NAW.Settings.ForceDent>Force indentation in the wall's orientation.</NAW.Settings.ForceDent>
+	<NAW.Settings.ForceDentOpposite>Force indentation in the wall's orientation (Opposite).</NAW.Settings.ForceDentOpposite>
 	<NAW.Settings.DefaultAll>Reset all to default</NAW.Settings.DefaultAll>
 	<NAW.Settings.Values>Values</NAW.Settings.Values>
 	<NAW.Settings.Items>Items</NAW.Settings.Items>

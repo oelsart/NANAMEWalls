@@ -11,11 +11,11 @@ internal abstract class SettingsTabDrawer
 
     public abstract string Label { get; }
 
-    public abstract bool DrawDefaultButton { get; }
+    protected abstract bool DrawDefaultButton { get; }
 
-    public virtual void ResetSettings()
+    protected virtual void ResetSettings()
     {
-        SoundDefOf.Click.PlayOneShotOnCamera(null);
+        SoundDefOf.Click.PlayOneShotOnCamera();
     }
 
     protected readonly Vector2 ResetButtonSize = new(150f, 35f);

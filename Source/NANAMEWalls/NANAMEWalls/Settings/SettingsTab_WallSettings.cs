@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using RimWorld;
 using UnityEngine;
 using Verse;
 using static NanameWalls.MeshSettings;
@@ -43,14 +42,18 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     public override string Label => "NAW.Settings.Walls".Translate();
 
-    public override bool DrawDefaultButton => false;
+    protected override bool DrawDefaultButton => false;
 
     private void InitializeTabs()
     {
-        tabs = [];
-        tabs.Add(new TabRecord("NAW.Settings.Values".Translate(), () => settingMode = "Values", () => settingMode == "Values"));
-        tabs.Add(new TabRecord("NAW.Settings.Items".Translate(), () => settingMode = "Items", () => settingMode == "Items"));
-        tabs.Add(new TabRecord("NAW.Settings.Options".Translate(), () => settingMode = "Options", () => settingMode == "Options"));
+        tabs =
+        [
+            new TabRecord("NAW.Settings.Values".Translate(), () => settingMode = "Values",
+                () => settingMode == "Values"),
+            new TabRecord("NAW.Settings.Items".Translate(), () => settingMode = "Items", () => settingMode == "Items"),
+            new TabRecord("NAW.Settings.Options".Translate(), () => settingMode = "Options",
+                () => settingMode == "Options")
+        ];
     }
 
     private void Clear()
@@ -102,26 +105,23 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         Widgets.AdjustRectsForScrollView(rect, ref outRect, ref viewRect);
         Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
         var curY = viewRect.y;
-        foreach (var group in defs)
+        foreach (var group in defs.Where(group => group?.Key != null))
         {
-            if (group?.Key != null)
+            Text.Anchor = TextAnchor.MiddleCenter;
+            using (new TextBlock(TextAnchor.MiddleCenter))
             {
-                Text.Anchor = TextAnchor.MiddleCenter;
-                using (new TextBlock(TextAnchor.MiddleCenter))
+                var name = group.Key.Name ?? "";
+                var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
+                Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white);
+                if (Text.CalcSize(name).x > rect2.width)
                 {
-                    var name = group.Key.Name ?? "";
-                    var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                    Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white, 1);
-                    if (Text.CalcSize(name).x > rect2.width)
-                    {
-                        Text.Font = GameFont.Tiny;
-                    }
-                    Widgets.LabelEllipses(rect2, name);
+                    Text.Font = GameFont.Tiny;
                 }
-                Text.Font = GameFont.Small;
-                curY += Text.LineHeight;
+                Widgets.LabelEllipses(rect2, name);
             }
-
+            Text.Font = GameFont.Small;
+            curY += Text.LineHeight;
+                
             foreach (var def in group)
             {
                 var rect3 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
@@ -228,12 +228,6 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         right = right.BottomPartPixels(settingsHeight + buttonOffset);
         var enabled = meshSettings.enabled;
         var curY = right.y;
-        Rect CurRect()
-        {
-            Rect rect = new(right.x, curY, right.width, Text.LineHeight);
-            curY += Text.LineHeight;
-            return rect;
-        }
         WidgetsEx.CheckboxLabeled(CurRect(), "NAW.Settings.EnableNaname".Translate(), ref enabled, settingItemHeight);
         if (selThing != null)
         {
@@ -256,7 +250,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             InitializeTabs();
         }
         Widgets.DrawMenuSection(tabRect);
-        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs.Count);
+        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs!.Count);
 
         //デフォルトボタン
         var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels((bottom.width / 2f) - 2f);
@@ -280,7 +274,6 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             case "Options":
                 DoOptionsSection(tabRect, meshSettings);
                 break;
-            case "Values":
             default:
                 defaultRequest = "";
                 var leftButtonRect = buttonRect.LeftPartPixels((buttonRect.width / 2f) - 1f);
@@ -291,6 +284,15 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 }
                 DoValuesSection(tabRect, previewSize, meshSettings);
                 break;
+        }
+
+        return;
+
+        Rect CurRect()
+        {
+            Rect curRect = new(right.x, curY, right.width, Text.LineHeight);
+            curY += Text.LineHeight;
+            return curRect;
         }
     }
 
@@ -310,7 +312,6 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         Text.Font = GameFont.Tiny;
 
         var defaultSettings = DefaultSettingsFor(NanameWalls.Mod.selDef);
-        SettingItem newUVs = null;
         foreach (var item in meshSettings.settingItems.Values)
         {
             if (!defaultSettings.settingItems.TryGetValue(item.label, out var defaultItem))
@@ -336,11 +337,9 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 case SettingItem.SettingType.Verts:
                     DoItem(ref itemRect, previewSize, labelPct, item.label, item, defaultItem, rects, meshSettings);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-        }
-        if (newUVs is not null)
-        {
-            meshSettings.settingItems[newUVs.label] = newUVs;
         }
         Widgets.EndScrollView();
 
@@ -402,9 +401,6 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     private void DoItem(ref Rect rect, float previewSize, float labelPct, string label, SettingItem item, SettingItem defaultItem, List<Rect> textFieldRects, MeshSettings meshSettings)
     {
-        Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize);
-        Vector3 ConvertUV(Vector3 v) => Invert(v * previewSize / 2f, previewSize);
-
         var isVerts = item.type == SettingItem.SettingType.Verts;
         Widgets.DrawRectFast(rect, isVerts ? new Color(0f, 0.1f, 0.85f, 0.05f) : new Color(0.85f, 0.8f, 0f, 0.05f));
         Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
@@ -481,9 +477,14 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         }
 
         rect.y += Text.LineHeightOf(GameFont.Small);
+        return;
+
+        Vector3 ConvertUV(Vector3 v) => Invert(v * previewSize / 2f, previewSize);
+
+        Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize);
     }
 
-    private Vector3 Invert(Vector3 vector, float previewSize)
+    private static Vector3 Invert(Vector3 vector, float previewSize)
     {
         vector.y = previewSize - vector.y;
         return vector;
@@ -491,7 +492,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
     private void DoItemsSection(Rect rect, MeshSettings meshSettings)
     {
-        var labelPct = 0.3f;
+        const float labelPct = 0.3f;
 
         rect.SplitHorizontally(Text.LineHeight, out var top, out var bottom);
         var viewRect = bottom;
@@ -536,7 +537,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         Text.Font = GameFont.Small;
     }
 
-    private void DoItem(ref Rect rect, float labelPct, SettingItem item, MeshSettings meshSettings)
+    private static void DoItem(ref Rect rect, float labelPct, SettingItem item, MeshSettings meshSettings)
     {
         var labelRect = rect.LeftPart(labelPct);
         var lineHeight = Text.LineHeightOf(GameFont.Small);
@@ -567,7 +568,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         }
 
         var rect2 = rect.RightPartPixels(rect.xMax - right.xMax - 2f);
-        Widgets.Dropdown(rect2.LeftPart(0.33f), item, item => item.type, item =>
+        Widgets.Dropdown(rect2.LeftPart(0.33f), item, item2 => item2.type, item2 =>
         {
             return ((IEnumerable<SettingItem.SettingType>)Enum.GetValues(typeof(SettingItem.SettingType))).Select(type =>
             {
@@ -575,7 +576,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 {
                     option = new FloatMenuOption(type.ToString(), () =>
                     {
-                        item.type = type;
+                        item2.type = type;
                     }),
                     payload = type
                 };
@@ -585,17 +586,17 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         {
             if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
             {
-                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
                 {
-                    return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.Verts).Select(item2 =>
+                    return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.Verts).Select(item3 =>
                     {
                         return new Widgets.DropdownMenuElement<string>()
                         {
-                            option = new FloatMenuOption(item2.label, () =>
+                            option = new FloatMenuOption(item3.label, () =>
                             {
-                                item.link = item2.label;
+                                item2.link = item3.label;
                             }),
-                            payload = item2.label
+                            payload = item3.label
                         };
                     });
                 }, item.link);
@@ -605,22 +606,22 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         {
             if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
             {
-                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item => item.link, item =>
+                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
                 {
-                    return meshSettings.settingItems.Values.Where(item2 => item2.type == SettingItem.SettingType.UVs).Select(item2 =>
+                    return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.UVs).Select(item3 =>
                     {
                         return new Widgets.DropdownMenuElement<string>()
                         {
-                            option = new FloatMenuOption(item2.label, () =>
+                            option = new FloatMenuOption(item3.label, () =>
                             {
-                                item.link = item2.label;
+                                item2.link = item3.label;
                             }),
-                            payload = item2.label
+                            payload = item3.label
                         };
                     });
                 }, item.link);
             }
-            Widgets.Dropdown(rect2.RightPart(0.33f), item, item => item.condition, item =>
+            Widgets.Dropdown(rect2.RightPart(0.33f), item, item2 => item2.condition, item2 =>
             {
                 return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition))).Where(d => d != SettingItem.Condition.None).Select(direction =>
                 {
@@ -628,7 +629,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                     {
                         option = new FloatMenuOption(direction.ToString(), () =>
                         {
-                            item.condition = direction;
+                            item2.condition = direction;
                         }),
                         payload = direction
                     };
@@ -639,22 +640,20 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         rect.y += lineHeight;
     }
 
-    private void DoOptionsSection(Rect rect, MeshSettings meshSettings)
+    private static void DoOptionsSection(Rect rect, MeshSettings meshSettings)
     {
         var listing_standard = new Listing_Standard();
         listing_standard.Begin(rect);
         listing_standard.CheckboxLabeled("NAW.Settings.NoChangeLinkState".Translate(), ref meshSettings.noChangeLinkState);
         listing_standard.CheckboxLabeled("NAW.Settings.SkipOriginalPrint".Translate(), ref meshSettings.skipOriginalPrint);
         listing_standard.CheckboxLabeled("NAW.Settings.AllowVShaped".Translate(), ref meshSettings.allowVShaped);
+        listing_standard.CheckboxLabeled("NAW.Settings.ForceDent".Translate(), ref meshSettings.forceDent);
+        listing_standard.CheckboxLabeled("NAW.Settings.ForceDentOpposite".Translate(), ref meshSettings.forceDentOpposite);
         listing_standard.End();
     }
 
     public class Dialog_RenameItem(SettingItem item, MeshSettings meshSettings, Action action) : Dialog_Rename<SettingItem>(item)
     {
-        private readonly MeshSettings meshSettings = meshSettings;
-
-        private readonly Action action = action;
-
         protected override AcceptanceReport NameIsValid(string name)
         {
             var acceptanceReport = base.NameIsValid(name);
