@@ -15,7 +15,7 @@ namespace NanameWalls
             {
                 if (!Active) return;
 
-                RotForPrintCounter = (Func<Rot4>)AccessTools.PropertyGetter("VehicleMapFramework.VehicleMapUtility:RotForPrintCounter")?.CreateDelegate(typeof(Func<Rot4>));
+                RotForPrintCounter = (Func<Rot4>)AccessTools.PropertyGetter("VehicleMapFramework.VehicleSectionLayerManager:RotForPrintCounter")?.CreateDelegate(typeof(Func<Rot4>));
                 if (RotForPrintCounter is null)
                 {
                     Active = false;
