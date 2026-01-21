@@ -92,7 +92,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                                                                             designator_Build.Map.listerThings
                                                                                 .ThingsOfDef(item).Count <= 0)) continue;
                 var localStuffDef = item;
-                var str = designator_Build.sourcePrecept == null ? GenLabel.ThingLabel(thingDef, localStuffDef) : ((string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build.sourcePrecept.Label));
+                var str = designator_Build.sourcePrecept == null ? GenLabel.ThingLabel(thingDef, localStuffDef) : (string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build.sourcePrecept.Label);
                 str = str.CapitalizeFirst();
                 FloatMenuOption floatMenuOption = new(str, () =>
                 {
@@ -123,5 +123,18 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
             }
         };
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(ResearchPrerequisitesUtility), nameof(ResearchPrerequisitesUtility.UnlockedDefsGroupedByPrerequisites))]
+public static class Patch_ResearchPrerequisitesUtility_UnlockedDefsGroupedByPrerequisites
+{
+    public static void Postfix(List<Pair<ResearchPrerequisitesUtility.UnlockedHeader, List<Def>>> __result)
+    {
+        foreach (var pair in __result)
+        {
+            pair.Second.RemoveAll(def =>
+                def is ThingDef thingDef && NanameWalls.Mod.nanameWalls.ContainsValue(thingDef));
+        }
     }
 }

@@ -77,6 +77,11 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             {
                 designationCategory.ResolveReferences();
             }
+
+            foreach (var thingCategory in NanameWalls.Mod.thingCategories)
+            {
+                thingCategory.ResolveReferences();
+            }
         }
         NanameWalls.Mod.selThing = null;
     }

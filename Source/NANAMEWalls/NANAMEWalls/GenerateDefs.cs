@@ -65,6 +65,11 @@ public static class GenerateDefs
             designationCategory.ResolveReferences();
         }
 
+        foreach (var thingCategory in NanameWalls.Mod.thingCategories)
+        {
+            thingCategory.ResolveReferences();
+        }
+
         return;
 
         static bool IsLinkedThing(ThingDef def)
@@ -77,7 +82,7 @@ public static class GenerateDefs
         {
             var newDef = MakeShallowCopy(wallDef, "cachedLabelCap", "designationHotKey");
             newDef.defName += NanameWalls.Suffix;
-            newDef.label = "NAW.Diagonal".Translate() + wallDef.LabelCap;
+            newDef.label = "NAW.Diagonal".Translate() + wallDef.label;
             newDef.graphicData = new GraphicData();
             newDef.graphicData.CopyFrom(wallDef.graphicData);
             newDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkerTypeStatic;
@@ -104,6 +109,8 @@ public static class GenerateDefs
             var buildableByPlayer = wallDef.BuildableByPlayer;
             if (buildableByPlayer)
                 NanameWalls.Mod.designationCategories.Add(wallDef.designationCategory);
+            if (!wallDef.thingCategories.NullOrEmpty())
+                NanameWalls.Mod.thingCategories.AddRange(wallDef.thingCategories);
             NanameWalls.Mod.nanameWalls[wallDef] = newDef;
             NanameWalls.Mod.originalDefs[newDef] = wallDef;
 

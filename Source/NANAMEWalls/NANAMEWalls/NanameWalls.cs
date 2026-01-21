@@ -15,6 +15,8 @@ public class NanameWalls : Mod
     public const string Suffix = "_NAWDiagonal";
 
     public readonly HashSet<DesignationCategoryDef> designationCategories = [];
+    
+    public readonly HashSet<ThingCategoryDef> thingCategories = [];
 
     public readonly Dictionary<ThingDef, ThingDef> originalDefs = [];
 
