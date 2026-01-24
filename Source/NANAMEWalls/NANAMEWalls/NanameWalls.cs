@@ -38,6 +38,9 @@ public class NanameWalls : Mod
         MeshSettings.Init();
         Settings = GetSettings<Settings>();
         Harmony = new Harmony("OELS.NanameWalls");
+        Harmony.Patch(
+            AccessTools.Method(typeof(GraphicUtility), nameof(GraphicUtility.WrapLinked)),
+            prefix: new HarmonyMethod(typeof(Patch_GraphicUtility_WrapLinked), nameof(Patch_GraphicUtility_WrapLinked.Prefix)));
     }
 
     public override string SettingsCategory()
@@ -73,5 +76,15 @@ public class NanameWalls : Mod
         Widgets.DrawMenuSection(rect);
         TabDrawer.DrawTabs(rect, tabs);
         CurrentTab?.Draw(rect.ContractedBy(5f));
+    }
+}
+
+public static class Patch_GraphicUtility_WrapLinked
+{
+    public static bool Prefix(Graphic subGraphic, LinkDrawerType linkDrawerType, ref Graphic_Linked __result)
+    {
+        if (linkDrawerType != Graphic_LinkedDiagonal.LinkerTypeStatic) return true;
+        __result = new Graphic_LinkedDiagonal(subGraphic);
+        return false;
     }
 }

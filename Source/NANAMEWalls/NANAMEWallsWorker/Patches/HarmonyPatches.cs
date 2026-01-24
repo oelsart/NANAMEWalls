@@ -5,17 +5,6 @@ using Verse.Sound;
 
 namespace NanameWalls;
 
-[HarmonyPatch(typeof(GraphicUtility), nameof(GraphicUtility.WrapLinked))]
-public static class Patch_GraphicUtility_WrapLinked
-{
-    public static bool Prefix(Graphic subGraphic, LinkDrawerType linkDrawerType, ref Graphic_Linked __result)
-    {
-        if (linkDrawerType != Graphic_LinkedDiagonal.LinkerTypeStatic) return true;
-        __result = new Graphic_LinkedDiagonal(subGraphic);
-        return false;
-    }
-}
-
 [HarmonyPatch(typeof(Building), nameof(Building.GetGizmos))]
 public static class Patch_Building_GetGizmos
 {
