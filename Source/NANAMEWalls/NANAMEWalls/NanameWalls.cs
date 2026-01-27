@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
 using Verse;
 
 namespace NanameWalls;
 
+[PublicAPI]
 public class NanameWalls : Mod
 {
     public static NanameWalls Mod { get; private set; }

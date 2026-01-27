@@ -54,8 +54,14 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             var rotated = offset.RotatedBy(VehicleMapFramework.RotForPrintCounter());
             c = rotated + parent.Position;
         }
+
         var edifice = c.GetEdificeSafe(parent.Map);
-        if (edifice is null || (!linkWithNormal && !NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def)))
+        if (edifice is null)
+            return flag;
+        if (!linkWithNormal &&
+            !NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def.IsBlueprint
+                ? edifice.def.entityDefToBuild as ThingDef ?? edifice.def
+                : edifice.def))
         {
             return false;
         }
@@ -68,14 +74,12 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
     protected override Material LinkedDrawMatFrom(Thing parent, IntVec3 cell)
     {
-        if (!NanameWalls.Mod.originalDefs.TryGetValue(parent.def, out var originalDef))
-        {
-            originalDef = parent.def;
-        }
+        var entityDef = parent.def.IsBlueprint ? parent.def.entityDefToBuild as ThingDef ?? parent.def : parent.def;
+        var originalDef = NanameWalls.Mod.originalDefs.GetValueOrDefault(entityDef, entityDef);
         var defName = originalDef.defName;
         if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(defName, out var settings))
         {
-            settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(parent.def);
+            settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(entityDef);
         }
         if (settings.noChangeLinkState)
         {
@@ -100,19 +104,19 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var southWest = ShouldLinkWith(pos + IntVec3.SouthWest, parent, false);
         var northEast = ShouldLinkWith(pos + IntVec3.NorthEast, parent, false);
         var northWest = ShouldLinkWith(pos + IntVec3.NorthWest, parent, false);
-        if (diagonalFlag.HasFlag(Diagonals.NorthEast) && northEast)
+        if ((diagonalFlag & Diagonals.NorthEast) > Diagonals.None && northEast)
         {
             linkDirections |= LinkDirections.Up;
         }
-        if (diagonalFlag.HasFlag(Diagonals.NorthWest) && northWest)
+        if ((diagonalFlag & Diagonals.NorthWest) > Diagonals.None && northWest)
         {
             linkDirections |= LinkDirections.Up;
         }
-        if (diagonalFlag.HasFlag(Diagonals.SouthEast) && southEast)
+        if ((diagonalFlag & Diagonals.SouthEast) > Diagonals.None && southEast)
         {
             linkDirections |= LinkDirections.Right;
         }
-        if (diagonalFlag.HasFlag(Diagonals.SouthWest) && southWest)    
+        if ((diagonalFlag & Diagonals.SouthWest) > Diagonals.None && southWest)    
         {
             linkDirections |= LinkDirections.Left;
         }
@@ -121,21 +125,21 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var west2 = !settings.allowVShaped && ShouldLinkWith(pos + IntVec3.West * 2, parent);
         var north2 = !settings.allowVShaped && ShouldLinkWith(pos + IntVec3.North * 2, parent);
         var south2 = !settings.allowVShaped && ShouldLinkWith(pos + IntVec3.South * 2, parent);
-        if (!linkDirections.HasFlag(LinkDirections.Right) && !east2 && southEast ^ northEast)
+        if ((linkDirections & LinkDirections.Right) <= LinkDirections.None && !east2 && southEast ^ northEast)
         {
             if (southEast ? ClearFor(settings, Rot4.East, Rot4.North, parent) : ClearFor(settings, Rot4.East, Rot4.South, parent))
             {
                 linkDirections |= LinkDirections.Right;
             }
         }
-        if (!linkDirections.HasFlag(LinkDirections.Left) && !west2 && southWest ^ northWest)
+        if ((linkDirections & LinkDirections.Left) <= LinkDirections.None && !west2 && southWest ^ northWest)
         {
             if (southWest ? ClearFor(settings, Rot4.West, Rot4.North, parent) : ClearFor(settings, Rot4.West, Rot4.South, parent))
             {
                 linkDirections |= LinkDirections.Left;
             }
         }
-        if (!linkDirections.HasFlag(LinkDirections.Down) && southEast ^ southWest)
+        if ((linkDirections & LinkDirections.Down) <= LinkDirections.None && southEast ^ southWest)
         {
             if (!south2 && (southEast ? ClearFor(settings, Rot4.South, Rot4.West, parent) : ClearFor(settings, Rot4.South, Rot4.East, parent)))
             {
@@ -143,7 +147,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             }
         }
         // ReSharper disable once InvertIf
-        if (!linkDirections.HasFlag(LinkDirections.Up) && northEast ^ northWest)
+        if ((linkDirections & LinkDirections.Up) <= LinkDirections.None && northEast ^ northWest)
         {
             if (!north2 && (northEast ? ClearFor(settings, Rot4.North, Rot4.West, parent) : ClearFor(settings, Rot4.North, Rot4.East, parent)))
             {
@@ -213,14 +217,12 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
     public override void Print(SectionLayer layer, Thing thing, float extraRotation)
     {
-        if (!NanameWalls.Mod.originalDefs.TryGetValue(thing.def, out var originalDef))
-        {
-            originalDef = thing.def;
-        }
+        var entityDef = thing.def.IsBlueprint ? thing.def.entityDefToBuild as ThingDef ?? thing.def : thing.def;
+        var originalDef = NanameWalls.Mod.originalDefs.GetValueOrDefault(entityDef, entityDef);
         var defName = originalDef.defName;
         if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(defName, out var settings))
         {
-            settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(thing.def);
+            settings = NanameWalls.Mod.Settings.meshSettings[defName] = MeshSettings.DeepCopyDefaultFor(entityDef);
         }
 
         var pos = thing.Position;
@@ -311,7 +313,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         foreach (Diagonals direction in Enum.GetValues(typeof(Diagonals)))
         {
             if (direction is Diagonals.None or Diagonals.NoFinalize) continue;
-            if (flag.HasFlag(direction))
+            if ((flag & direction) > Diagonals.None)
             {
                 PrintDiagonal(subMesh, settings, center, extraRotation, direction);
             }
@@ -332,21 +334,21 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         //CornerFillers
         if (north)
         {
-            if (flag.HasFlag(Diagonals.SouthEast))
+            if ((flag & Diagonals.SouthEast) > Diagonals.None)
             {
                 Printer_Plane.PrintPlane(layer, center + new Vector3(0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             }
-            if (flag.HasFlag(Diagonals.SouthWest))
+            if ((flag & Diagonals.SouthWest) > Diagonals.None)
             {
                 Printer_Plane.PrintPlane(layer, center + new Vector3(-0.4f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             }
         }
-        if (east && flag.HasFlag(Diagonals.NorthWest))
+        if (east && (flag & Diagonals.NorthWest) > Diagonals.None)
         {
             Printer_Plane.PrintPlane(layer, center + new Vector3(0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             Printer_Plane.PrintPlane(layer, center + new Vector3(0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, CornerFillerUVs);
         }
-        if (west && flag.HasFlag(Diagonals.NorthEast))
+        if (west && (flag & Diagonals.NorthEast) > Diagonals.None)
         {
             Printer_Plane.PrintPlane(layer, center + new Vector3(-0.55f, 0f, 0.5f).RotatedBy(extraRotation), Vector2.one * 0.75f, mat, extraRotation, false, CornerFillerUVs);
             Printer_Plane.PrintPlane(layer, center + new Vector3(-0.75f, 0f, 0.75f).RotatedBy(extraRotation), Vector2.one * 0.5f, mat, extraRotation, false, CornerFillerUVs);
@@ -388,8 +390,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
     private static void PrintDiagonal(LayerSubMesh subMesh, MeshSettings settings, Vector3 center, float extraRotation, Diagonals direction, bool finishPrint = false)
     {
-        var north = direction == Diagonals.NorthEast || direction == Diagonals.NorthWest;
-        var flipped = direction == Diagonals.NorthEast || direction == Diagonals.SouthWest;
+        var north = direction is Diagonals.NorthEast or Diagonals.NorthWest;
+        var flipped = direction is Diagonals.NorthEast or Diagonals.SouthWest;
         var index = flipped ? TrisIndexFlipped : TrisIndex;
         var count = subMesh.verts.Count;
         var count2 = count;

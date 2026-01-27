@@ -100,6 +100,19 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                 };
                 list.Add(floatMenuOption);
             }
+            
+            if (list.Empty())
+            {
+                Messages.Message("NoStuffsToBuildWith".Translate(), MessageTypeDefOf.RejectInput, false);
+                var fakeWindow = new ImmediateWindow();
+                fakeWindow.doWindowFunc = () =>
+                {
+                    Find.DesignatorManager.Deselect();
+                    fakeWindow.Close();
+                };
+                __result = fakeWindow;
+                return false;
+            }
         }
 
         if (!flag) return true;

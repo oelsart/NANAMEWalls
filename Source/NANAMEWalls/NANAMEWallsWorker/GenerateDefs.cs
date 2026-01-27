@@ -13,7 +13,7 @@ public static class GenerateDefs
 
     private delegate ThingDef GetNewBlueprintDef_Thing(ThingDef def, bool isInstallBlueprint, ThingDef normalBlueprint = null, bool hotReload = false);
 
-    private delegate ThingDef GetNewFrameDef_Thing(ThingDef def, bool hodReload = false);
+    private delegate ThingDef GetNewFrameDef_Thing(ThingDef def, bool hotReload = false);
 
     static GenerateDefs()
     {
@@ -30,9 +30,8 @@ public static class GenerateDefs
                 if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
 
                 var newDef = GenerateInner(wallDef);
-                if (!newDef.IsSmoothable) continue;
                 
-                newDef.building = Gen.MemberwiseClone(newDef.building);
+                if (!newDef.IsSmoothable) continue;
                 ref var smoothedThing = ref newDef.building.smoothedThing;
                 if (!IsLinkedThing(smoothedThing)) continue;
 
@@ -80,25 +79,34 @@ public static class GenerateDefs
 
         ThingDef GenerateInner(ThingDef wallDef)
         {
-            var newDef = MakeShallowCopy(wallDef, "cachedLabelCap", "designationHotKey");
-            newDef.defName += NanameWalls.Suffix;
+            var defName = wallDef.defName + NanameWalls.Suffix;
+            var newDef = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+            string[] exceptFields = ["cachedLabelCap", "designationHotKey"];
+            var remake = newDef != null;
+            if (remake) CopyFields(wallDef, newDef, exceptFields);
+            else newDef = MakeShallowCopy(wallDef, exceptFields);
+            newDef.defName = defName;
             newDef.label = "NAW.Diagonal".Translate() + wallDef.label;
             newDef.graphicData = new GraphicData();
             newDef.graphicData.CopyFrom(wallDef.graphicData);
             newDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkerTypeStatic;
+            if (wallDef.building is not null)
+            {
+                newDef.building = MakeShallowCopy(wallDef.building, "isNaturalRock", "isResourceRock");
+            }
             newDef.shortHash = 0;
             GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
             newDef.modContentPack = NanameWalls.Mod.Content;
-            DefGenerator.AddImpliedDef(newDef);
-            DefDatabase<BuildableDef>.Add(newDef);
-            var bluePrintDef = NewBlueprintDef_Thing(newDef, false);
+            DefGenerator.AddImpliedDef(newDef, remake);
+            if (!remake) DefDatabase<BuildableDef>.Add(newDef);
+            var bluePrintDef = NewBlueprintDef_Thing(newDef, false, hotReload: remake);
             bluePrintDef.shortHash = 0;
             GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
-            DefGenerator.AddImpliedDef(bluePrintDef);
-            var frameDef = NewFrameDef_Thing(newDef);
+            DefGenerator.AddImpliedDef(bluePrintDef, remake);
+            var frameDef = NewFrameDef_Thing(newDef, hotReload: remake);
             frameDef.shortHash = 0;
             GiveShortHash(frameDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
-            DefGenerator.AddImpliedDef(frameDef);
+            DefGenerator.AddImpliedDef(frameDef, remake);
 
             var meshSettingsDict = NanameWalls.Mod.Settings.meshSettings;
             if (!meshSettingsDict.TryGetValue(wallDef.defName, out var meshSettings))
@@ -158,12 +166,17 @@ public static class GenerateDefs
     private static T MakeShallowCopy<T>(T from, params string[] exceptFields)
     {
         var to = Activator.CreateInstance(from.GetType());
+        CopyFields(from, to, exceptFields);
+        return (T)to;
+    }
+
+    private static void CopyFields<T>(T from, T to, params string[] exceptFields)
+    {
         foreach (var fieldInfo in from.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (exceptFields.Contains(fieldInfo.Name))
                 continue;
             fieldInfo.SetValue(to, fieldInfo.GetValue(from));
         }
-        return (T)to;
     }
 }
