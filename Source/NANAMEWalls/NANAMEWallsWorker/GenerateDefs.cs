@@ -86,7 +86,10 @@ public static class GenerateDefs
             if (remake) CopyFields(wallDef, newDef, exceptFields);
             else newDef = MakeShallowCopy(wallDef, exceptFields);
             newDef.defName = defName;
-            newDef.label = "NAW.Diagonal".Translate() + wallDef.label;
+            newDef.label = "NAW.Diagonal".Translate(wallDef.label);
+            if (!newDef.label.Contains(wallDef.label)) // Back compatibility
+                newDef.label += wallDef.label;
+            
             newDef.graphicData = new GraphicData();
             newDef.graphicData.CopyFrom(wallDef.graphicData);
             newDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkerTypeStatic;

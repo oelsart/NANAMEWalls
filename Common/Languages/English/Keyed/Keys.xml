@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-	<NAW.Diagonal>dia.&#160;</NAW.Diagonal> <!--Use NBSP to avoid capitalization due to end-of-sentence detection-->
+	<NAW.Diagonal>dia.&#160;{0}</NAW.Diagonal> <!--Use NBSP to avoid capitalization due to end-of-sentence detection-->
 	<NAW.NanameSettings>NANAME Settings</NAW.NanameSettings>
 	<NAW.UpdateGraphic>Update Graphic</NAW.UpdateGraphic>
 	<NAW.NotGenerated>NANAME wall def is not generated.</NAW.NotGenerated>

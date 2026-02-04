@@ -9,6 +9,8 @@
     <OutputPath>..\..\..\1.6\Assemblies</OutputPath>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	<LangVersion>preview</LangVersion>
+	<Configurations>Debug;Release;Dev</Configurations>
+	<Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
