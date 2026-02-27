@@ -5,7 +5,6 @@ using static NanameWalls.MeshSettings;
 
 namespace NanameWalls;
 
-[HotSwap]
 internal class SettingsTab_WallSettings : SettingsTabDrawer
 {
     private const float PreviewSizeRatio = 0.315f;
@@ -190,7 +189,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
             if (selectedPoint != null)
             {
                 var point = selectedPoint.Value + left.position;
-                point = new(Mathf.Floor(point.x), Mathf.Floor(point.y));
+                point = new Vector2(Mathf.Floor(point.x), Mathf.Floor(point.y));
                 var tmpColor = GUI.color;
                 GUI.color = Color.red;
                 GUI.DrawTexture(new Rect(point.x - 2f, point.y, 5f, 1f), BaseContent.WhiteTex);
@@ -420,7 +419,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 buffer = buffers[label + i] = new string[3];
             }
             var prevValue = value;
-            Widgets.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
+            WidgetsEx.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
             item.vectors[i] = value;
             if (prevValue != value)
             {
@@ -442,13 +441,13 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
             if (i != item.vectors.Count - 1)
             {
-                Widgets.Label(new(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
+                Widgets.Label(new Rect(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
             }
 
             var offset = rect3.width / 3f;
             var controlName1 = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
             var controlName2 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset).ToString("F0");
-            var controlName3 = "TextField" + rect3.y.ToString("F0") + (rect3.x + (offset * 2)).ToString("F0");
+            var controlName3 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset * 2).ToString("F0");
             var name = GUI.GetNameOfFocusedControl();
             if (name == controlName1 || name == controlName2 || name == controlName3)
             {

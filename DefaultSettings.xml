@@ -3849,7 +3849,132 @@
 		<NorthVertsBorder IsNull="True" />
 		<SouthVertsBorder IsNull="True" />
 	</HullFoamWall>
-	
+	<XER_SimpleWall>
+		<noChangeLinkState>True</noChangeLinkState>
+		<skipOriginalPrint>True</skipOriginalPrint>
+		<allowVShaped>True</allowVShaped>
+		<BorderUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.0199999996, 0)</li>
+				<li>(0.5, 0.0199999996, 0)</li>
+				<li>(0.5, 0.0199999996, 0)</li>
+				<li>(0.5, 0.0199999996, 0)</li>
+			</UVs>
+		</BorderUVs_UVs>
+		<HalfLinkedUVs_UVs>
+			<UVs>
+				<li>(0.170000002, 0.150000006, 0)</li>
+				<li>(0.170000002, 0.939999998, 0)</li>
+				<li>(0.349999994, 0.939999998, 0)</li>
+				<li>(0.349999994, 0.150000006, 0)</li>
+			</UVs>
+		</HalfLinkedUVs_UVs>
+		<HalfLinkedVerts_Verts>
+			<linkUVs>HalfLinkedUVs</linkUVs>
+			<condition>HalfLinked</condition>
+			<Verts>
+				<li>(-0.5, 0.00999999978, -0.5)</li>
+				<li>(-0.5, 0.0199999996, 0.5)</li>
+				<li>(-0.0799999982, 0.0199999996, 0.5)</li>
+				<li>(-0.0799999982, 0.00999999978, -0.5)</li>
+			</Verts>
+		</HalfLinkedVerts_Verts>
+		<NoLinkedBorderVertsL_Verts>
+			<linkUVs>BorderUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(-0.115000002, 0.0199999996, -0.400000006)</li>
+				<li>(-0.115000002, 0.0299999993, 0.379999995)</li>
+				<li>(-0.0890000015, 0.0299999993, 0.379999995)</li>
+				<li>(-0.0890000015, 0.0199999996, -0.400000006)</li>
+			</Verts>
+		</NoLinkedBorderVertsL_Verts>
+		<NoLinkedBorderVertsR_Verts>
+			<linkUVs>BorderUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(0.0799999982, 0.0199999996, -0.400000006)</li>
+				<li>(0.0799999982, 0.0299999993, 0.379999995)</li>
+				<li>(0.108000003, 0.0299999993, 0.379999995)</li>
+				<li>(0.108000003, 0.0199999996, -0.400000006)</li>
+			</Verts>
+		</NoLinkedBorderVertsR_Verts>
+		<NoLinkedUVs_UVs>
+			<UVs>
+				<li>(0, 0.140000001, 0)</li>
+				<li>(0, 0.980000019, 0)</li>
+				<li>(0.224999994, 0.980000019, 0)</li>
+				<li>(0.224999994, 0.140000001, 0)</li>
+			</UVs>
+		</NoLinkedUVs_UVs>
+		<NoLinkedVerts_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>NoLinked</condition>
+			<Verts>
+				<li>(-0.112999998, 0, -0.5)</li>
+				<li>(-0.112999998, 0.00999999978, 0.5)</li>
+				<li>(0.107000001, 0.00999999978, 0.5)</li>
+				<li>(0.107000001, 0, -0.5)</li>
+			</Verts>
+		</NoLinkedVerts_Verts>
+		<SouthWallRepeat_Repeat>
+			<linkVerts>SouthWallVerts</linkVerts>
+			<repeat>1</repeat>
+		</SouthWallRepeat_Repeat>
+		<SouthWallVerts_Verts>
+			<linkUVs>WallUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.0820000023, 0.0299999993, -0.275000006)</li>
+				<li>(0.0820000023, 0.0399999991, 0.425000012)</li>
+				<li>(0.916999996, 0.0399999991, 1.25999999)</li>
+				<li>(0.920000017, 0.0299999993, 0.560000002)</li>
+			</Verts>
+		</SouthWallVerts_Verts>
+		<SouthWallVertsPole_Verts>
+			<linkUVs>NoLinkedUVs</linkUVs>
+			<condition>South</condition>
+			<Verts>
+				<li>(0.887000024, 0, 0.5)</li>
+				<li>(0.887000024, 0.00999999978, 1.5)</li>
+				<li>(1.10699999, 0.00999999978, 1.5)</li>
+				<li>(1.10699999, 0, 0.5)</li>
+			</Verts>
+		</SouthWallVertsPole_Verts>
+		<TopUVs_UVs>
+			<UVs>
+				<li>(0.5, 0.730000019, 0)</li>
+				<li>(0.5, 0.839999974, 0)</li>
+				<li>(0.5, 0.839999974, 0)</li>
+				<li>(0.5, 0.730000019, 0)</li>
+			</UVs>
+		</TopUVs_UVs>
+		<WallUVs_UVs>
+			<UVs>
+				<li>(0.230000004, 0.209999993, 0)</li>
+				<li>(0.230000004, 0.899999976, 0)</li>
+				<li>(0.379999995, 0.899999976, 0)</li>
+				<li>(0.379999995, 0.209999993, 0)</li>
+			</UVs>
+		</WallUVs_UVs>
+		<BorderFillerUVs IsNull="True" />
+		<NorthUVs IsNull="True" />
+		<NorthUVsFinish IsNull="True" />
+		<NorthVerts IsNull="True" />
+		<NorthVertsBorder IsNull="True" />
+		<NorthVertsFiller IsNull="True" />
+		<NorthVertsFinish IsNull="True" />
+		<NorthVertsFinishBorder IsNull="True" />
+		<NorthVertsRepeat IsNull="True" />
+		<SouthUVs IsNull="True" />
+		<SouthUVsFinish IsNull="True" />
+		<SouthVerts IsNull="True" />
+		<SouthVertsBorder IsNull="True" />
+		<SouthVertsFiller IsNull="True" />
+		<SouthVertsFinish IsNull="True" />
+		<SouthVertsRepeat IsNull="True" />
+		<TopFillerUVs IsNull="True" />
+	</XER_SimpleWall>
 	
 	<!--Rocks-->
 	<Sandstone>

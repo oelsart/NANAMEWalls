@@ -305,9 +305,9 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
         // Half-linked printing
         if (halfLinked)
-            PrintConditional(layer.GetSubMesh(MatSingle), settings, center, extraRotation, east, Condition.HalfLinked);
+            PrintConditional(layer.GetSubMesh(mat), settings, center, extraRotation, east, Condition.HalfLinked);
         if (!anyLinked)
-            PrintConditional(layer.GetSubMesh(MatSingle), settings, center, extraRotation, false, Condition.NoLinked);
+            PrintConditional(layer.GetSubMesh(mat), settings, center, extraRotation, false, Condition.NoLinked);
 
         // Diagonal printing
         foreach (Diagonals direction in Enum.GetValues(typeof(Diagonals)))

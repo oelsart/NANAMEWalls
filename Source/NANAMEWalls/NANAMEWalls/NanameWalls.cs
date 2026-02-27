@@ -47,7 +47,7 @@ public class NanameWalls : Mod
 
     public override string SettingsCategory()
     {
-        return "NANAME Walls";
+        return ModsConfig.IsActive("OELS.NanameWalls") ? "NANAME Walls" : "";
     }
 
     public override void WriteSettings()
