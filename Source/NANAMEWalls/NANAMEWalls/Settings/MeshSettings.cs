@@ -44,7 +44,15 @@ public class MeshSettings : IExposable
                     foreach (XmlNode child in children)
                     {
                         MeshSettings settings = null;
-                        Scribe_Deep.Look(ref settings, child.Name);
+                        if (child.Attributes?.GetNamedItem("Redirect") is { } redirect &&
+                            defaultSettings.TryGetValue(redirect.Value, out var redirectSettings))
+                        {
+                            settings = redirectSettings;
+                        }
+                        else
+                        {
+                            Scribe_Deep.Look(ref settings, child.Name);
+                        }
                         defaultSettings[child.Name] = settings;
                     }
                 }
