@@ -2,6 +2,7 @@
 using RimWorld;
 using Verse;
 using Verse.Sound;
+using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
 
@@ -16,7 +17,7 @@ public static class Patch_Building_GetGizmos
         }
 
         if (!DebugSettings.godMode || __instance.Graphic is not Graphic_LinkedDiagonal) yield break;
-        yield return new Command_Action()
+        yield return new Command_Action
         {
             defaultLabel = "NAW.NanameSettings".Translate(),
             Order = 10000,
@@ -48,14 +49,12 @@ public static class Patch_Building_GetGizmos
 public static class Patch_Designator_Dropdown_SetupFloatMenu
 {
     private static readonly AccessTools.FieldRef<Designator_Build, ThingDef> stuffDef = AccessTools.FieldRefAccess<Designator_Build, ThingDef>("stuffDef");
-
     private static readonly AccessTools.FieldRef<Designator_Build, bool> writeStuff = AccessTools.FieldRefAccess<Designator_Build, bool>("writeStuff");
-
     private static readonly AccessTools.FieldRef<Designator_Dropdown, bool> activeDesignatorSet = AccessTools.FieldRefAccess<Designator_Dropdown, bool>("activeDesignatorSet");
 
     private static bool Prepare()
     {
-        return NanameWalls.Mod.Settings.groupNanameWalls && !ModCompat.MaterialSubMenu.Active;
+        return NanameWalls.Mod.Settings.groupNanameWalls && !MaterialSubMenu.Active;
     }
 
     public static bool Prefix(Designator_Dropdown __instance, List<Designator> ___elements, ref Window __result)
@@ -69,7 +68,7 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
             if (designator_Build.PlacingDef is not ThingDef { MadeFromStuff: true } thingDef) continue;
 
             if (!NanameWalls.Mod.nanameWalls.ContainsKey(thingDef) &&
-                !NanameWalls.Mod.nanameWalls.ContainsValue(thingDef)) continue;
+                !NanameWalls.Mod.originalDefs.ContainsKey(thingDef)) continue;
             flag = true;
             list ??= [];
             designator ??= designator_Build;
@@ -99,6 +98,12 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                     tutorTag = "SelectStuff-" + thingDef.defName + "-" + localStuffDef.defName
                 };
                 list.Add(floatMenuOption);
+
+                if (ShowBuildableMaterialCount.Active)
+                {
+                    ShowBuildableMaterialCount.buildableClicked() = true;
+                    ShowBuildableMaterialCount.desBuildable() = thingDef;
+                }
             }
             
             if (list.Empty())

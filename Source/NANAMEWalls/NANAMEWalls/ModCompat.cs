@@ -18,6 +18,7 @@ namespace NanameWalls
                 RotForPrintCounter = (Func<Rot4>)AccessTools.PropertyGetter("VehicleMapFramework.VehicleSectionLayerManager:RotForPrintCounter")?.CreateDelegate(typeof(Func<Rot4>));
                 if (RotForPrintCounter is null)
                 {
+                    Log.Error("[NanameWalls] VehicleMapFramework compatibility is broken.");
                     Active = false;
                 }
             }
@@ -42,6 +43,7 @@ namespace NanameWalls
 
                 if (CompProperties_CompWallReplace is null || replaceThing is null)
                 {
+                    Log.Error("[NanameWalls] ViviRace compatibility is broken.");
                     Active = false;
                 }
             }
@@ -64,6 +66,32 @@ namespace NanameWalls
             public static readonly bool Active = ModsConfig.OdysseyActive;
 
             public const string PatchCategory = "Patches_Odyssey";
+        }
+
+        public static class ShowBuildableMaterialCount
+        {
+            public static readonly bool Active = ModsConfig.IsActive("BP.ShowBuildableMaterialCount");
+            public static readonly AccessTools.FieldRef<bool> buildableClicked;
+            public static readonly AccessTools.FieldRef<BuildableDef> desBuildable;
+
+            static ShowBuildableMaterialCount()
+            {
+                if (!Active) return;
+                var type = GenTypes.GetTypeInAnyAssembly("ShowBuildableMaterialCount.ShowBuildableMaterialCountMod", "ShowBuildableMaterialCount");
+                var f_buildableClicked = AccessTools.Field(type, "buildableClicked");
+                if (f_buildableClicked is not null)
+                    buildableClicked = AccessTools.StaticFieldRefAccess<bool>(f_buildableClicked);
+                
+                var f_desBuildable = AccessTools.Field(type, "desBuildable");
+                if (f_desBuildable is not null)
+                    desBuildable = AccessTools.StaticFieldRefAccess<BuildableDef>(f_desBuildable);
+
+                if (buildableClicked is null || desBuildable is null)
+                {
+                    Log.Error("[NanameWalls] ShowBuildableMaterialCount compatibility is broken.");
+                    Active = false;
+                }
+            }
         }
     }
 }
