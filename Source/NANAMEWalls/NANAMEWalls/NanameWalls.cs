@@ -47,7 +47,7 @@ public class NanameWalls : Mod
 
     public override string SettingsCategory()
     {
-        return ModsConfig.IsActive("OELS.NanameWalls") ? "NANAME Walls" : "";
+        return tabDrawers.Count != 0 ? "NANAME Walls" : "";
     }
 
     public override void WriteSettings()

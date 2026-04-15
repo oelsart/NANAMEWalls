@@ -34,7 +34,7 @@ public static class Patch_SectionLayer_GravshipHull_ShouldDrawCornerPiece
             var edifice = c.GetEdifice(map);
             var substructure = terrGrid.FoundationAt(pos + ___Directions[i]);
             if (edifice is null || substructure is null) continue;
-            ___tmpChecks[i] = NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def) && substructure.IsSubstructure;
+            ___tmpChecks[i] = NanameWalls.Mod.originalDefs.ContainsKey(edifice.def) && substructure.IsSubstructure;
         }
 
         if (___tmpChecks[0])
