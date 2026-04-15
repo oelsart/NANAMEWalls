@@ -19,8 +19,8 @@ public static class Patch_MenuOptionUtility_OnBuildingPickerCreated
             !NanameWalls.Mod.nanameWalls.ContainsValue(thingDef2)) return;
 
         var count = designator_Build.Map.resourceCounter.AllCountedAmounts.Keys
-            .Count(item => !item.IsStuff || !item.stuffProps.CanMake(thingDef) || (!DebugSettings.godMode &&
-                designator_Build.Map.listerThings.ThingsOfDef(item).Count <= 0));
+            .Count(item => !item.IsStuff || !item.stuffProps.CanMake(thingDef) || !DebugSettings.godMode &&
+                designator_Build.Map.listerThings.ThingsOfDef(item).Count <= 0);
 
         for (var i = 0; i < count - 1; i++)
         {

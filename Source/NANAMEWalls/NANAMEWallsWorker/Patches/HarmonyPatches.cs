@@ -77,9 +77,9 @@ public static class Patch_Designator_Dropdown_SetupFloatMenu
                      orderby d.stuffProps?.commonality ?? float.PositiveInfinity descending, d.BaseMarketValue
                      select d)
             {
-                if (!item.IsStuff || !item.stuffProps.CanMake(thingDef) || (!DebugSettings.godMode &&
-                                                                            designator_Build.Map.listerThings
-                                                                                .ThingsOfDef(item).Count <= 0)) continue;
+                if (!item.IsStuff || !item.stuffProps.CanMake(thingDef) || !DebugSettings.godMode &&
+                    designator_Build.Map.listerThings
+                        .ThingsOfDef(item).Count <= 0) continue;
                 var localStuffDef = item;
                 var str = designator_Build.sourcePrecept == null ? GenLabel.ThingLabel(thingDef, localStuffDef) : (string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build.sourcePrecept.Label);
                 str = str.CapitalizeFirst();

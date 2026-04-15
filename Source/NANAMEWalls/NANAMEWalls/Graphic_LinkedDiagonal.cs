@@ -11,11 +11,9 @@ namespace NanameWalls;
 public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFiller(subGraphic)
 {
     private static readonly Dictionary<Material, Material> materialCache = [];
-
+    private const float AltitudeOffset = 0.015f;
     private static readonly int[] TrisIndex = [0, 1, 2, 0, 2, 3];
-
     private static readonly int[] TrisIndexFlipped = [0, 2, 1, 0, 3, 2];
-
     private static readonly Vector2[] CornerFillerUVs =
     [
         new(0.5f, 0.6f),
@@ -23,9 +21,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         new(0.5f, 0.6f),
         new(0.5f, 0.6f)
     ];
-
     protected Diagonals diagonalFlag;
-
+    
     public const int LinkerNumber = 217;
 
     public static LinkDrawerType LinkerTypeStatic => (LinkDrawerType)LinkerNumber;
@@ -280,7 +277,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
         var mat = GetMaterial(thing);
         var subMesh = layer.GetSubMesh(mat);
-        var center = thing.TrueCenter().WithYOffset(Altitudes.AltInc);
+        var center = thing.TrueCenter().WithYOffset(AltitudeOffset);
 
         // Original printing
         var anyLinked = north || south || east || west;
@@ -319,7 +316,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             }
         }
 
-        if (flag != Diagonals.None && (flag & (flag - 1)) == 0)
+        if (flag != Diagonals.None && (flag & flag - 1) == 0)
         {
             PrintDiagonal(subMesh, settings, center, extraRotation, flag, true);
         }
@@ -372,10 +369,10 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             {
                 var num = i / (float)repeat;
                 var num2 = (i + 1) / (float)repeat;
-                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num));
-                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num));
-                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num2));
-                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num2));
+                subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num);
+                subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num);
+                subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num2);
+                subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num2);
                 subMesh.uvs.AddRange(uvs);
                 for (var j = 0; j < 6; j++)
                 {
@@ -408,10 +405,10 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             {
                 var num = i / (float)repeat;
                 var num2 = (i + 1) / (float)repeat;
-                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num));
-                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num));
-                subMesh.verts.Add(verts[1] + ((verts[2] - verts[1]) * num2));
-                subMesh.verts.Add(verts[0] + ((verts[3] - verts[0]) * num2));
+                subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num);
+                subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num);
+                subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num2);
+                subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num2);
                 subMesh.uvs.AddRange(uvs);
                 for (var j = 0; j < 6; j++)
                 {

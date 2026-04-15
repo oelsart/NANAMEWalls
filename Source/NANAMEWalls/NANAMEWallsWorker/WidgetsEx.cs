@@ -31,13 +31,13 @@ public class WidgetsEx
                 var num = i / (float)repeat;
                 var num2 = (i + 1) / (float)repeat;
                 GL.TexCoord2(texCoords[0].x, texCoords[0].y);
-                GL.Vertex(points[0] + ((points[3] - points[0]) * num));
+                GL.Vertex(points[0] + (points[3] - points[0]) * num);
                 GL.TexCoord2(texCoords[1].x, texCoords[1].y);
-                GL.Vertex(points[1] + ((points[2] - points[1]) * num));
+                GL.Vertex(points[1] + (points[2] - points[1]) * num);
                 GL.TexCoord2(texCoords[2].x, texCoords[2].y);
-                GL.Vertex(points[1] + ((points[2] - points[1]) * num2));
+                GL.Vertex(points[1] + (points[2] - points[1]) * num2);
                 GL.TexCoord2(texCoords[3].x, texCoords[3].y);
-                GL.Vertex(points[0] + ((points[3] - points[0]) * num2));
+                GL.Vertex(points[0] + (points[3] - points[0]) * num2);
             }
         }
         else
@@ -46,10 +46,10 @@ public class WidgetsEx
             {
                 var num = i / (float)repeat;
                 var num2 = (i + 1) / (float)repeat;
-                GL.Vertex(points[0] + ((points[3] - points[0]) * num));
-                GL.Vertex(points[1] + ((points[2] - points[1]) * num));
-                GL.Vertex(points[1] + ((points[2] - points[1]) * num2));
-                GL.Vertex(points[0] + ((points[3] - points[0]) * num2));
+                GL.Vertex(points[0] + (points[3] - points[0]) * num);
+                GL.Vertex(points[1] + (points[2] - points[1]) * num);
+                GL.Vertex(points[1] + (points[2] - points[1]) * num2);
+                GL.Vertex(points[0] + (points[3] - points[0]) * num2);
             }
         }
         GL.End();
@@ -79,7 +79,7 @@ public class WidgetsEx
     {
         TTabRecord val = null;
         var val2 = tabs.Find(t => t.Selected);
-        var num = baseRect.width + ((tabs.Count - 1) * 10f);
+        var num = baseRect.width + (tabs.Count - 1) * 10f;
         var tabWidth = num / tabs.Count;
         if (tabWidth > maxTabWidth)
         {
@@ -194,9 +194,9 @@ public class WidgetsEx
         
         static bool IsPartiallyOrFullyTypedNumber(string s)
         {
-            return s == "" || ((s.Length <= 1 || s[^1] != '-') && s != "00" && s.Length <= 12 &&
-                               ((typeof(T) == typeof(float) && s.Count(t => t == '.') <= 1 &&
-                                 ContainsOnlyCharacters(s, "-.0123456789")) || IsFullyTypedNumber(s)));
+            return s == "" || (s.Length <= 1 || s[^1] != '-') && s != "00" && s.Length <= 12 &&
+                (typeof(T) == typeof(float) && s.Count(t => t == '.') <= 1 &&
+                    ContainsOnlyCharacters(s, "-.0123456789") || IsFullyTypedNumber(s));
         }
         
         static bool ContainsOnlyCharacters(string s, string allowedChars)

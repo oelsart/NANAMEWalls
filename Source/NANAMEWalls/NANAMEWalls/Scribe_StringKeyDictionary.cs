@@ -76,7 +76,7 @@ namespace NanameWalls
                     }
                 }
                 var flag = valueLookMode == LookMode.Reference;
-                if ((flag && Scribe.mode == LoadSaveMode.ResolvingCrossRefs) || (!flag && Scribe.mode == LoadSaveMode.LoadingVars))
+                if (flag && Scribe.mode == LoadSaveMode.ResolvingCrossRefs || !flag && Scribe.mode == LoadSaveMode.LoadingVars)
                 {
                     BuildDictionary(dict, keysWorkingList, valuesWorkingList, label, logNullErrors);
                 }

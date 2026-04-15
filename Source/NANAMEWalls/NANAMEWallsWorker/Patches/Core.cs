@@ -17,9 +17,9 @@ internal class Core
                 try
                 {
                     if (patchClass.Category.NullOrEmpty() ||
-                        (ViviRace.Active && patchClass.Category == ViviRace.PatchCategory) ||
-                        (Odyssey.Active && patchClass.Category == Odyssey.PatchCategory) ||
-                        (ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory))
+                        ViviRace.Active && patchClass.Category == ViviRace.PatchCategory ||
+                        Odyssey.Active && patchClass.Category == Odyssey.PatchCategory ||
+                        ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory)
                         patchClass.Patch();
                 }
                 catch (Exception ex)

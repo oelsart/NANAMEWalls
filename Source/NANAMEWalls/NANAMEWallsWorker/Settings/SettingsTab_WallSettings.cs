@@ -257,9 +257,9 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs!.Count);
 
         //デフォルトボタン
-        var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels((bottom.width / 2f) - 2f);
+        var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels(bottom.width / 2f - 2f);
         buttonRect.y = tabRect.y - Text.LineHeight;
-        var rightButtonRect = buttonRect.RightPartPixels((buttonRect.width / 2f) - 1f);
+        var rightButtonRect = buttonRect.RightPartPixels(buttonRect.width / 2f - 1f);
         if (Widgets.ButtonText(rightButtonRect, "ResetAll".Translate()))
         {
             Find.WindowStack.Add(new Dialog_Confirm("NAW.Settings.DefaultAll".Translate(), () =>
@@ -280,7 +280,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 break;
             default:
                 defaultRequest = "";
-                var leftButtonRect = buttonRect.LeftPartPixels((buttonRect.width / 2f) - 1f);
+                var leftButtonRect = buttonRect.LeftPartPixels(buttonRect.width / 2f - 1f);
                 if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
                 {
                     defaultRequest = GUI.GetNameOfFocusedControl();
@@ -545,7 +545,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
     {
         var labelRect = rect.LeftPart(labelPct);
         var lineHeight = Text.LineHeightOf(GameFont.Small);
-        labelRect.SplitVertically(labelRect.width - (lineHeight * 2f), out var left, out var right);
+        labelRect.SplitVertically(labelRect.width - lineHeight * 2f, out var left, out var right);
         Widgets.LabelEllipses(left, item.label);
 
         var buttonRect = right.LeftHalf().ContractedBy(1f);

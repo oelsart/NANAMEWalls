@@ -371,7 +371,7 @@ public class MeshSettings : IExposable
             if (repeat != other.repeat) return false;
             var flag = vectors != null;
             var flag2 = other.vectors != null;
-            if (flag ^ flag2 || (flag && !vectors.SequenceEqual(other.vectors))) return false;
+            if (flag ^ flag2 || flag && !vectors.SequenceEqual(other.vectors)) return false;
             return link == other.link;
         }
 
