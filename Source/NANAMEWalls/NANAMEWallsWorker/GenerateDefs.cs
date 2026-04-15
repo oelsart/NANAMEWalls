@@ -30,21 +30,34 @@ public static class GenerateDefs
                 if (NanameWalls.Mod.nanameWalls.ContainsKey(wallDef)) continue;
 
                 var newDef = GenerateInner(wallDef);
-                
-                if (!newDef.IsSmoothable) continue;
-                ref var smoothedThing = ref newDef.building.smoothedThing;
-                if (!IsLinkedThing(smoothedThing)) continue;
 
-                smoothedThing = GenerateInner(smoothedThing);
-                smoothedThing.building.unsmoothedThing = newDef;
+                if (newDef.IsSmoothable)
+                {
+                    ref var smoothedThing = ref newDef.building.smoothedThing;
+                    if (IsLinkedThing(smoothedThing))
+                    {
+                        smoothedThing = GenerateInner(smoothedThing);
+                        smoothedThing.building.unsmoothedThing = newDef;
 
-                if (!ViviRace.Active) continue;
-                var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
-                if (index == -1) continue;
-                smoothedThing.comps = [.. smoothedThing.comps];
-                smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
-                ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
-                replaceThing = GenerateInner(replaceThing);
+                        if (ViviRace.Active)
+                        {
+                            var index = smoothedThing.comps.FindIndex(c => ViviRace.CompProperties_CompWallReplace.IsAssignableFrom(c.GetType()));
+                            if (index == -1) continue;
+                            smoothedThing.comps = [.. smoothedThing.comps];
+                            smoothedThing.comps[index] = Gen.MemberwiseClone(smoothedThing.comps[index]);
+                            ref var replaceThing = ref ViviRace.replaceThing(smoothedThing.comps[index]);
+                            replaceThing = GenerateInner(replaceThing);
+                        }
+                    }
+                }
+                if (ArgonicCore.Active && ArgonicCore.GetModExtension_ThingDefExtension_CoatableWall(newDef) is { } modExtension)
+                {
+                    newDef.modExtensions = wallDef.modExtensions.ToList();
+                    var newModExtension = Gen.MemberwiseClone(modExtension);
+                    ref var coatedThingDef = ref ArgonicCore.coatedThingDef(newModExtension);
+                    coatedThingDef = GenerateInner(coatedThingDef);
+                    newDef.modExtensions.Replace(modExtension, newModExtension);
+                }
             }
             catch (Exception ex)
             {

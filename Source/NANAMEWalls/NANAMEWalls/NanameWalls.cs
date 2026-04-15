@@ -6,6 +6,7 @@ using Verse;
 namespace NanameWalls;
 
 [PublicAPI]
+[StaticConstructorOnStartup]
 public class NanameWalls : Mod
 {
     public static NanameWalls Mod { get; private set; }
@@ -47,6 +48,10 @@ public class NanameWalls : Mod
 
     public override string SettingsCategory()
     {
+        if (CurrentTab == null)
+        {
+            InitializeTabs();
+        }
         return tabDrawers.Count != 0 ? "NANAME Walls" : "";
     }
 
@@ -56,7 +61,7 @@ public class NanameWalls : Mod
         tabDrawers.Do(tab => tab.PreClose());
     }
 
-    public void InitializeTabs()
+    private void InitializeTabs()
     {
         tabs.Clear();
         tabDrawers.AddRange(typeof(SettingsTabDrawer).AllSubclassesNonAbstract()
@@ -72,7 +77,6 @@ public class NanameWalls : Mod
         {
             InitializeTabs();
         }
-
         base.DoSettingsWindowContents(inRect);
         var rect = new Rect(inRect.x, inRect.y + TabDrawer.TabHeight, inRect.width, inRect.height - TabDrawer.TabHeight);
         Widgets.DrawMenuSection(rect);

@@ -621,6 +621,7 @@
   </Fence>
   <!-- Rebuild -->
   <RB_RusticWall>
+    <enabled>True</enabled>
     <northUVs>
       <li>(0.283, 0.535, 0)</li>
       <li>(0, 0.535, 0)</li>
@@ -653,6 +654,7 @@
     </southVertsFinish>
   </RB_RusticWall>
   <RB_GravshipWindowHull>
+    <enabled>True</enabled>
     <northUVs>
       <li>(0.283, 0.58, 0)</li>
       <li>(0, 0.15, 0)</li>
@@ -697,6 +699,7 @@
     <enabled>False</enabled>
   </RB_ClerestoryWall>
   <RB_OrnateWall>
+    <enabled>True</enabled>
     <southUVs>
       <li>(0.25, 0, 0)</li>
       <li>(0.25, 0.467, 0)</li>
@@ -706,6 +709,7 @@
   </RB_OrnateWall>
   <!-- VFE -->
   <Table_Counter>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.3, 0.47, 0)</li>
@@ -824,6 +828,7 @@
     <SouthVertsRepeat IsNull="True" />
   </Table_Counter>
   <VFE_LongPlantPot>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.4, 0.55, 0)</li>
@@ -932,6 +937,7 @@
     <SouthVertsRepeat IsNull="True" />
   </VFE_LongPlantPot>
   <VFEArch_ChainlinkFence>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -1071,6 +1077,7 @@
     <TopFillerUVs IsNull="True" />
   </VFEArch_ChainlinkFence>
   <VFEArch_BrickFence>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -1238,6 +1245,7 @@
     <TopFillerUVs IsNull="True" />
   </VFEArch_BrickFence>
   <VFEArch_LowFence>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -1397,6 +1405,7 @@
     <TopFillerUVs IsNull="True" />
   </VFEArch_LowFence>
   <VFEArch_LogWall>
+    <enabled>True</enabled>
     <SouthUVs_UVs>
       <UVs>
         <li>(0.33, 0, 0)</li>
@@ -1408,6 +1417,7 @@
   </VFEArch_LogWall>
   <!-- Fortification -->
   <FT_WallSandbag>
+    <enabled>True</enabled>
     <repeatNorth>4</repeatNorth>
     <repeatSouth>4</repeatSouth>
     <northUVs>
@@ -1487,6 +1497,7 @@
   </FT_WallSandbag>
   <!-- Vivi Race -->
   <VV_ViviCreamWall>
+    <enabled>True</enabled>
     <repeatNorth>2</repeatNorth>
     <repeatSouth>2</repeatSouth>
     <northUVs>
@@ -1542,6 +1553,7 @@
   </VV_ViviCreamWall>
   <!-- Combat Extended -->
   <CE_BarbedWire>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -1668,6 +1680,7 @@
     <SouthVertsBorder IsNull="True" />
   </CE_BarbedWire>
   <CE_Embrasure>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.283, 0.47, 0)</li>
@@ -1719,6 +1732,7 @@
   </CE_Embrasure>
   <!-- Medieval Overhaul -->
   <DankPyon_TentWall>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.4, 0.64, 0)</li>
@@ -1845,6 +1859,7 @@
     <enabled>False</enabled>
   </DankPyon_EmbPalisade>
   <DankPyon_CastleWall>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.34, 0.47, 0)</li>
@@ -1939,6 +1954,7 @@
     </SouthVertsFinish_Verts>
   </DankPyon_CastleWall>
   <DankPyon_CastleWallEmbrasures>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.34, 0.47, 0)</li>
@@ -2036,6 +2052,7 @@
     <enabled>False</enabled>
   </DankPyon_CavalrySpike>
   <DankPyon_Trench>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.3, 0.62, 0)</li>
@@ -2132,6 +2149,7 @@
     <SouthVertsBorder IsNull="True" />
   </DankPyon_Trench>
   <DankPyon_RTrench>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.3, 0.55, 0)</li>
@@ -2233,6 +2251,7 @@
   </DankPyon_RTrench>
   <!-- Ponpeco Furniture Sci-Fi -->
   <PFS_FloorlineLight>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <allowVShaped>True</allowVShaped>
     <LineUVs_UVs>
@@ -2298,6 +2317,7 @@
     <SouthVertsBorder IsNull="True" />
   </PFS_FloorlineLight>
   <PFS_Barricade>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -2425,7 +2445,7 @@
   </PFS_Barricade>
   <!-- Save Our Ship 2 -->
   <Ship_Beam_Unpowered>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -2544,7 +2564,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_Beam_Unpowered>
   <Ship_BeamMech_Unpowered>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -2663,7 +2683,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_BeamMech_Unpowered>
   <Ship_BeamArchotech_Unpowered>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -2782,7 +2802,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_BeamArchotech_Unpowered>
   <Ship_Beam>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -2901,7 +2921,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_Beam>
   <Ship_BeamMech>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -3020,7 +3040,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_BeamMech>
   <Ship_BeamArchotech>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.21, 0.35, 0)</li>
@@ -3139,7 +3159,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </Ship_BeamArchotech>
   <ShipInside_SolarGenerator>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <forceDentOpposite>true</forceDentOpposite>
     <NorthUVs_UVs>
       <UVs>
@@ -3259,7 +3279,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </ShipInside_SolarGenerator>
   <ShipInside_SolarGeneratorMech>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <forceDentOpposite>true</forceDentOpposite>
     <NorthUVs_UVs>
       <UVs>
@@ -3379,7 +3399,7 @@
     <NorthVertsFinishBorder IsNull="True" />
   </ShipInside_SolarGeneratorMech>
   <ShipInside_SolarGeneratorArchotech>
-    <enabled>true</enabled>
+    <enabled>True</enabled>
     <forceDentOpposite>true</forceDentOpposite>
     <NorthUVs_UVs>
       <UVs>
@@ -3996,6 +4016,7 @@
   </HullFoamWall>
   <!-- Simple Wall -->
   <XER_SimpleWall>
+    <enabled>True</enabled>
     <noChangeLinkState>True</noChangeLinkState>
     <skipOriginalPrint>True</skipOriginalPrint>
     <allowVShaped>True</allowVShaped>
@@ -4123,6 +4144,7 @@
   </XER_SimpleWall>
   <!-- VFE Medieval 2 -->
   <VFEM2_ClothWall>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.26, 0.55, 0)</li>
@@ -4179,6 +4201,7 @@
     <SouthVertsBorder IsNull="True" />
   </VFEM2_ClothWall>
   <VFEM2_TimberedWall>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.283, 0.55, 0)</li>
@@ -4205,6 +4228,7 @@
     </SouthUVsFinish_UVs>
   </VFEM2_TimberedWall>
   <VFEM2_CastleWall>
+    <enabled>True</enabled>
     <NorthUVs_UVs>
       <UVs>
         <li>(0.35, 0.41, 0)</li>
