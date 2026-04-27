@@ -14,6 +14,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
     private const float AltitudeOffset = 0.015f;
     private static readonly int[] TrisIndex = [0, 1, 2, 0, 2, 3];
     private static readonly int[] TrisIndexFlipped = [0, 2, 1, 0, 3, 2];
+    
     private static readonly Vector2[] CornerFillerUVs =
     [
         new(0.5f, 0.6f),
@@ -21,6 +22,15 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         new(0.5f, 0.6f),
         new(0.5f, 0.6f)
     ];
+    
+    private static readonly Color32[] DefaultColors =
+    [
+        new(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue),
+        new(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue),
+        new(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue),
+        new(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue)
+    ];
+    
     protected Diagonals diagonalFlag;
     
     public const int LinkerNumber = 217;
@@ -358,12 +368,13 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var count = subMesh.verts.Count;
         var count2 = count;
 
-        foreach (var vertsItem in settings.settingItems.Values.Where(item => item.condition == condition))
+        foreach (var vertsItem in settings.settingItems.Values)
         {
-            if (!settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
+            if (vertsItem.condition != condition ||
+                !settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
             var verts = vertsItem.vectors;
             var uvs = linkUVs.vectors;
-            var repeat = settings.settingItems.Values.FirstOrDefault(item => item.link == vertsItem.label)?.repeat ?? 1;
+            var repeat = RepeatCount(settings, vertsItem.label);
 
             for (var i = 0; i < repeat; i++)
             {
@@ -374,6 +385,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
                 subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num2);
                 subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num2);
                 subMesh.uvs.AddRange(uvs);
+                subMesh.colors.AddRange(DefaultColors);
+                
                 for (var j = 0; j < 6; j++)
                 {
                     subMesh.tris.Add(count2 + index[j]);
@@ -394,12 +407,13 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var count2 = count;
 
         var vertsDirection = north ? finishPrint ? Condition.SouthFinish : Condition.North : finishPrint ? Condition.NorthFinish : Condition.South;
-        foreach (var vertsItem in settings.settingItems.Values.Where(item => item.condition == vertsDirection))
+        foreach (var vertsItem in settings.settingItems.Values)
         {
-            if (!settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
+            if (vertsItem.condition != vertsDirection ||
+                !settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
             var verts = vertsItem.vectors;
             var uvs = linkUVs.vectors;
-            var repeat = settings.settingItems.Values.FirstOrDefault(item => item.link == vertsItem.label)?.repeat ?? 1;
+            var repeat = RepeatCount(settings, vertsItem.label);
 
             for (var i = 0; i < repeat; i++)
             {
@@ -410,6 +424,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
                 subMesh.verts.Add(verts[1] + (verts[2] - verts[1]) * num2);
                 subMesh.verts.Add(verts[0] + (verts[3] - verts[0]) * num2);
                 subMesh.uvs.AddRange(uvs);
+                subMesh.colors.AddRange(DefaultColors);
                 for (var j = 0; j < 6; j++)
                 {
                     subMesh.tris.Add(count2 + index[j]);
@@ -419,6 +434,18 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         }
 
         FinalizeVerts(subMesh, count, center, flipped, extraRotation);
+    }
+
+    private static int RepeatCount(MeshSettings settings, string link)
+    {
+        foreach (var item in settings.settingItems.Values)
+        {
+            if (item.link == link)
+            {
+                return item.repeat;
+            }
+        }
+        return 1;
     }
 
     private static void FinalizeVerts(LayerSubMesh subMesh, int skip, Vector3 center, bool flipped, float rot)
