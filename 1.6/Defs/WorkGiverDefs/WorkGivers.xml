@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <WorkGiverDef>
+        <defName>NAW_ReconstructToOriginal</defName>
+        <label>reconstruct</label>
+        <giverClass>NanameWalls.WorkGiver_ReconstructToOriginal</giverClass>
+        <workType>Construction</workType>
+        <priorityInType>55</priorityInType>
+        <verb>reconstruct</verb>
+        <gerund>reconstructing</gerund>
+        <requiredCapacities>
+            <li>Manipulation</li>
+        </requiredCapacities>
+    </WorkGiverDef>
+
+    <WorkGiverDef>
+        <defName>NAW_ReconstructToNaname</defName>
+        <label>reconstruct</label>
+        <giverClass>NanameWalls.WorkGiver_ReconstructToNaname</giverClass>
+        <workType>Construction</workType>
+        <priorityInType>55</priorityInType>
+        <verb>reconstruct</verb>
+        <gerund>reconstructing</gerund>
+        <requiredCapacities>
+            <li>Manipulation</li>
+        </requiredCapacities>
+    </WorkGiverDef>
+    
+</Defs>

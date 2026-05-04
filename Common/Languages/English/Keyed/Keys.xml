@@ -5,5 +5,12 @@
 	<NAW.NanameSettings>NANAME Settings</NAW.NanameSettings>
 	<NAW.UpdateGraphic>Update Graphic</NAW.UpdateGraphic>
 	<NAW.NotGenerated>NANAME wall def is not generated.</NAW.NotGenerated>
+
+	<NAW.ConvertToOriginal>Convert to original</NAW.ConvertToOriginal>
+	<NAW.ConvertToOriginalDesc>Convert diagonal version walls to originals.</NAW.ConvertToOriginalDesc>
+	<NAW.MustDesignateOriginalWall>Must designate wall with enabled diagonal variant.</NAW.MustDesignateOriginalWall>
+	<NAW.ConvertToNaname>Convert to diagonal</NAW.ConvertToNaname>
+	<NAW.ConvertToNanameDesc>Convert originals to diagonal version walls.</NAW.ConvertToNanameDesc>
+	<NAW.MustDesignateNanameWall>Must designate diagonal wall.</NAW.MustDesignateNanameWall>
 	
 </LanguageData>

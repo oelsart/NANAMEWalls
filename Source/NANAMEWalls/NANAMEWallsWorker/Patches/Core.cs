@@ -11,7 +11,8 @@ internal class Core
     static Core()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        GenTypes.AllTypes.Where(t => t.Assembly == assembly).Select(NanameWalls.Mod.Harmony.CreateClassProcessor)
+        GenTypes.AllTypes.Where(t => t.Assembly == assembly && t.HasAttribute<HarmonyAttribute>())
+            .Select(NanameWalls.Mod.Harmony.CreateClassProcessor)
             .Do(patchClass =>
             {
                 try
@@ -20,7 +21,9 @@ internal class Core
                         ViviRace.Active && patchClass.Category == ViviRace.PatchCategory ||
                         Odyssey.Active && patchClass.Category == Odyssey.PatchCategory ||
                         ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory)
+                    {
                         patchClass.Patch();
+                    }
                 }
                 catch (Exception ex)
                 {

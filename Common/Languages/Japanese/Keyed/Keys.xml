@@ -5,5 +5,12 @@
 	<NAW.NanameSettings>斜め設定</NAW.NanameSettings>
 	<NAW.UpdateGraphic>グラフィック更新</NAW.UpdateGraphic>
 	<NAW.NotGenerated>斜め壁のdefが生成されていません.</NAW.NotGenerated>
+
+	<NAW.ConvertToOriginal>オリジナルに変換</NAW.ConvertToOriginal>
+	<NAW.ConvertToOriginalDesc>斜めの壁をオリジナルバージョンに変換します.</NAW.ConvertToOriginalDesc>
+	<NAW.MustDesignateOriginalWall>有効な斜めバージョンがある壁を指定してください.</NAW.MustDesignateOriginalWall>
+	<NAW.ConvertToNaname>斜め壁に変換</NAW.ConvertToNaname>
+	<NAW.ConvertToNanameDesc>オリジナルの壁を斜めバージョンに変換します.</NAW.ConvertToNanameDesc>
+	<NAW.MustDesignateNanameWall>斜め壁を指定してください.</NAW.MustDesignateNanameWall>
 	
 </LanguageData>

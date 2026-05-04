@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    
+    <DesignationDef>
+        <defName>NAW_ConvertToOriginal</defName>
+        <texturePath>NanameWalls/Designators/ConvertToOriginal</texturePath>
+        <targetType>Thing</targetType>
+    </DesignationDef>
+
+    <DesignationDef>
+        <defName>NAW_ConvertToNaname</defName>
+        <texturePath>NanameWalls/Designators/ConvertToNaname</texturePath>
+        <targetType>Thing</targetType>
+    </DesignationDef>
+    
+</Defs>
