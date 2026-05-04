@@ -10,19 +10,19 @@ public class MeshSettings : IExposable
 
     private static Dictionary<string, MeshSettings> defaultSettings;
 
-    public bool enabled;
-
-    public bool noChangeLinkState;
-
-    public bool skipOriginalPrint;
-
-    public bool allowVShaped;
-
-    public bool forceDent;
-
-    public bool forceDentOpposite;
+    [Option] public bool enabled;
+    [Option] public bool noChangeLinkState;
+    [Option] public bool skipOriginalPrint;
+    [Option] public bool allowVShaped;
+    [Option] public bool forceDent;
+    [Option] public bool forceDentOpposite;
 
     public SortedDictionary<string, SettingItem> settingItems = [];
+
+    private static readonly List<string> OptionNames =
+        typeof(MeshSettings).GetFields()
+        .Where(f => f.HasAttribute<OptionAttribute>())
+        .Select(f => f.Name).ToList();
 
     private static MeshSettings CommonDefaultSettings => defaultSettings.GetValueOrDefault(DefaultName);
 
@@ -114,12 +114,12 @@ public class MeshSettings : IExposable
         var curDefault = DefaultSettingsFor(Scribe_StringKeyDictionary.ProcessingKey);
         var def = key != null ? DefDatabase<ThingDef>.GetNamedSilentFail(key) : null;
         var enabledDefault = curDefault != CommonDefaultSettings && def != null ? IsWallProbably(def) : curDefault?.enabled;
-        Scribe_Values.Look(ref enabled, "enabled", enabledDefault ?? false);
-        Scribe_Values.Look(ref noChangeLinkState, "noChangeLinkState", curDefault?.noChangeLinkState ?? false);
-        Scribe_Values.Look(ref skipOriginalPrint, "skipOriginalPrint", curDefault?.skipOriginalPrint ?? false);
-        Scribe_Values.Look(ref allowVShaped, "allowVShaped", curDefault?.allowVShaped ?? false);
-        Scribe_Values.Look(ref forceDent, "forceDent", curDefault?.forceDent ?? false);
-        Scribe_Values.Look(ref forceDentOpposite, "forceDentOpposite", curDefault?.forceDentOpposite ?? false);
+        Scribe_Values.Look(ref enabled, nameof(enabled), enabledDefault ?? false);
+        Scribe_Values.Look(ref noChangeLinkState, nameof(noChangeLinkState), curDefault?.noChangeLinkState ?? false);
+        Scribe_Values.Look(ref skipOriginalPrint, nameof(skipOriginalPrint), curDefault?.skipOriginalPrint ?? false);
+        Scribe_Values.Look(ref allowVShaped, nameof(allowVShaped), curDefault?.allowVShaped ?? false);
+        Scribe_Values.Look(ref forceDent, nameof(forceDent), curDefault?.forceDent ?? false);
+        Scribe_Values.Look(ref forceDentOpposite, nameof(forceDentOpposite), curDefault?.forceDentOpposite ?? false);
         switch (Scribe.mode)
         {
             case LoadSaveMode.LoadingVars:
@@ -129,8 +129,7 @@ public class MeshSettings : IExposable
                 var children = Scribe.loader.curXmlParent.ChildNodes;
                 foreach (XmlNode child in children)
                 {
-                    if (child.Name is "enabled" or "noChangeLinkState" or "skipOriginalPrint" or "allowVShaped" or "forceDent" or "forceDentOpposite")
-                        continue;
+                    if (OptionNames.Contains(child.Name)) continue;
                     var xmlAttribute = child.Attributes?["IsNull"];
                     if (xmlAttribute != null && xmlAttribute.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -281,13 +280,11 @@ public class MeshSettings : IExposable
     public class SettingItem : IExposable, IRenameable
     {
         public string label = "";
-
         public SettingType type;
-
+        public UVSource source;
         public Condition condition;
-
         public int repeat = 1;
-
+        public string link = "";
         public List<Vector3> vectors =
         [
             new(0f, 0f, 0f),
@@ -295,8 +292,6 @@ public class MeshSettings : IExposable
             new(0f, 0f, 0f),
             new(0f, 0f, 0f)
         ];
-
-        public string link = "";
 
         public string RenamableLabel
         {
@@ -327,18 +322,19 @@ public class MeshSettings : IExposable
             {
                 case SettingType.UVs:
                     Scribe_Collections.Look(ref vectors, "UVs", LookMode.Value);
+                    Scribe_Values.Look(ref source, nameof(source));
                     break;
 
                 case SettingType.Verts:
                     Scribe_Values.Look(ref link, "linkUVs");
-                    Scribe_Values.Look(ref condition, "condition");
+                    Scribe_Values.Look(ref condition, nameof(condition));
                     LoadWithOldName(ref condition, "direction");
                     Scribe_Collections.Look(ref vectors, "Verts", LookMode.Value);
                     break;
 
                 case SettingType.Repeat:
                     Scribe_Values.Look(ref link, "linkVerts");
-                    Scribe_Values.Look(ref repeat, "repeat");
+                    Scribe_Values.Look(ref repeat, nameof(repeat));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -396,6 +392,27 @@ public class MeshSettings : IExposable
             Repeat
         }
 
+        public enum UVSource
+        {
+            None,
+            Up,
+            Right,
+            UpRight,
+            Down,
+            UpDown,
+            DownRight,
+            UpDownRight,
+            Left,
+            LeftUp,
+            LeftRight,
+            LeftUpRight,
+            DownLeft,
+            DownLeftUp,
+            DownLeftRight,
+            All,
+            Whole
+        }
+
         public enum Condition
         {
             None,
@@ -407,4 +424,6 @@ public class MeshSettings : IExposable
             HalfLinked
         }
     }
+
+    private class OptionAttribute : Attribute;
 }

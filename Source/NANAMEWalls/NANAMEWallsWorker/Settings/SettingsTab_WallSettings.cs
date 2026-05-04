@@ -8,34 +8,22 @@ namespace NanameWalls;
 internal class SettingsTab_WallSettings : SettingsTabDrawer
 {
     private const float PreviewSizeRatio = 0.315f;
-
     private Vector2 scrollPosition;
-
     private Vector2 scrollPosition2;
-
     private Vector2 scrollPosition3;
-
     private readonly Dictionary<string, string[]> buffers = [];
-
     private List<Vector2> texCoords;
-
     private int repeat = 1;
-
     private List<Vector3> selectedList;
-
     private Vector2? selectedPoint;
-
+    private SettingItem.UVSource selectedSource;
     private string prevFocusedControl = "";
-
     private bool designationCategoryChanged;
-
     private string defaultRequest;
-
     private float viewRectYMax;
-
     private List<TabRecord> tabs;
-
     private string settingMode = "Values";
+    private MeshSettings clipboard;
 
     public override int Index => 0;
 
@@ -62,6 +50,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         selectedList = null;
         texCoords = null;
         selectedPoint = null;
+        selectedSource = SettingItem.UVSource.None;
         prevFocusedControl = "";
     }
 
@@ -109,8 +98,10 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         Widgets.AdjustRectsForScrollView(rect, ref outRect, ref viewRect);
         Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
         var curY = viewRect.y;
-        foreach (var group in defs.Where(group => group?.Key != null))
+        foreach (var group in defs)
         {
+            if (group?.Key is null) continue;
+            
             Text.Anchor = TextAnchor.MiddleCenter;
             using (new TextBlock(TextAnchor.MiddleCenter))
             {
@@ -134,12 +125,27 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 {
                     Widgets.DrawHighlightSelected(rect3);
                 }
-                else if (Widgets.ButtonInvisible(rect3))
+                else if (Widgets.ButtonInvisible(rect3) && Event.current.button == 0)
                 {
                     selDef = def;
                     NanameWalls.Mod.selThing = null;
                     Clear();
                 }
+                
+                // コピーペーストのフロートメニュー
+                if (Mouse.IsOver(rect3) && Event.current is { type: EventType.MouseDown, button: 1 })
+                {
+                    List<FloatMenuOption> floatMenuOptions = [];
+                    if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(def.defName, out var meshSettings))
+                    {
+                        meshSettings = NanameWalls.Mod.Settings.meshSettings[def.defName] = DeepCopyDefaultFor(def);
+                    }
+                    floatMenuOptions.Add(new FloatMenuOption("Copy".Translate(), () => clipboard = meshSettings));
+                    if (clipboard is not null)
+                        floatMenuOptions.Add(new FloatMenuOption("Paste".Translate(), () => NanameWalls.Mod.Settings.meshSettings[def.defName] = clipboard));
+                    Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+                }
+                
                 curY += Text.LineHeight;
             }
         }
@@ -170,23 +176,25 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         //壁のプレビュー
         Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
         var mat = selThing != null ? selThing.Graphic.MatSingle : selDef.graphicData?.Graphic?.MatSingle;
-        if (mat != null)
+        if (mat is not null)
         {
-            var scale = mat.mainTextureScale;
-            var offset = mat.mainTextureOffset;
-            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
-            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, new(previewSize / 2f, previewSize / 2f), new(0.03125f, 0.03125f, 0.1875f, 0.1875f), 0f, mat);
-            mat.mainTextureScale = scale;
-            mat.mainTextureOffset = offset;
+            var proportions = new Vector2(previewSize / 2f, previewSize / 2f);
+            var sourceInt = (int)selectedSource;
+            var coords = selectedSource == SettingItem.UVSource.Whole
+                ? new Rect(0f, 0f, 1f, 1f)
+                : new Rect(sourceInt % 4 * 0.25f + 0.03125f, Mathf.Floor(sourceInt / 4f) * 0.25f + 0.03125f, 0.1875f, 0.1875f);
+            
+            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
+            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
         }
-        if (selectedList != null)
+        if (selectedList is not null)
         {
             Widgets.BeginGroup(left);
-            var mat2 = texCoords != null ? mat : null;
-            var color = texCoords != null ? Color.white : new Color(1f, 0.94f, 0.5f, 0.18f);
+            var mat2 = texCoords is not null ? mat : null;
+            var color = texCoords is not null ? Color.white : new Color(1f, 0.94f, 0.5f, 0.18f);
             WidgetsEx.DrawQuadFilled(selectedList, color, mat2, texCoords, repeat);
             Widgets.EndGroup();
-            if (selectedPoint != null)
+            if (selectedPoint is not null)
             {
                 var point = selectedPoint.Value + left.position;
                 point = new Vector2(Mathf.Floor(point.x), Mathf.Floor(point.y));
@@ -207,8 +215,8 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         }
 
         var buttonOffset = selThing != null ? Text.LineHeight : 0f;
-        var settingsCount = 1;
-        var settingItemHeight = 18f;
+        const int settingsCount = 1;
+        const float settingItemHeight = 18f;
         var settingsHeight = settingItemHeight * settingsCount;
         using (new TextBlock(GameFont.Tiny, TextAnchor.MiddleLeft))
         {
@@ -307,7 +315,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         Widgets.AdjustRectsForScrollView(rect, ref rect, ref viewRect);
         var itemRect = viewRect.TopPartPixels(Text.LineHeight);
         Widgets.BeginScrollView(rect, ref scrollPosition2, viewRect);
-        var labelPct = 0.2f;
+        const float labelPct = 0.2f;
         var rect2 = itemRect.RightPart(1f - labelPct).AtZero();
         rect2.SplitVerticallyWithMargin(out var left2, out var right2, 5f);
         left2.SplitVerticallyWithMargin(out var rect3, out var rect4, 5f);
@@ -334,6 +342,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 
                         if (!meshSettings.settingItems.TryGetValue(linkVerts.link, out var linkUVs)) continue;
                         texCoords = [.. linkUVs.vectors];
+                        selectedSource = linkUVs.source;
                     }
                     break;
 
@@ -431,11 +440,13 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                     {
                         texCoords = [.. uvs.vectors];
                     }
+                    selectedSource = SettingItem.UVSource.None;
                 }
                 else
                 {
                     selectedPoint = ConvertUV(value);
                     selectedList = [.. item.vectors.Select(ConvertUV)];
+                    selectedSource = item.source;
                 }
             }
 
@@ -464,12 +475,14 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                         {
                             texCoords = [.. uvs.vectors];
                         }
+                        selectedSource = SettingItem.UVSource.None;
                     }
                     else
                     {
                         selectedPoint = ConvertUV(value);
                         selectedList = [.. item.vectors.Select(ConvertUV)];
                         texCoords = null;
+                        selectedSource = item.source;
                     }
                 }
             }
@@ -526,7 +539,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         {
             DoItem(ref itemRect, labelPct, item, meshSettings);
         }
-        if (Widgets.ButtonImageWithBG(itemRect.LeftPart(labelPct), TexUI.CopyTex, new(itemRect.height - 4f, itemRect.height - 4f)))
+        if (Widgets.ButtonImageWithBG(itemRect.LeftPart(labelPct), TexUI.CopyTex, new Vector2(itemRect.height - 4f, itemRect.height - 4f)))
         {
             var item = new SettingItem();
             Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
@@ -576,7 +589,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         {
             return ((IEnumerable<SettingItem.SettingType>)Enum.GetValues(typeof(SettingItem.SettingType))).Select(type =>
             {
-                return new Widgets.DropdownMenuElement<SettingItem.SettingType>()
+                return new Widgets.DropdownMenuElement<SettingItem.SettingType>
                 {
                     option = new FloatMenuOption(type.ToString(), () =>
                     {
@@ -586,59 +599,85 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
                 };
             });
         }, item.type.ToString());
-        if (item.type == SettingItem.SettingType.Repeat)
+        
+        switch (item.type)
         {
-            if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
+            case SettingItem.SettingType.Repeat:
             {
-                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
+                if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
                 {
-                    return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.Verts).Select(item3 =>
+                    Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
                     {
-                        return new Widgets.DropdownMenuElement<string>()
+                        return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.Verts).Select(item3 =>
                         {
-                            option = new FloatMenuOption(item3.label, () =>
+                            return new Widgets.DropdownMenuElement<string>
                             {
-                                item2.link = item3.label;
+                                option = new FloatMenuOption(item3.label, () =>
+                                {
+                                    item2.link = item3.label;
+                                }),
+                                payload = item3.label
+                            };
+                        });
+                    }, item.link);
+                }
+                break;
+            }
+            case SettingItem.SettingType.Verts:
+            {
+                if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
+                {
+                    Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
+                    {
+                        return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.UVs).Select(item3 =>
+                        {
+                            return new Widgets.DropdownMenuElement<string>
+                            {
+                                option = new FloatMenuOption(item3.label, () =>
+                                {
+                                    item2.link = item3.label;
+                                }),
+                                payload = item3.label
+                            };
+                        });
+                    }, item.link);
+                }
+                Widgets.Dropdown(rect2.RightPart(0.33f), item, item2 => item2.condition, item2 =>
+                {
+                    return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition))).Where(d => d != SettingItem.Condition.None).Select(direction =>
+                    {
+                        return new Widgets.DropdownMenuElement<SettingItem.Condition>
+                        {
+                            option = new FloatMenuOption(direction.ToString(), () =>
+                            {
+                                item2.condition = direction;
                             }),
-                            payload = item3.label
+                            payload = direction
                         };
                     });
-                }, item.link);
+                }, item.condition.ToString());
+                break;
             }
-        }
-        if (item.type == SettingItem.SettingType.Verts)
-        {
-            if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
+            case SettingItem.SettingType.UVs:
             {
-                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
+                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.source, item2 =>
                 {
-                    return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.UVs).Select(item3 =>
+                    return ((IEnumerable<SettingItem.UVSource>)Enum.GetValues(typeof(SettingItem.UVSource))).Select(source =>
                     {
-                        return new Widgets.DropdownMenuElement<string>()
+                        return new Widgets.DropdownMenuElement<SettingItem.UVSource>
                         {
-                            option = new FloatMenuOption(item3.label, () =>
+                            option = new FloatMenuOption(source.ToString(), () =>
                             {
-                                item2.link = item3.label;
+                                item2.source = source;
                             }),
-                            payload = item3.label
+                            payload = source
                         };
                     });
-                }, item.link);
+                }, item.source.ToString());
+                break;
             }
-            Widgets.Dropdown(rect2.RightPart(0.33f), item, item2 => item2.condition, item2 =>
-            {
-                return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition))).Where(d => d != SettingItem.Condition.None).Select(direction =>
-                {
-                    return new Widgets.DropdownMenuElement<SettingItem.Condition>()
-                    {
-                        option = new FloatMenuOption(direction.ToString(), () =>
-                        {
-                            item2.condition = direction;
-                        }),
-                        payload = direction
-                    };
-                });
-            }, item.condition.ToString());
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         rect.y += lineHeight;

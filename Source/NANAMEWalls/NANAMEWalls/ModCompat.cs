@@ -142,5 +142,29 @@ namespace NanameWalls
                 }
             }
         }
+
+        public static class OpenTheWindows
+        {
+            public static readonly bool Active = ModsConfig.IsActive("JPT.OpenTheWindows");
+            public static readonly Type Building_Window;
+
+            static OpenTheWindows()
+            {
+                if (!Active) return;
+
+                try
+                {
+                    Building_Window = GenTypes.GetTypeInAnyAssembly("OpenTheWindows.Building_Window", "OpenTheWindows");
+                }
+                finally
+                {
+                    if (Building_Window is null)
+                    {
+                        Log.Error("[NanameWalls] OpenTheWindows compatibility is broken.");
+                        Active = false;
+                    }
+                }
+            }
+        }
     }
 }

@@ -10,9 +10,7 @@ namespace NanameWalls;
 public static class GenerateDefs
 {
     private delegate void GetGiveShortHash(Def def, Type defType, HashSet<ushort> takenHashes);
-
     private delegate ThingDef GetNewBlueprintDef_Thing(ThingDef def, bool isInstallBlueprint, ThingDef normalBlueprint = null, bool hotReload = false);
-
     private delegate ThingDef GetNewFrameDef_Thing(ThingDef def, bool hotReload = false);
 
     static GenerateDefs()
@@ -50,6 +48,7 @@ public static class GenerateDefs
                         }
                     }
                 }
+                
                 if (ArgonicCore.Active && ArgonicCore.GetModExtension_ThingDefExtension_CoatableWall(newDef) is { } modExtension)
                 {
                     newDef.modExtensions = wallDef.modExtensions.ToList();
@@ -86,10 +85,14 @@ public static class GenerateDefs
 
         static bool IsLinkedThing(ThingDef def)
         {
+            if (OpenTheWindows.Active && def.thingClass.SameOrSubclassOf(OpenTheWindows.Building_Window))
+            {
+                return def.Size == IntVec2.One;
+            }
             var linkType = def.graphicData?.linkType;
             return def.Size == IntVec2.One && linkType is LinkDrawerType.Basic or LinkDrawerType.CornerFiller or LinkDrawerType.Asymmetric;
         }
-
+        
         ThingDef GenerateInner(ThingDef wallDef)
         {
             var defName = wallDef.defName + NanameWalls.Suffix;
@@ -110,6 +113,7 @@ public static class GenerateDefs
             {
                 newDef.building = MakeShallowCopy(wallDef.building, "isNaturalRock", "isResourceRock");
             }
+            
             newDef.shortHash = 0;
             GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
             newDef.modContentPack = NanameWalls.Mod.Content;

@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanameWallsWorker", "NANAMEWallsWorker\NanameWallsWorker.csproj", "{668D04C0-9E5E-4F54-98F0-52D9B1704B8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTheWindowsNanamePatch", "OpenTheWindowsPatch\OpenTheWindowsNanamePatch.csproj", "{884022D2-6DF5-4955-940A-DF0167991D15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{668D04C0-9E5E-4F54-98F0-52D9B1704B8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{668D04C0-9E5E-4F54-98F0-52D9B1704B8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{668D04C0-9E5E-4F54-98F0-52D9B1704B8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{884022D2-6DF5-4955-940A-DF0167991D15}.Debug|Any CPU.ActiveCfg = 1.6|Any CPU
+		{884022D2-6DF5-4955-940A-DF0167991D15}.Debug|Any CPU.Build.0 = 1.6|Any CPU
+		{884022D2-6DF5-4955-940A-DF0167991D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{884022D2-6DF5-4955-940A-DF0167991D15}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
