@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    
+    <NAW_ReconstructToOriginal.label>オリジナルに再建設</NAW_ReconstructToOriginal.label>
+    <NAW_ReconstructToOriginal.verb>再建設</NAW_ReconstructToOriginal.verb>
+    <NAW_ReconstructToOriginal.gerund>再建設</NAW_ReconstructToOriginal.gerund>
+    <NAW_ReconstructToNaname.label>斜めに再建設</NAW_ReconstructToNaname.label>
+    <NAW_ReconstructToNaname.verb>再建設</NAW_ReconstructToNaname.verb>
+    <NAW_ReconstructToNaname.gerund>再建設</NAW_ReconstructToNaname.gerund>
+    
+</LanguageData>

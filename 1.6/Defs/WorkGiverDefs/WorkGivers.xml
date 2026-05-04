@@ -3,7 +3,7 @@
 
     <WorkGiverDef>
         <defName>NAW_ReconstructToOriginal</defName>
-        <label>reconstruct</label>
+        <label>reconstruct to original</label>
         <giverClass>NanameWalls.WorkGiver_ReconstructToOriginal</giverClass>
         <workType>Construction</workType>
         <priorityInType>55</priorityInType>
@@ -16,7 +16,7 @@
 
     <WorkGiverDef>
         <defName>NAW_ReconstructToNaname</defName>
-        <label>reconstruct</label>
+        <label>reconstruct to diagonal</label>
         <giverClass>NanameWalls.WorkGiver_ReconstructToNaname</giverClass>
         <workType>Construction</workType>
         <priorityInType>55</priorityInType>
