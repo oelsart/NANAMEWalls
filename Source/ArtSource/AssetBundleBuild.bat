@@ -1,0 +1,2 @@
+assetbundlebuilder nanamewalls
+pause

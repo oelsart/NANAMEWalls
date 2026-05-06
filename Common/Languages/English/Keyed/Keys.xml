@@ -13,4 +13,7 @@
 	<NAW.ConvertToNanameDesc>Convert originals to diagonal version walls.</NAW.ConvertToNanameDesc>
 	<NAW.MustDesignateNanameWall>Must designate diagonal wall.</NAW.MustDesignateNanameWall>
 	
+	<NAW.ForceDentRoofed>Dent roofed</NAW.ForceDentRoofed>
+	<NAW.ForceDentRoofedDesc>Dent the spot under the roof.</NAW.ForceDentRoofedDesc>
+	
 </LanguageData>

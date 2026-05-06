@@ -113,6 +113,12 @@ public static class GenerateDefs
             {
                 newDef.building = MakeShallowCopy(wallDef.building, "isNaturalRock", "isResourceRock");
             }
+
+            newDef.comps = wallDef.comps.ToList();
+            newDef.comps.Add(new CompProperties
+            {
+                compClass = typeof(CompNanameWall)
+            });
             
             newDef.shortHash = 0;
             GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);

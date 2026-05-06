@@ -12,5 +12,8 @@
 	<NAW.ConvertToNaname>斜め壁に変換</NAW.ConvertToNaname>
 	<NAW.ConvertToNanameDesc>オリジナルの壁を斜めバージョンに変換します.</NAW.ConvertToNanameDesc>
 	<NAW.MustDesignateNanameWall>斜め壁を指定してください.</NAW.MustDesignateNanameWall>
+
+	<NAW.ForceDentRoofed>屋根でへこむ</NAW.ForceDentRoofed>
+	<NAW.ForceDentRoofedDesc>屋根がかかっている場所をへこませます.</NAW.ForceDentRoofedDesc>
 	
 </LanguageData>

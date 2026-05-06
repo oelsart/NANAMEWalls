@@ -6,45 +6,6 @@ using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
 
-[HarmonyPatch(typeof(Building), nameof(Building.GetGizmos))]
-public static class Patch_Building_GetGizmos
-{
-    public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> values, Building __instance)
-    {
-        foreach (var gizmo in values)
-        {
-            yield return gizmo;
-        }
-
-        if (!DebugSettings.godMode || __instance.Graphic is not Graphic_LinkedDiagonal) yield break;
-        yield return new Command_Action
-        {
-            defaultLabel = "NAW.NanameSettings".Translate(),
-            Order = 10000,
-            action = () =>
-            {
-                Find.WindowStack.Add(new Dialog_ModSettings(NanameWalls.Mod)
-                {
-                    draggable = true,
-                    resizeable = true
-                });
-                NanameWalls.Mod.selDef = NanameWalls.Mod.nanameWalls.FirstOrDefault(pair => pair.Value == __instance.def).Key;
-                NanameWalls.Mod.selThing = __instance;
-                Find.Selector.Deselect(__instance);
-            }
-        };
-        yield return new Command_Action()
-        {
-            defaultLabel = "NAW.UpdateGraphic".Translate(),
-            Order = 10001,
-            action = () =>
-            {
-                __instance.DirtyMapMesh(__instance.Map);
-            }
-        };
-    }
-}
-
 [HarmonyPatch(typeof(Designator_Dropdown), "SetupFloatMenu")]
 public static class Patch_Designator_Dropdown_SetupFloatMenu
 {

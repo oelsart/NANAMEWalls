@@ -1,0 +1,19 @@
+[global]
+unity_version = "2022.3.35f1"
+unity_hub_path = "E:/Unity Hub/Unity Hub.exe"
+unity_editor_path = "E:/Unity Hub/Editor/2022.3.35f1/Editor/Unity.exe"
+allowed_targets = ["windows", "linux", "mac"]
+temp_project_path = "/tmp/unity"
+clean_temp_project = false
+link_method = "copy"
+
+[bundles.nanamewalls]
+description = "Bundle for Naname Walls"
+output_directory = "../../Common/AssetBundles"
+asset_directory = "Data"
+bundle_path = "OELS.NanameWalls"
+bundle_name = "OELS.NanameWalls"
+filename = "textures"
+targetless = true
+exclude_patterns = ["*.meta", "*.tmp"]
+include_patterns = ["*.png", "*.wav", "*.ogg"]

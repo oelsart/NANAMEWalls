@@ -62,7 +62,8 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             c = rotated + parent.Position;
         }
 
-        var edifice = c.GetEdificeSafe(parent.Map);
+        var map = parent.Map;
+        var edifice = c.GetEdificeSafe(map);
         if (edifice is null)
             return flag;
         if (!linkWithNormal &&
@@ -195,32 +196,43 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             return false;
         
         var pos = thing.Position + rot.AsIntVec3;
-        if (!pos.InBounds(thing.Map)) return false;
+        var map = thing.Map;
+        if (!pos.InBounds(map)) return false;
         
         // Substructureの境目では壁はへこまない: Propsの表示がうまくできないため
         if (ModsConfig.OdysseyActive)
         {
-            var terrainDef = thing.Map.terrainGrid.FoundationAt(pos);
+            var terrainDef = map.terrainGrid.FoundationAt(pos);
             var flag = terrainDef is { IsSubstructure: true };
-            terrainDef = thing.Map.terrainGrid.FoundationAt(thing.Position);
+            terrainDef = map.terrainGrid.FoundationAt(thing.Position);
             if (flag != terrainDef is { IsSubstructure: true })
             {
                 return true;
             }
         }
 
-        var forceDentPossibly = (pos + rot2.Opposite.FacingCell).GetEdificeSafe(thing.Map);
-        if (forceDentPossibly != null &&
+        var forceDentPossibly = (pos + rot2.Opposite.FacingCell).GetEdificeSafe(map);
+        if (forceDentPossibly is not null &&
             NanameWalls.Mod.originalDefs.TryGetValue(forceDentPossibly.def, out var originalDef) &&
             NanameWalls.Mod.Settings.meshSettings.TryGetValue(originalDef.defName, out var settings2) &&
             (settings2.forceDent && forceDentPossibly.Rotation == rot2 ||
              settings2.forceDentOpposite && forceDentPossibly.Rotation == rot2.Opposite))
             return false;
 
-        if (pos.GetEdifice(thing.Map) != null) return false;
+        if (pos.Roofed(map) &&
+            (thing.TryGetComp<CompNanameWall>() is { DentRoofed: true } ||
+            forceDentPossibly?.TryGetComp<CompNanameWall>() is { DentRoofed: true }))
+            return false;
+
+        if (pos.GetEdifice(map) is not null) return false;
         var opposite = rot.Opposite;
         var opposite2 = rot2.Opposite;
-        return !pos.GetThingList(thing.Map).Any(t => (t.def.building?.isAttachment ?? false) && (t.Rotation == opposite || t.Rotation == opposite2));
+        foreach (var t in pos.GetThingList(map))
+        {
+            if (t.def.building is { isAttachment: true } && (t.Rotation == opposite || t.Rotation == opposite2))
+                return false;
+        }
+        return true;
     }
 
     public override void Print(SectionLayer layer, Thing thing, float extraRotation)
