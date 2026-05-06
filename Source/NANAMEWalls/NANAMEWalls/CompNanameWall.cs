@@ -25,7 +25,12 @@ public class CompNanameWall : ThingComp
             toggleAction = () =>
             {
                 dentRoofed = !dentRoofed;
-                parent.DirtyMapMesh(parent.Map);
+                var mapDrawer = parent.Map.mapDrawer;
+                for (var i = 0; i < 4; i++)
+                {
+                    var c = parent.Position + GenAdj.DiagonalDirections[i];
+                    mapDrawer.MapMeshDirty(c, MapMeshFlagDefOf.Things);
+                }
             }
         };
         
