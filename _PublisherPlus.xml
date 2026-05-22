@@ -2,6 +2,7 @@
 <Configuration>
   <Excluded>
     <exclude>.git</exclude>
+    <exclude>Round.cs</exclude>
     <exclude>Source</exclude>
   </Excluded>
 </Configuration>

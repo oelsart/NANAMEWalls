@@ -67,7 +67,7 @@ public class NanameWalls : Mod
         tabDrawers.AddRange(typeof(SettingsTabDrawer).AllSubclassesNonAbstract()
             .Select(Activator.CreateInstance).Cast<SettingsTabDrawer>()
             .OrderBy(tab => tab.Index));
-        CurrentTab = tabDrawers[0];
+        CurrentTab = tabDrawers.FirstOrDefault();
         tabs.AddRange(tabDrawers.Select(tab => new TabRecord(tab.Label, () => CurrentTab = tab, () => CurrentTab == tab)));
     }
 

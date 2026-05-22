@@ -7,7 +7,7 @@ namespace NanameWalls;
 [StaticConstructorOnStartup]
 public class CompNanameWall : ThingComp
 {
-    private static readonly Texture2D iconTex = ContentFinder<Texture2D>.Get("NanameWalls/UI/ForceDent");
+    private static readonly Texture2D iconTex = ContentFinder<Texture2D>.Get("NanameWalls/UI/ForceDent", false);
     
     private bool dentRoofed;
 
@@ -15,24 +15,27 @@ public class CompNanameWall : ThingComp
     
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
-        yield return new Command_Toggle
+        if (parent.Faction == Faction.OfPlayer)
         {
-            defaultLabel = "NAW.ForceDentRoofed".Translate(),
-            defaultDesc = "NAW.ForceDentRoofedDesc".Translate(),
-            icon = iconTex,
-            Order = 51f,
-            isActive = () => dentRoofed,
-            toggleAction = () =>
+            yield return new Command_Toggle
             {
-                dentRoofed = !dentRoofed;
-                var mapDrawer = parent.Map.mapDrawer;
-                for (var i = 0; i < 4; i++)
+                defaultLabel = "NAW.ForceDentRoofed".Translate(),
+                defaultDesc = "NAW.ForceDentRoofedDesc".Translate(),
+                icon = iconTex,
+                Order = 51f,
+                isActive = () => dentRoofed,
+                toggleAction = () =>
                 {
-                    var c = parent.Position + GenAdj.DiagonalDirections[i];
-                    mapDrawer.MapMeshDirty(c, MapMeshFlagDefOf.Things);
+                    dentRoofed = !dentRoofed;
+                    var mapDrawer = parent.Map.mapDrawer;
+                    for (var i = 0; i < 4; i++)
+                    {
+                        var c = parent.Position + GenAdj.DiagonalDirections[i];
+                        mapDrawer.MapMeshDirty(c, MapMeshFlagDefOf.Things);
+                    }
                 }
-            }
-        };
+            };
+        }
         
         if (!DebugSettings.godMode || parent.Graphic is not Graphic_LinkedDiagonal) yield break;
         yield return new Command_Action

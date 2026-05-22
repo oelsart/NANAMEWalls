@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 
@@ -373,16 +374,7 @@ public class MeshSettings : IExposable
 
         public SettingItem DeepCopy()
         {
-            var copy = new SettingItem()
-            {
-                label = label,
-                type = type,
-                condition = condition,
-                repeat = repeat,
-                link = link,
-            };
-            if (vectors != null) copy.vectors = [.. vectors];
-            return copy;
+            return AccessTools.MakeDeepCopy<SettingItem>(this);
         }
 
         public enum SettingType
