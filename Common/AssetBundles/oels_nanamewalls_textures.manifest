@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 84379114
+CRC: 2407702342
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9145e0b908c03492089eb1e3aaf6368d
+    Hash: 2f21c0c143ef96998053e74a8bb64455
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2612ac43db082a73502ee80f2eceb73f
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 9145e0b908c03492089eb1e3aaf6368d
+    Hash: 2f21c0c143ef96998053e74a8bb64455
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -20,5 +20,6 @@ Assets:
 - Assets/Data/OELS.NanameWalls/Textures/NanameWalls/Designators/ConvertToOriginal.png
 - Assets/Data/OELS.NanameWalls/Textures/NanameWalls/Designators/ConvertToNaname.png
 - Assets/Data/OELS.NanameWalls/Textures/NanameWalls/UI/ForceDent.png
+- Assets/Data/OELS.NanameWalls/Textures/NanameWalls/UI/Eye.png
 - Assets/Data/OELS.NanameWalls/Textures/NanameWalls/UI/ConvertToOriginal.png
 Dependencies: []

@@ -5,7 +5,6 @@ using Verse.Sound;
 
 namespace NanameWalls;
 
-[HotSwap]
 internal class SettingsTab_Options : SettingsTabDrawer
 {
     public override int Index => 1;

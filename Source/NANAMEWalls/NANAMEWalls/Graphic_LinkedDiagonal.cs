@@ -7,7 +7,6 @@ using static NanameWalls.ModCompat;
 namespace NanameWalls;
 
 [StaticConstructorOnStartup]
-[HotSwap]
 public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFiller(subGraphic)
 {
     private static readonly Dictionary<Material, Material> materialCache = [];
@@ -330,22 +329,40 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
             PrintConditional(layer, thing, settings, center, extraRotation, east, Condition.HalfLinked);
         if (!anyLinked)
             PrintConditional(layer, thing, settings, center, extraRotation, false, Condition.NoLinked);
+        
+        // 北東方面の斜め接続フラグが両方立っておりかつ別の種類の壁が建っている場合
+        if ((flag & (Diagonals.NorthWest | Diagonals.SouthEast)) == (Diagonals.NorthWest | Diagonals.SouthEast) &&
+            (pos + IntVec3.NorthEast).GetEdificeSafe(thing.Map) is { } edifice &&
+            (edifice.def != thing.def || edifice.Stuff != thing.Stuff))
+            PrintConditional(layer, thing, settings, center, extraRotation, false, Condition.LinkedOther);
+        if ((flag & (Diagonals.NorthEast | Diagonals.SouthWest)) == (Diagonals.NorthEast | Diagonals.SouthWest) &&
+            (pos + IntVec3.NorthWest).GetEdificeSafe(thing.Map) is { } edifice2 &&
+            (edifice2.def != thing.def || edifice2.Stuff != thing.Stuff))
+            PrintConditional(layer, thing, settings, center, extraRotation, true, Condition.LinkedOther);
+        if (southEast && ClearFor(settings, Rot4.South, Rot4.West, thing) &&
+            (pos + IntVec3.SouthEast).GetEdificeSafe(thing.Map) is { } edifice3 &&
+            (edifice3.def != thing.def || edifice3.Stuff != thing.Stuff))
+            PrintConditional(layer, thing, settings, center + new Vector3(-1f, 0f, -1f), extraRotation, true, Condition.LinkedOther);
+        if (southWest && ClearFor(settings, Rot4.South, Rot4.East, thing) &&
+            (pos + IntVec3.SouthWest).GetEdificeSafe(thing.Map) is { } edifice4 &&
+            (edifice4.def != thing.def || edifice4.Stuff != thing.Stuff))
+            PrintConditional(layer, thing, settings, center + new Vector3(-1f, 0f, -1f), extraRotation, false, Condition.LinkedOther);
 
         // Diagonal printing
-        foreach (Diagonals direction in Enum.GetValues(typeof(Diagonals)))
+        for (var i = 0; i < 4; i++)
         {
-            if (direction is Diagonals.None or Diagonals.NoFinalize) continue;
+            var direction = (Diagonals)(1 << i);
             if ((flag & direction) > Diagonals.None)
             {
                 PrintDiagonal(layer, thing, settings, center, extraRotation, direction);
             }
         }
 
-        if (flag != Diagonals.None && (flag & flag - 1) == 0)
+        if (flag != Diagonals.None && (flag & flag - 1) == 0) // 立っているフラグが1つであることを確認している
         {
             PrintDiagonal(layer, thing, settings, center, extraRotation, flag, true);
         }
-        if (flag.HasFlag(Diagonals.SouthEast | Diagonals.SouthWest) && !north)
+        if ((flag & (Diagonals.SouthEast | Diagonals.SouthWest)) == (Diagonals.SouthEast | Diagonals.SouthWest) && !north)
         {
             PrintDiagonal(layer, thing, settings, center, extraRotation, Diagonals.SouthEast, true);
             PrintDiagonal(layer, thing, settings, center, extraRotation, Diagonals.SouthWest, true);
@@ -384,7 +401,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
         foreach (var vertsItem in settings.settingItems.Values)
         {
-            if (vertsItem.condition != condition ||
+            if (!vertsItem.visible || vertsItem.condition != condition ||
                 !settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
 
             var mat = GetMaterial(thing, linkUVs.source);
@@ -426,7 +443,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         var vertsDirection = north ? finishPrint ? Condition.SouthFinish : Condition.North : finishPrint ? Condition.NorthFinish : Condition.South;
         foreach (var vertsItem in settings.settingItems.Values)
         {
-            if (vertsItem.condition != vertsDirection ||
+            if (!vertsItem.visible || vertsItem.condition != vertsDirection ||
                 !settings.settingItems.TryGetValue(vertsItem.link, out var linkUVs)) continue;
             
             var mat = GetMaterial(thing, linkUVs.source);

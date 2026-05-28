@@ -24,6 +24,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
     private List<TabRecord> tabs;
     private string settingMode = "Values";
     private MeshSettings clipboard;
+    private static readonly CachedTexture VisibleIcon = new ("NanameWalls/UI/Eye");
 
     public override int Index => 0;
 
@@ -217,7 +218,7 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         var buttonOffset = selThing != null ? Text.LineHeight : 0f;
         const int settingsCount = 1;
         const float settingItemHeight = 18f;
-        var settingsHeight = settingItemHeight * settingsCount;
+        const float settingsHeight = settingItemHeight * settingsCount;
         using (new TextBlock(GameFont.Tiny, TextAnchor.MiddleLeft))
         {
             Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
@@ -559,6 +560,19 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
         var labelRect = rect.LeftPart(labelPct);
         var lineHeight = Text.LineHeightOf(GameFont.Small);
         labelRect.SplitVertically(labelRect.width - lineHeight * 2f, out var left, out var right);
+        if (item.type == SettingItem.SettingType.Verts)
+        {
+            var visibleIconRect = left.RightPartPixels(lineHeight).ContractedBy(1f);
+            TooltipHandler.TipRegionByKey(visibleIconRect, "Visible");
+
+            var color = Color.white.WithAlpha(item.visible ? 0.9f : 0.4f);
+            if (Widgets.ButtonImageFitted(visibleIconRect, VisibleIcon.Texture, color, color.WithAlpha(color.a + 0.1f)))
+            {
+                item.visible = !item.visible;
+            }
+            GUI.color = Color.white;
+            left.xMax -= lineHeight;
+        }
         Widgets.LabelEllipses(left, item.label);
 
         var buttonRect = right.LeftHalf().ContractedBy(1f);

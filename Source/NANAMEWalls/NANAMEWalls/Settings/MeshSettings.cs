@@ -282,6 +282,7 @@ public class MeshSettings : IExposable
     {
         public string label = "";
         public SettingType type;
+        public bool visible = true;
         public UVSource source;
         public Condition condition;
         public int repeat = 1;
@@ -327,6 +328,7 @@ public class MeshSettings : IExposable
                     break;
 
                 case SettingType.Verts:
+                    Scribe_Values.Look(ref visible, nameof(visible), true);
                     Scribe_Values.Look(ref link, "linkUVs");
                     Scribe_Values.Look(ref condition, nameof(condition));
                     LoadWithOldName(ref condition, "direction");
@@ -413,7 +415,8 @@ public class MeshSettings : IExposable
             South,
             SouthFinish,
             NoLinked,
-            HalfLinked
+            HalfLinked,
+            LinkedOther
         }
     }
 
