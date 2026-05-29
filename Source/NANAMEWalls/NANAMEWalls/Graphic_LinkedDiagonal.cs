@@ -342,7 +342,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         if (southEast && ClearFor(settings, Rot4.South, Rot4.West, thing) &&
             (pos + IntVec3.SouthEast).GetEdificeSafe(thing.Map) is { } edifice3 &&
             (edifice3.def != thing.def || edifice3.Stuff != thing.Stuff))
-            PrintConditional(layer, thing, settings, center + new Vector3(-1f, 0f, -1f), extraRotation, true, Condition.LinkedOther);
+            PrintConditional(layer, thing, settings, center + new Vector3(1f, 0f, -1f), extraRotation, true, Condition.LinkedOther);
         if (southWest && ClearFor(settings, Rot4.South, Rot4.East, thing) &&
             (pos + IntVec3.SouthWest).GetEdificeSafe(thing.Map) is { } edifice4 &&
             (edifice4.def != thing.def || edifice4.Stuff != thing.Stuff))
