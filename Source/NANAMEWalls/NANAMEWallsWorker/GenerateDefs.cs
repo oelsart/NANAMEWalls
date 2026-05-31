@@ -108,7 +108,7 @@ public static class GenerateDefs
             
             newDef.graphicData = new GraphicData();
             newDef.graphicData.CopyFrom(wallDef.graphicData);
-            newDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkerTypeStatic;
+            newDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkDrawerType;
             if (wallDef.building is not null)
             {
                 newDef.building = MakeShallowCopy(wallDef.building, "isNaturalRock", "isResourceRock");
@@ -177,7 +177,7 @@ public static class GenerateDefs
                     newStyleDef.overrideLabel = "NAW.Diagonal".Translate() + newStyleDef.overrideLabel;
                 newStyleDef.graphicData = new GraphicData();
                 newStyleDef.graphicData.CopyFrom(thingDefStyle.StyleDef.graphicData);
-                newStyleDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkerTypeStatic;
+                newStyleDef.graphicData.linkType = Graphic_LinkedDiagonal.LinkDrawerType;
                 newStyleDef.shortHash = 0;
                 GiveShortHash(newStyleDef, typeof(ThingStyleDef), takenHashes[typeof(ThingStyleDef)]);
                 newStyleDef.modContentPack = NanameWalls.Mod.Content;

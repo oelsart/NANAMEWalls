@@ -6,7 +6,6 @@ using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
 
-[StaticConstructorOnStartup]
 public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFiller(subGraphic)
 {
     private static readonly Dictionary<Material, Material> materialCache = [];
@@ -33,7 +32,10 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
     protected Diagonals diagonalFlag;
     
     public const int LinkerNumber = 217;
+    
+    public const LinkDrawerType LinkDrawerType = (LinkDrawerType)LinkerNumber;
 
+    [Obsolete("Changed to a constant.")]
     public static LinkDrawerType LinkerTypeStatic => (LinkDrawerType)LinkerNumber;
 
     public override LinkDrawerType LinkerType => (LinkDrawerType)LinkerNumber;

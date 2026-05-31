@@ -89,7 +89,7 @@ public static class Patch_GraphicUtility_WrapLinked
 {
     public static bool Prefix(Graphic subGraphic, LinkDrawerType linkDrawerType, ref Graphic_Linked __result)
     {
-        if (linkDrawerType != Graphic_LinkedDiagonal.LinkerTypeStatic) return true;
+        if (linkDrawerType != Graphic_LinkedDiagonal.LinkDrawerType) return true;
         __result = new Graphic_LinkedDiagonal(subGraphic);
         return false;
     }
