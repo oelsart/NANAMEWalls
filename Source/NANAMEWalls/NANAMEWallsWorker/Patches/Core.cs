@@ -8,27 +8,26 @@ namespace NanameWalls;
 [StaticConstructorOnStartup]
 internal class Core
 {
-    static Core()
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        GenTypes.AllTypes.Where(t => t.Assembly == assembly && t.HasAttribute<HarmonyAttribute>())
-            .Select(NanameWalls.Mod.Harmony.CreateClassProcessor)
-            .Do(patchClass =>
-            {
-                try
-                {
-                    if (patchClass.Category.NullOrEmpty() ||
-                        ViviRace.Active && patchClass.Category == ViviRace.PatchCategory ||
-                        Odyssey.Active && patchClass.Category == Odyssey.PatchCategory ||
-                        ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory)
-                    {
-                        patchClass.Patch();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"[NanameWalls] Error while apply patching: {ex}");
-                }
-            });
-    }
+  static Core()
+  {
+    var assembly = Assembly.GetExecutingAssembly();
+    GenTypes.AllTypes.Where(t => t.Assembly == assembly && t.HasAttribute<HarmonyAttribute>())
+      .Select(NanameWalls.Mod.Harmony.CreateClassProcessor)
+      .Do(patchClass =>
+      {
+        try
+        {
+          if (patchClass.Category.NullOrEmpty() ||
+              ViviRace.Active && patchClass.Category == ViviRace.PatchCategory ||
+              ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory)
+          {
+            patchClass.Patch();
+          }
+        }
+        catch (Exception ex)
+        {
+          Log.Error($"[NanameWalls] Error while apply patching: {ex}");
+        }
+      });
+  }
 }

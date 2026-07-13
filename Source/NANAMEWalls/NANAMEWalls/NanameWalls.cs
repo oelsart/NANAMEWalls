@@ -9,88 +9,91 @@ namespace NanameWalls;
 [StaticConstructorOnStartup]
 public class NanameWalls : Mod
 {
-    public static NanameWalls Mod { get; private set; }
+  public static NanameWalls Mod { get; private set; }
 
-    public Settings Settings { get; private set; }
+  public Settings Settings { get; private set; }
 
-    internal Harmony Harmony { get; private set; }
+  internal Harmony Harmony { get; private set; }
 
-    public const string Suffix = "_NAWDiagonal";
+  public const string Suffix = "_NAWDiagonal";
 
-    public readonly HashSet<DesignationCategoryDef> designationCategories = [];
-    
-    public readonly HashSet<ThingCategoryDef> thingCategories = [];
+  public readonly HashSet<DesignationCategoryDef> designationCategories = [];
 
-    public readonly Dictionary<ThingDef, ThingDef> originalDefs = [];
+  public readonly HashSet<ThingCategoryDef> thingCategories = [];
 
-    public readonly Dictionary<ThingDef, ThingDef> nanameWalls = [];
+  public readonly Dictionary<ThingDef, ThingDef> originalDefs = [];
 
-    private readonly List<TabRecord> tabs = [];
+  public readonly Dictionary<ThingDef, ThingDef> nanameWalls = [];
 
-    private readonly List<SettingsTabDrawer> tabDrawers = [];
+  private readonly List<TabRecord> tabs = [];
 
-    public Thing selThing;
+  private readonly List<SettingsTabDrawer> tabDrawers = [];
 
-    public ThingDef selDef;
+  public Thing selThing;
 
-    internal SettingsTabDrawer CurrentTab { get; set; }
+  public ThingDef selDef;
 
-    public NanameWalls(ModContentPack content) : base(content)
+  internal SettingsTabDrawer CurrentTab { get; set; }
+
+  public NanameWalls(ModContentPack content) : base(content)
+  {
+    Mod = this;
+    MeshSettings.Init();
+    Settings = GetSettings<Settings>();
+    Harmony = new Harmony("OELS.NanameWalls");
+    Harmony.Patch(
+      AccessTools.Method(typeof(GraphicUtility), nameof(GraphicUtility.WrapLinked)),
+      prefix: new HarmonyMethod(typeof(Patch_GraphicUtility_WrapLinked),
+        nameof(Patch_GraphicUtility_WrapLinked.Prefix)));
+  }
+
+  public override string SettingsCategory()
+  {
+    if (CurrentTab == null)
     {
-        Mod = this;
-        MeshSettings.Init();
-        Settings = GetSettings<Settings>();
-        Harmony = new Harmony("OELS.NanameWalls");
-        Harmony.Patch(
-            AccessTools.Method(typeof(GraphicUtility), nameof(GraphicUtility.WrapLinked)),
-            prefix: new HarmonyMethod(typeof(Patch_GraphicUtility_WrapLinked), nameof(Patch_GraphicUtility_WrapLinked.Prefix)));
+      InitializeTabs();
     }
 
-    public override string SettingsCategory()
+    return tabDrawers.Count != 0 ? "NANAME Walls" : "";
+  }
+
+  public override void WriteSettings()
+  {
+    base.WriteSettings();
+    tabDrawers.Do(tab => tab.PreClose());
+  }
+
+  private void InitializeTabs()
+  {
+    tabs.Clear();
+    tabDrawers.AddRange(typeof(SettingsTabDrawer).AllSubclassesNonAbstract()
+      .Select(Activator.CreateInstance).Cast<SettingsTabDrawer>()
+      .OrderBy(tab => tab.Index));
+    CurrentTab = tabDrawers.FirstOrDefault();
+    tabs.AddRange(tabDrawers.Select(tab => new TabRecord(tab.Label, () => CurrentTab = tab, () => CurrentTab == tab)));
+  }
+
+  public override void DoSettingsWindowContents(Rect inRect)
+  {
+    if (CurrentTab == null)
     {
-        if (CurrentTab == null)
-        {
-            InitializeTabs();
-        }
-        return tabDrawers.Count != 0 ? "NANAME Walls" : "";
+      InitializeTabs();
     }
 
-    public override void WriteSettings()
-    {
-        base.WriteSettings();
-        tabDrawers.Do(tab => tab.PreClose());
-    }
-
-    private void InitializeTabs()
-    {
-        tabs.Clear();
-        tabDrawers.AddRange(typeof(SettingsTabDrawer).AllSubclassesNonAbstract()
-            .Select(Activator.CreateInstance).Cast<SettingsTabDrawer>()
-            .OrderBy(tab => tab.Index));
-        CurrentTab = tabDrawers.FirstOrDefault();
-        tabs.AddRange(tabDrawers.Select(tab => new TabRecord(tab.Label, () => CurrentTab = tab, () => CurrentTab == tab)));
-    }
-
-    public override void DoSettingsWindowContents(Rect inRect)
-    {
-        if (CurrentTab == null)
-        {
-            InitializeTabs();
-        }
-        base.DoSettingsWindowContents(inRect);
-        var rect = new Rect(inRect.x, inRect.y + TabDrawer.TabHeight, inRect.width, inRect.height - TabDrawer.TabHeight);
-        Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, tabs);
-        CurrentTab?.Draw(rect.ContractedBy(5f));
-    }
+    base.DoSettingsWindowContents(inRect);
+    var rect = new Rect(inRect.x, inRect.y + TabDrawer.TabHeight, inRect.width, inRect.height - TabDrawer.TabHeight);
+    Widgets.DrawMenuSection(rect);
+    TabDrawer.DrawTabs(rect, tabs);
+    CurrentTab?.Draw(rect.ContractedBy(5f));
+  }
 }
 
 public static class Patch_GraphicUtility_WrapLinked
 {
-    public static bool Prefix(Graphic subGraphic, LinkDrawerType linkDrawerType, ref Graphic_Linked __result)
-    {
-        if (linkDrawerType != Graphic_LinkedDiagonal.LinkDrawerType) return true;
-        __result = new Graphic_LinkedDiagonal(subGraphic);
-        return false;
-    }
+  public static bool Prefix(Graphic subGraphic, LinkDrawerType linkDrawerType, ref Graphic_Linked __result)
+  {
+    if (linkDrawerType != Graphic_LinkedDiagonal.LinkDrawerType) return true;
+    __result = new Graphic_LinkedDiagonal(subGraphic);
+    return false;
+  }
 }
