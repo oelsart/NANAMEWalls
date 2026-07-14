@@ -16,6 +16,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
   private static Material Bottom;
   static Graphic_LinkedDiagonal()
   {
+    if (!ModsConfig.OdysseyActive) return;
     LongEventHandler.ExecuteWhenFinished(() =>
     {
       Bottom = new Material(
