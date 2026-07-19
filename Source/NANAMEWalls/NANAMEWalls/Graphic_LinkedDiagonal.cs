@@ -306,18 +306,14 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
     var west = ShouldLinkWith(pos + IntVec3.West, thing);
     var west2 = !settings.allowVShaped && ShouldLinkWith(pos + IntVec3.West * 2, thing, false);
     var south = ShouldLinkWith(pos + IntVec3.South, thing);
-    var northEast = ShouldLinkWith(pos + IntVec3.NorthEast, thing);
-    var northEast2 = ShouldLinkWith(pos + IntVec3.NorthEast, thing, false);
-    var northWest = ShouldLinkWith(pos + IntVec3.NorthWest, thing);
-    var northWest2 = ShouldLinkWith(pos + IntVec3.NorthWest, thing, false);
-    var southEast = ShouldLinkWith(pos + IntVec3.SouthEast, thing);
-    var southEast2 = ShouldLinkWith(pos + IntVec3.SouthEast, thing, false);
-    var southWest = ShouldLinkWith(pos + IntVec3.SouthWest, thing);
-    var southWest2 = ShouldLinkWith(pos + IntVec3.SouthWest, thing, false);
+    var northEast = ShouldLinkWith(pos + IntVec3.NorthEast, thing, false);
+    var northWest = ShouldLinkWith(pos + IntVec3.NorthWest, thing, false);
+    var southEast = ShouldLinkWith(pos + IntVec3.SouthEast, thing, false);
+    var southWest = ShouldLinkWith(pos + IntVec3.SouthWest, thing, false);
     var flag = Diagonals.None;
     if (northEast)
     {
-      if (!east && !east2 && (settings.allowVShaped || !southEast2) && ClearFor(settings, Rot4.East, Rot4.South, thing))
+      if (!east && !east2 && (settings.allowVShaped || !southEast) && ClearFor(settings, Rot4.East, Rot4.South, thing))
       {
         flag |= Diagonals.SouthEast;
         if (north)
@@ -326,8 +322,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         }
       }
 
-      if (!north && !north2 && (settings.allowVShaped || !northWest2) &&
-          ClearFor(settings, Rot4.North, Rot4.West, thing))
+      if (!north && !north2 && (settings.allowVShaped || !northWest) && ClearFor(settings, Rot4.North, Rot4.West, thing))
       {
         flag |= Diagonals.NorthWest;
         if (east)
@@ -339,7 +334,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
 
     if (northWest)
     {
-      if (!west && !west2 && (settings.allowVShaped || !southWest2) && ClearFor(settings, Rot4.West, Rot4.South, thing))
+      if (!west && !west2 && (settings.allowVShaped || !southWest) && ClearFor(settings, Rot4.West, Rot4.South, thing))
       {
         flag |= Diagonals.SouthWest;
         if (north)
@@ -348,8 +343,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
         }
       }
 
-      if (!north && !north2 && (settings.allowVShaped || !northEast2) &&
-          ClearFor(settings, Rot4.North, Rot4.East, thing))
+      if (!north && !north2 && (settings.allowVShaped || !northEast) && ClearFor(settings, Rot4.North, Rot4.East, thing))
       {
         flag |= Diagonals.NorthEast;
         if (west)
