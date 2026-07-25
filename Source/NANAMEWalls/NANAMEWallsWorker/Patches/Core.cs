@@ -19,7 +19,8 @@ internal class Core
         {
           if (patchClass.Category.NullOrEmpty() ||
               ViviRace.Active && patchClass.Category == ViviRace.PatchCategory ||
-              ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory)
+              ReplaceContextMenu.Active && patchClass.Category == ReplaceContextMenu.PatchCategory ||
+              VanillaExpandedFramework.Active && patchClass.Category == VanillaExpandedFramework.PatchCategory)
           {
             patchClass.Patch();
           }

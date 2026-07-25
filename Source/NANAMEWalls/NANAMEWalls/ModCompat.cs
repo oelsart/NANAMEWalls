@@ -169,5 +169,11 @@ namespace NanameWalls
         }
       }
     }
+
+    public static class VanillaExpandedFramework
+    {
+      public static readonly bool Active = ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core");
+      public const string PatchCategory = "Patches_VanillaExpandedFramework";
+    }
   }
 }
