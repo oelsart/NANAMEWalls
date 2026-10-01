@@ -4600,4 +4600,150 @@
   </SimpleOpenWindow>
   <OpenWindow Redirect="SimpleOpenWindow" />
   <ReinforcedOpenWindow Redirect="SimpleOpenWindow" />
+  
+  <!-- [MUS]太空基地家具Space Base Furniture -->
+  <MUS_SpaceBase_Wall>
+    <BorderFillerUVs_UVs>
+      <UVs>
+        <li>(0.5, 0.02, 0)</li>
+        <li>(0.5, 0.02, 0)</li>
+        <li>(0.5, 0.02, 0)</li>
+        <li>(0.5, 0.02, 0)</li>
+      </UVs>
+    </BorderFillerUVs_UVs>
+    <NorthUVsFinish_UVs>
+      <UVs>
+        <li>(0.5, 0.95, 0)</li>
+        <li>(0.5, 0.95, 0)</li>
+        <li>(0.5, 0.95, 0)</li>
+        <li>(0.5, 0.95, 0)</li>
+      </UVs>
+    </NorthUVsFinish_UVs>
+    <NorthVerts_Verts>
+      <linkUVs>SouthUVs</linkUVs>
+      <condition>North</condition>
+      <Verts>
+        <li>(0.53, 0, 1.5)</li>
+        <li>(0.71, 0, 1.5)</li>
+        <li>(-0.29, 0, 0.5)</li>
+        <li>(-0.47, 0, 0.5)</li>
+      </Verts>
+    </NorthVerts_Verts>
+    <NorthVertsBorder_Verts>
+      <linkUVs>BorderFillerUVs</linkUVs>
+      <condition>North</condition>
+      <Verts>
+        <li>(-0.47, 0, 0.5)</li>
+        <li>(-0.5, 0, 0.5)</li>
+        <li>(0.5, 0, 1.5)</li>
+        <li>(0.53, 0, 1.5)</li>
+      </Verts>
+    </NorthVertsBorder_Verts>
+    <NorthVertsFiller_Verts>
+      <linkUVs>TopFillerNorthUVs</linkUVs>
+      <condition>North</condition>
+      <Verts>
+        <li>(-0.29, 0, 0.5)</li>
+        <li>(0.71, 0.01, 1.5)</li>
+        <li>(1.005, 0.01, 1.195)</li>
+        <li>(0.08, 0, 0.27)</li>
+      </Verts>
+    </NorthVertsFiller_Verts>
+    <NorthVertsFinish_Verts>
+      <linkUVs>NorthUVsFinish</linkUVs>
+      <condition>NorthFinish</condition>
+      <Verts>
+        <li>(0.268, 0, 0.45)</li>
+        <li>(0.218, 0.01, 0.45)</li>
+        <li>(0.751, 0.01, 0.983)</li>
+        <li>(0.751, 0, 0.933)</li>
+      </Verts>
+    </NorthVertsFinish_Verts>
+    <NorthVertsFinishBorder_Verts>
+      <linkUVs>BorderFillerUVs</linkUVs>
+      <condition>NorthFinish</condition>
+      <Verts>
+        <li>(0.268, 0, 0.5)</li>
+        <li>(0.212, 0.01, 0.5)</li>
+        <li>(0.5, 0.01, 0.788)</li>
+        <li>(0.5, 0, 0.732)</li>
+      </Verts>
+    </NorthVertsFinishBorder_Verts>
+    <NorthVertsRepeat_Repeat>
+      <linkVerts>NorthVerts</linkVerts>
+      <repeat>2</repeat>
+    </NorthVertsRepeat_Repeat>
+    <SouthUVs_UVs>
+      <UVs>
+        <li>(0.15, 0, 0)</li>
+        <li>(0.15, 0.6, 0)</li>
+        <li>(0.85, 0.6, 0)</li>
+        <li>(0.85, 0, 0)</li>
+      </UVs>
+    </SouthUVs_UVs>
+    <SouthUVsFinish_UVs>
+      <UVs>
+        <li>(0.34, 0, 0)</li>
+        <li>(0.34, 0.6, 0)</li>
+        <li>(0.66, 0.6, 0)</li>
+        <li>(0.66, 0, 0)</li>
+      </UVs>
+    </SouthUVsFinish_UVs>
+    <SouthVerts_Verts>
+      <linkUVs>SouthUVs</linkUVs>
+      <condition>South</condition>
+      <Verts>
+        <li>(0.5, 0, -0.5)</li>
+        <li>(0.5, 0.01, 0.1)</li>
+        <li>(1.24, 0.01, 0.84)</li>
+        <li>(1.5, 0, 0.5)</li>
+      </Verts>
+    </SouthVerts_Verts>
+    <SouthVertsFiller_Verts>
+      <linkUVs>TopFillerSouthUVs</linkUVs>
+      <condition>South</condition>
+      <Verts>
+        <li>(0.5, 0, 0.1)</li>
+        <li>(0.08, 0.01, 0.27)</li>
+        <li>(1.005, 0.01, 1.195)</li>
+        <li>(1.24, 0, 0.84)</li>
+      </Verts>
+    </SouthVertsFiller_Verts>
+    <SouthVertsFinish_Verts>
+      <linkUVs>SouthUVsFinish</linkUVs>
+      <condition>SouthFinish</condition>
+      <Verts>
+        <li>(0.5, 0, 0.11)</li>
+        <li>(0.24, 0.01, 0.45)</li>
+        <li>(0.89, 0.01, 1.1)</li>
+        <li>(0.89, 0, 0.5)</li>
+      </Verts>
+    </SouthVertsFinish_Verts>
+    <SouthVertsRepeat_Repeat>
+      <linkVerts>SouthVerts</linkVerts>
+      <repeat>2</repeat>
+    </SouthVertsRepeat_Repeat>
+    <TopFillerNorthUVs_UVs>
+      <UVs>
+        <li>(0.5, 0.965, 0)</li>
+        <li>(0.5, 0.965, 0)</li>
+        <li>(0.5, 0.7, 0)</li>
+        <li>(0.5, 0.7, 0)</li>
+      </UVs>
+    </TopFillerNorthUVs_UVs>
+    <TopFillerSouthUVs_UVs>
+      <UVs>
+        <li>(0.5, 0.75, 0)</li>
+        <li>(0.5, 0.75, 0)</li>
+        <li>(0.5, 0.75, 0)</li>
+        <li>(0.5, 0.75, 0)</li>
+      </UVs>
+    </TopFillerSouthUVs_UVs>
+    <NorthUVs IsNull="True" />
+    <SouthVertsBorder IsNull="True" />
+    <TopFillerUVs IsNull="True" />
+  </MUS_SpaceBase_Wall>
+  <MUS_SpaceBase_WallV>
+    <enabled>False</enabled>
+  </MUS_SpaceBase_WallV>
 </DefaultSettings>
