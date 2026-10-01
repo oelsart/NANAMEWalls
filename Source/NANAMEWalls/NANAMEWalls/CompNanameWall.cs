@@ -54,7 +54,7 @@ public class CompNanameWall : ThingComp
         Find.Selector.Deselect(parent);
       }
     };
-    yield return new Command_Action()
+    yield return new Command_Action
     {
       defaultLabel = "NAW.UpdateGraphic".Translate(),
       Order = 10001f,

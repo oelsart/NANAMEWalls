@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
-using Verse.Sound;
 using static NanameWalls.ModCompat;
 
 namespace NanameWalls;
@@ -9,96 +9,40 @@ namespace NanameWalls;
 [HarmonyPatch(typeof(Designator_Dropdown), "SetupFloatMenu")]
 public static class Patch_Designator_Dropdown_SetupFloatMenu
 {
-  private static readonly AccessTools.FieldRef<Designator_Build, ThingDef> stuffDef =
-    AccessTools.FieldRefAccess<Designator_Build, ThingDef>("stuffDef");
-
-  private static readonly AccessTools.FieldRef<Designator_Build, bool> writeStuff =
-    AccessTools.FieldRefAccess<Designator_Build, bool>("writeStuff");
-
-  private static readonly AccessTools.FieldRef<Designator_Dropdown, bool> activeDesignatorSet =
-    AccessTools.FieldRefAccess<Designator_Dropdown, bool>("activeDesignatorSet");
+  private static readonly AccessTools.FieldRef<FloatMenu, List<FloatMenuOption>> options =
+    AccessTools.FieldRefAccess<FloatMenu, List<FloatMenuOption>>("options");
 
   private static bool Prepare()
   {
     return NanameWalls.Mod.Settings.groupNanameWalls && !MaterialSubMenu.Active;
   }
 
-  public static bool Prefix(Designator_Dropdown __instance, List<Designator> ___elements, ref Window __result)
+  public static void Postfix(List<Designator> ___elements, Window __result)
   {
-    List<FloatMenuOption> list = null;
-    Designator_Build designator = null;
-    var flag = false;
-    for (var i = 0; i < 2; i++)
-    {
-      if (___elements.ElementAtOrDefault(i) is not Designator_Build designator_Build) continue;
-      if (designator_Build.PlacingDef is not ThingDef { MadeFromStuff: true } thingDef) continue;
-
-      if (!NanameWalls.Mod.nanameWalls.ContainsKey(thingDef) &&
-          !NanameWalls.Mod.originalDefs.ContainsKey(thingDef)) continue;
-      flag = true;
-      list ??= [];
-      designator ??= designator_Build;
-      foreach (var item in from d in designator_Build.Map.resourceCounter.AllCountedAmounts.Keys
-               orderby d.stuffProps?.commonality ?? float.PositiveInfinity descending, d.BaseMarketValue
-               select d)
-      {
-        if (!item.IsStuff || !item.stuffProps.CanMake(thingDef) || !DebugSettings.godMode &&
-            designator_Build.Map.listerThings
-              .ThingsOfDef(item).Count <= 0) continue;
-        var localStuffDef = item;
-        var str = designator_Build.sourcePrecept == null
-          ? GenLabel.ThingLabel(thingDef, localStuffDef)
-          : (string)"ThingMadeOfStuffLabel".Translate(localStuffDef.LabelAsStuff, designator_Build.sourcePrecept.Label);
-        str = str.CapitalizeFirst();
-        FloatMenuOption floatMenuOption = new(str, () =>
-        {
-          if (TutorSystem.TutorialMode && !TutorSystem.AllowAction(designator_Build.TutorTagSelect))
-          {
-            return;
-          }
-
-          designator_Build.CurActivateSound?.PlayOneShotOnCamera();
-          Find.DesignatorManager.Select(designator_Build);
-          stuffDef(designator_Build) = localStuffDef;
-          writeStuff(designator_Build) = true;
-          __instance.SetActiveDesignator(designator_Build);
-        }, item)
-        {
-          tutorTag = "SelectStuff-" + thingDef.defName + "-" + localStuffDef.defName
-        };
-        list.Add(floatMenuOption);
-
-        if (ShowBuildableMaterialCount.Active)
-        {
-          ShowBuildableMaterialCount.buildableClicked() = true;
-          ShowBuildableMaterialCount.desBuildable() = thingDef;
-        }
-      }
-
-      if (list.Empty())
-      {
-        Messages.Message("NoStuffsToBuildWith".Translate(), MessageTypeDefOf.RejectInput, false);
-        var fakeWindow = new ImmediateWindow();
-        fakeWindow.doWindowFunc = () =>
-        {
-          Find.DesignatorManager.Deselect();
-          fakeWindow.Close();
-        };
-        __result = fakeWindow;
-        return false;
-      }
-    }
-
-    if (!flag) return true;
-    __result = new FloatMenu(list)
-    {
-      onCloseCallback = () =>
-      {
-        activeDesignatorSet(__instance) = true;
-        writeStuff(designator) = true;
-      }
-    };
-    return false;
+	  if (__result is FloatMenu floatMenu &&
+	      ___elements.All(static d => d is Designator_Build { PlacingDef: ThingDef { MadeFromStuff: true } }))
+	  {
+		  var optionList = options(floatMenu);
+		  optionList.Clear();
+		  foreach (var element in ___elements)
+		  {
+			  element.ProcessInput(Event.current);
+			  if (Find.WindowStack.TryGetWindow<FloatMenu>(out var floatMenu2))
+			  {
+				  optionList.AddRange(options(floatMenu2));
+				  floatMenu2.Close(false);
+			  }
+			  else
+			  {
+				  LongEventHandler.ExecuteWhenFinished(() =>
+				  {
+					  __result.Close(false);
+					  Find.DesignatorManager.Deselect();
+				  });
+				  return;
+			  }
+		  }
+	  }
   }
 }
 

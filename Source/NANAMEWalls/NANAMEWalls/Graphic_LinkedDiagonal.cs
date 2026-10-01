@@ -97,7 +97,7 @@ public class Graphic_LinkedDiagonal(Graphic subGraphic) : Graphic_LinkedCornerFi
     if (edifice is null)
       return flag;
     if (!linkWithNormal &&
-        !NanameWalls.Mod.nanameWalls.ContainsValue(edifice.def.IsBlueprint
+        !NanameWalls.Mod.originalDefs.ContainsKey(edifice.def.IsBlueprint
           ? edifice.def.entityDefToBuild as ThingDef ?? edifice.def
           : edifice.def))
     {

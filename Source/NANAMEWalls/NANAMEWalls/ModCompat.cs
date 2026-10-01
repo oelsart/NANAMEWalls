@@ -1,10 +1,28 @@
-﻿using HarmonyLib;
+﻿using System.Runtime.CompilerServices;
+using HarmonyLib;
+using RimWorld;
 using Verse;
 
 namespace NanameWalls
 {
+  [StaticConstructorOnStartup]
   public static class ModCompat
   {
+    static ModCompat()
+    {
+      foreach (var type in typeof(ModCompat).InnerTypes())
+      {
+        try
+        {
+          RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+        }
+        catch (Exception ex)
+        {
+          Log.Error($"Error in static constructor of {type}: {ex}");
+        }
+      }
+    }
+    
     public static class VehicleMapFramework
     {
       public static readonly bool Active = ModsConfig.IsActive("OELS.VehicleMapFramework") ||
@@ -30,6 +48,30 @@ namespace NanameWalls
             Active = false;
           }
         }
+      }
+    }
+
+    public static class MapVehiclesOcean
+    {
+      public static readonly bool Active = ModsConfig.IsActive("OELS.MapVehicles.OceanExpansion") &&
+                                           !ModsConfig.IsActive("OELS.NanameWalls");
+
+      static MapVehiclesOcean()
+      {
+        if (!Active) return;
+
+        var nanameWall = DefDatabase<ThingDef>.GetNamedSilentFail("Wall_NAWDiagonal");
+        if (nanameWall is not null && !NanameWalls.Mod.originalDefs.TryAdd(nanameWall, ThingDefOf.Wall))
+          NanameWalls.Mod.nanameWalls[ThingDefOf.Wall] = nanameWall;
+
+        var nanameFence = DefDatabase<ThingDef>.GetNamedSilentFail("Fence_NAWDiagonal");
+        var fence = DefDatabase<ThingDef>.GetNamedSilentFail("Fence");
+        if (nanameFence is not null && fence is not null && NanameWalls.Mod.originalDefs.TryAdd(nanameFence, fence))
+          NanameWalls.Mod.nanameWalls[fence] = nanameFence;
+
+        var nanameBarricade = DefDatabase<ThingDef>.GetNamedSilentFail("Barricade_NAWDiagonal");
+        if (nanameBarricade is not null && NanameWalls.Mod.originalDefs.TryAdd(nanameBarricade, ThingDefOf.Barricade))
+          NanameWalls.Mod.nanameWalls[ThingDefOf.Barricade] = nanameBarricade;
       }
     }
 
