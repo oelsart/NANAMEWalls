@@ -131,17 +131,16 @@ public static class GenerateDefs
         newDef.building = MakeShallowCopy(wallDef.building, "isNaturalRock", "isResourceRock");
       }
 
-      newDef.comps = wallDef.comps.ToList();
-      newDef.comps.Add(new CompProperties
+      newDef.comps = [.. wallDef.comps, new CompProperties
       {
-        compClass = typeof(CompNanameWall)
-      });
+	      compClass = typeof(CompNanameWall)
+      }];
 
       newDef.shortHash = 0;
       GiveShortHash(newDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
       newDef.modContentPack = NanameWalls.Mod.Content;
-      DefGenerator.AddImpliedDef(newDef, remake);
       if (!remake) DefDatabase<BuildableDef>.Add(newDef);
+      DefGenerator.AddImpliedDef(newDef, remake); // DefDatabase.AddによってDef.indexが決定される
       var bluePrintDef = NewBlueprintDef_Thing(newDef, false, hotReload: remake);
       bluePrintDef.shortHash = 0;
       GiveShortHash(bluePrintDef, typeof(ThingDef), takenHashes[typeof(ThingDef)]);
