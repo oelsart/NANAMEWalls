@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <JobDef>
+        <defName>NAW_ReconstructToOriginal</defName>
+        <driverClass>NanameWalls.JobDriver_ReconstructToOriginal</driverClass>
+        <reportString>reconstructing TargetA.</reportString>
+        <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    </JobDef>
+
+    <JobDef>
+        <defName>NAW_ReconstructToNaname</defName>
+        <driverClass>NanameWalls.JobDriver_ReconstructToNaname</driverClass>
+        <reportString>reconstructing TargetA.</reportString>
+        <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    </JobDef>
+    
+</Defs>

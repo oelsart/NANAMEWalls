@@ -1,45 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-	<OutputType>Library</OutputType>
-	<RootNamespace>NanameWalls</RootNamespace>
-	<AssemblyName>NanameWalls</AssemblyName>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <OutputPath>..\..\..\1.6\Assemblies</OutputPath>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<LangVersion>preview</LangVersion>
-	<Configurations>Debug;Release;Dev</Configurations>
-	<Platforms>AnyCPU</Platforms>
+    <RootNamespace>NANAMEWalls</RootNamespace>
+    <OutDir>..\..\..\1.7\Assemblies</OutDir>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>True</Optimize>
-    <DebugType>none</DebugType>
-  </PropertyGroup>
-	
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" />
-    <PackageReference Include="Lib.Harmony.Ref" Version="2.4.2" />
+    <PackageReference Include="Lib.Harmony" Version="3.0.0-rc.2" />
   </ItemGroup>
-
   <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

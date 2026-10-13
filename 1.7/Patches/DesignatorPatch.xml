@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/DesignationCategoryDef[defName="Orders"]/specialDesignatorClasses</xpath>
+        <value>
+            <li>NanameWalls.Designator_ConvertToOriginal</li>
+            <li>NanameWalls.Designator_ConvertToNaname</li>
+        </value>
+    </Operation>
+    
+</Patch>
