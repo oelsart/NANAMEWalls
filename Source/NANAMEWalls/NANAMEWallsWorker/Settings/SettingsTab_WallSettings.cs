@@ -183,12 +183,14 @@ internal class SettingsTab_WallSettings : SettingsTabDrawer
 		//壁のプレビュー
 		Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
 
-		var graphic = selThing != null ? selThing.Graphic : selDef.graphicData?.Graphic;
-		var mat = graphic?.MatSingle;
+		var graphic = selThing is not null ? selThing.Graphic : selDef.graphicData?.Graphic;
+		var mat = graphic is Graphic_Linked linked
+			? selThing is not null ? linked.SubGraphic?.MatSingleFor(selThing) : linked.SubGraphic?.MatSingle
+			: selThing is not null ? graphic?.MatSingleFor(selThing) : graphic?.MatSingle;
 		if (mat is not null)
 		{
 			var proportions = new Vector2(previewSize / 2f, previewSize / 2f);
-			var coords = new Rect(0f, 0f, 1f, 1f);
+			var coords = new Rect(0.03125f, 0.03125f, 0.1875f, 0.1875f);
 			Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
 			Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
 		}
