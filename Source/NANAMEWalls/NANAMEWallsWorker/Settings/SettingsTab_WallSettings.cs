@@ -7,724 +7,763 @@ namespace NanameWalls;
 
 internal class SettingsTab_WallSettings : SettingsTabDrawer
 {
-    private const float PreviewSizeRatio = 0.315f;
-    private Vector2 scrollPosition;
-    private Vector2 scrollPosition2;
-    private Vector2 scrollPosition3;
-    private readonly Dictionary<string, string[]> buffers = [];
-    private List<Vector2> texCoords;
-    private int repeat = 1;
-    private List<Vector3> selectedList;
-    private Vector2? selectedPoint;
-    private SettingItem.UVSource selectedSource;
-    private string prevFocusedControl = "";
-    private bool designationCategoryChanged;
-    private string defaultRequest;
-    private float viewRectYMax;
-    private List<TabRecord> tabs;
-    private string settingMode = "Values";
-    private MeshSettings clipboard;
-    private static readonly CachedTexture VisibleIcon = new ("NanameWalls/UI/Eye");
+	private const float PreviewSizeRatio = 0.315f;
+	private Vector2 scrollPosition;
+	private Vector2 scrollPosition2;
+	private Vector2 scrollPosition3;
+	private readonly Dictionary<string, string[]> buffers = [];
+	private List<Vector2> texCoords;
+	private int repeat = 1;
+	private List<Vector3> selectedList;
+	private Vector2? selectedPoint;
+	private string prevFocusedControl = "";
+	private bool designationCategoryChanged;
+	private string defaultRequest;
+	private float viewRectYMax;
+	private List<TabRecord> tabs;
+	private string settingMode = "Values";
+	private MeshSettings clipboard;
+	private static readonly CachedTexture VisibleIcon = new("NanameWalls/UI/Eye");
 
-    public override int Index => 0;
+	public override int Index => 0;
 
-    public override string Label => "NAW.Settings.Walls".Translate();
+	public override string Label => "NAW.Settings.Walls".Translate();
 
-    protected override bool DrawDefaultButton => false;
+	protected override bool DrawDefaultButton => false;
 
-    private void InitializeTabs()
-    {
-        tabs =
-        [
-            new TabRecord("NAW.Settings.Values".Translate(), () => settingMode = "Values",
-                () => settingMode == "Values"),
-            new TabRecord("NAW.Settings.Items".Translate(), () => settingMode = "Items", () => settingMode == "Items"),
-            new TabRecord("NAW.Settings.Options".Translate(), () => settingMode = "Options",
-                () => settingMode == "Options")
-        ];
-    }
+	private void InitializeTabs()
+	{
+		tabs =
+		[
+			new TabRecord("NAW.Settings.Values".Translate(), () => settingMode = "Values",
+				() => settingMode == "Values"),
+			new TabRecord("NAW.Settings.Items".Translate(), () => settingMode = "Items", () => settingMode == "Items"),
+			new TabRecord("NAW.Settings.Options".Translate(), () => settingMode = "Options",
+				() => settingMode == "Options")
+		];
+	}
 
-    private void Clear()
-    {
-        buffers.Clear();
-        repeat = 1;
-        selectedList = null;
-        texCoords = null;
-        selectedPoint = null;
-        selectedSource = SettingItem.UVSource.None;
-        prevFocusedControl = "";
-    }
+	private void Clear()
+	{
+		buffers.Clear();
+		repeat = 1;
+		selectedList = null;
+		texCoords = null;
+		selectedPoint = null;
+		prevFocusedControl = "";
+	}
 
-    public override void PreClose()
-    {
-        Clear();
+	public override void PreClose()
+	{
+		Clear();
 
-        if (designationCategoryChanged)
-        {
-            designationCategoryChanged = false;
-            foreach (var designationCategory in NanameWalls.Mod.designationCategories)
-            {
-                designationCategory.ResolveReferences();
-            }
+		if (designationCategoryChanged)
+		{
+			designationCategoryChanged = false;
+			foreach (var designationCategory in NanameWalls.Mod.designationCategories)
+			{
+				designationCategory.ResolveReferences();
+			}
 
-            foreach (var thingCategory in NanameWalls.Mod.thingCategories)
-            {
-                thingCategory.ResolveReferences();
-            }
-        }
-        NanameWalls.Mod.selThing = null;
-    }
+			foreach (var thingCategory in NanameWalls.Mod.thingCategories)
+			{
+				thingCategory.ResolveReferences();
+			}
+		}
 
-    public override void Draw(Rect inRect)
-    {
-        base.Draw(inRect);
-        Widgets.DrawMenuSection(inRect);
-        inRect.SplitVertically(200f, out var left, out var right);
-        DoDefNameList(left);
-        Widgets.DrawLineVertical(left.xMax, inRect.y, inRect.height);
+		NanameWalls.Mod.selThing = null;
+	}
 
-        if (NanameWalls.Mod.selDef != null)
-        {
-            DoMeshSettings(right.ContractedBy(7f));
-        }
-    }
+	public override void Draw(Rect inRect)
+	{
+		base.Draw(inRect);
+		Widgets.DrawMenuSection(inRect);
+		inRect.SplitVertically(200f, out var left, out var right);
+		DoDefNameList(left);
+		Widgets.DrawLineVertical(left.xMax, inRect.y, inRect.height);
 
-    private void DoDefNameList(Rect rect)
-    {
-        ref var selDef = ref NanameWalls.Mod.selDef;
-        var outRect = rect;
-        var defs = NanameWalls.Mod.nanameWalls.Keys.GroupBy(def => def.modContentPack).ToList();
-        var height = Text.LineHeight * (defs.Count + defs.SelectMany(group => group).Count());
-        var viewRect = new Rect(rect.x, rect.y, rect.width, height);
-        Widgets.AdjustRectsForScrollView(rect, ref outRect, ref viewRect);
-        Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
-        var curY = viewRect.y;
-        foreach (var group in defs)
-        {
-            if (group?.Key is null) continue;
-            
-            Text.Anchor = TextAnchor.MiddleCenter;
-            using (new TextBlock(TextAnchor.MiddleCenter))
-            {
-                var name = group.Key.Name ?? "";
-                var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white);
-                if (Text.CalcSize(name).x > rect2.width)
-                {
-                    Text.Font = GameFont.Tiny;
-                }
-                Widgets.LabelEllipses(rect2, name);
-            }
-            Text.Font = GameFont.Small;
-            curY += Text.LineHeight;
-                
-            foreach (var def in group)
-            {
-                var rect3 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
-                WidgetsEx.DefLabelEllipsesWithIcon(rect3, def, 5f);
-                if (selDef == def)
-                {
-                    Widgets.DrawHighlightSelected(rect3);
-                }
-                else if (Widgets.ButtonInvisible(rect3) && Event.current.button == 0)
-                {
-                    selDef = def;
-                    NanameWalls.Mod.selThing = null;
-                    Clear();
-                }
-                
-                // コピーペーストのフロートメニュー
-                if (Mouse.IsOver(rect3) && Event.current is { type: EventType.MouseDown, button: 1 })
-                {
-                    List<FloatMenuOption> floatMenuOptions = [];
-                    if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(def.defName, out var meshSettings))
-                    {
-                        meshSettings = NanameWalls.Mod.Settings.meshSettings[def.defName] = DeepCopyDefaultFor(def);
-                    }
-                    floatMenuOptions.Add(new FloatMenuOption("Copy".Translate(), () => clipboard = meshSettings));
-                    if (clipboard is not null)
-                        floatMenuOptions.Add(new FloatMenuOption("Paste".Translate(), () => NanameWalls.Mod.Settings.meshSettings[def.defName] = clipboard));
-                    Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-                }
-                
-                curY += Text.LineHeight;
-            }
-        }
-        Widgets.EndScrollView();
-    }
+		if (NanameWalls.Mod.selDef != null)
+		{
+			DoMeshSettings(right.ContractedBy(7f));
+		}
+	}
 
-    private void DoMeshSettings(Rect rect)
-    {
-        var selDef = NanameWalls.Mod.selDef;
-        var selThing = NanameWalls.Mod.selThing;
-        var previewSize = rect.height * PreviewSizeRatio;
-        if (!NanameWalls.Mod.nanameWalls.TryGetValue(selDef, out var nanameWall))
-        {
-            using (new TextBlock(TextAnchor.MiddleCenter))
-            {
-                Widgets.Label(rect, "NAW.NotGenerated".Translate());
-            }
-            return;
-        }
-        if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(selDef.defName, out var meshSettings))
-        {
-            meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
-        }
+	private void DoDefNameList(Rect rect)
+	{
+		ref var selDef = ref NanameWalls.Mod.selDef;
+		var outRect = rect;
+		var defs = NanameWalls.Mod.nanameWalls.Keys.GroupBy(def => def.modContentPack).ToList();
+		var height = Text.LineHeight * (defs.Count + defs.SelectMany(group => group).Count());
+		var viewRect = new Rect(rect.x, rect.y, rect.width, height);
+		Widgets.AdjustRectsForScrollView(rect, ref outRect, ref viewRect);
+		Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
+		var curY = viewRect.y;
+		foreach (var group in defs)
+		{
+			if (group?.Key is null) continue;
 
-        rect.SplitHorizontally(previewSize, out var top, out var bottom);
-        top.SplitVertically(previewSize, out var left, out var right);
+			Text.Anchor = TextAnchor.MiddleCenter;
+			using (new TextBlock(TextAnchor.MiddleCenter))
+			{
+				var name = group.Key.Name ?? "";
+				var rect2 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
+				Widgets.DrawBoxSolidWithOutline(rect2, Widgets.InactiveColor, Color.white);
+				if (Text.CalcSize(name).x > rect2.width)
+				{
+					Text.Font = GameFont.Tiny;
+				}
 
-        //壁のプレビュー
-        Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
-        var mat = selThing != null ? selThing.Graphic.MatSingle : selDef.graphicData?.Graphic?.MatSingle;
-        if (mat is not null)
-        {
-            var proportions = new Vector2(previewSize / 2f, previewSize / 2f);
-            var sourceInt = (int)selectedSource;
-            var coords = selectedSource == SettingItem.UVSource.Whole
-                ? new Rect(0f, 0f, 1f, 1f)
-                : new Rect(sourceInt % 4 * 0.25f + 0.03125f, Mathf.Floor(sourceInt / 4f) * 0.25f + 0.03125f, 0.1875f, 0.1875f);
-            
-            Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
-            Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
-        }
-        if (selectedList is not null)
-        {
-            Widgets.BeginGroup(left);
-            var mat2 = texCoords is not null ? mat : null;
-            var color = texCoords is not null ? Color.white : new Color(1f, 0.94f, 0.5f, 0.18f);
-            WidgetsEx.DrawQuadFilled(selectedList, color, mat2, texCoords, repeat);
-            Widgets.EndGroup();
-            if (selectedPoint is not null)
-            {
-                var point = selectedPoint.Value + left.position;
-                point = new Vector2(Mathf.Floor(point.x), Mathf.Floor(point.y));
-                var tmpColor = GUI.color;
-                GUI.color = Color.red;
-                GUI.DrawTexture(new Rect(point.x - 2f, point.y, 5f, 1f), BaseContent.WhiteTex);
-                GUI.DrawTexture(new Rect(point.x, point.y - 2f, 1f, 5f), BaseContent.WhiteTex);
-                GUI.color = tmpColor;
-            }
-        }
+				Widgets.LabelEllipses(rect2, name);
+			}
 
-        //壁の説明
-        right = right.RightPartPixels(right.width - 10f);
-        using (new TextBlock(GameFont.Medium))
-        {
-            Widgets.Label(right.TopPartPixels(Text.LineHeight), nanameWall.LabelCap);
-            right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
-        }
+			Text.Font = GameFont.Small;
+			curY += Text.LineHeight;
 
-        var buttonOffset = selThing != null ? Text.LineHeight : 0f;
-        const int settingsCount = 1;
-        const float settingItemHeight = 18f;
-        const float settingsHeight = settingItemHeight * settingsCount;
-        using (new TextBlock(GameFont.Tiny, TextAnchor.MiddleLeft))
-        {
-            Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
-            right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
+			foreach (var def in group)
+			{
+				var rect3 = new Rect(viewRect.x, curY, viewRect.width, Text.LineHeight);
+				WidgetsEx.DefLabelEllipsesWithIcon(rect3, def, 5f);
+				if (selDef == def)
+				{
+					Widgets.DrawHighlightSelected(rect3);
+				}
+				else if (Widgets.ButtonInvisible(rect3) && Event.current.button == 0)
+				{
+					selDef = def;
+					NanameWalls.Mod.selThing = null;
+					Clear();
+				}
 
-            var outRect = right.TopPartPixels(right.height - settingsHeight - buttonOffset);
-            var viewRect = outRect;
-            viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
-            if (viewRect.height >= outRect.height)
-            {
-                viewRect.width -= 20f;
-                viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
-            }
-            Widgets.BeginScrollView(outRect, ref scrollPosition3, viewRect);
-            Widgets.Label(viewRect, nanameWall.description);
-            Widgets.EndScrollView();
-        }
+				// コピーペーストのフロートメニュー
+				if (Mouse.IsOver(rect3) && Event.current is { type: EventType.MouseDown, button: 1 })
+				{
+					List<FloatMenuOption> floatMenuOptions = [];
+					if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(def.defName, out var meshSettings))
+					{
+						meshSettings = NanameWalls.Mod.Settings.meshSettings[def.defName] = DeepCopyDefaultFor(def);
+					}
 
-        //基本設定
-        right = right.BottomPartPixels(settingsHeight + buttonOffset);
-        var enabled = meshSettings.enabled;
-        var curY = right.y;
-        WidgetsEx.CheckboxLabeled(CurRect(), "NAW.Settings.EnableNaname".Translate(), ref enabled, settingItemHeight);
-        if (selThing != null)
-        {
-            if (Widgets.ButtonText(right.BottomPartPixels(buttonOffset), "NAW.UpdateGraphic".Translate()))
-            {
-                selThing.DirtyMapMesh(selThing.Map);
-            }
-        }
-        if (meshSettings.enabled != enabled)
-        {
-            nanameWall.designationCategory = enabled ? selDef.designationCategory : null;
-            designationCategoryChanged = true;
-            meshSettings.enabled = enabled;
-        }
+					floatMenuOptions.Add(new FloatMenuOption("Copy".Translate(), () => clipboard = meshSettings));
+					if (clipboard is not null)
+						floatMenuOptions.Add(new FloatMenuOption("Paste".Translate(),
+							() => NanameWalls.Mod.Settings.meshSettings[def.defName] = clipboard));
+					Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+				}
 
-        //タブドロワー
-        var tabRect = bottom.BottomPartPixels(bottom.height - Text.LineHeight - 5f);
-        if (tabs is null)
-        {
-            InitializeTabs();
-        }
-        Widgets.DrawMenuSection(tabRect);
-        WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs!.Count);
+				curY += Text.LineHeight;
+			}
+		}
 
-        //デフォルトボタン
-        var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels(bottom.width / 2f - 2f);
-        buttonRect.y = tabRect.y - Text.LineHeight;
-        var rightButtonRect = buttonRect.RightPartPixels(buttonRect.width / 2f - 1f);
-        if (Widgets.ButtonText(rightButtonRect, "ResetAll".Translate()))
-        {
-            Find.WindowStack.Add(new Dialog_Confirm("NAW.Settings.DefaultAll".Translate(), () =>
-            {
-                meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
-                Clear();
-            }));
-        }
+		Widgets.EndScrollView();
+	}
 
-        tabRect = tabRect.ContractedBy(2f);
-        switch (settingMode)
-        {
-            case "Items":
-                DoItemsSection(tabRect, meshSettings);
-                break;
-            case "Options":
-                DoOptionsSection(tabRect, meshSettings);
-                break;
-            default:
-                defaultRequest = "";
-                var leftButtonRect = buttonRect.LeftPartPixels(buttonRect.width / 2f - 1f);
-                if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
-                {
-                    defaultRequest = GUI.GetNameOfFocusedControl();
-                    Clear();
-                }
-                DoValuesSection(tabRect, previewSize, meshSettings);
-                break;
-        }
+	private void DoMeshSettings(Rect rect)
+	{
+		var selDef = NanameWalls.Mod.selDef;
+		var selThing = NanameWalls.Mod.selThing;
+		var previewSize = rect.height * PreviewSizeRatio;
+		if (!NanameWalls.Mod.nanameWalls.TryGetValue(selDef, out var nanameWall))
+		{
+			using (new TextBlock(TextAnchor.MiddleCenter))
+			{
+				Widgets.Label(rect, "NAW.NotGenerated".Translate());
+			}
 
-        return;
+			return;
+		}
 
-        Rect CurRect()
-        {
-            Rect curRect = new(right.x, curY, right.width, Text.LineHeight);
-            curY += Text.LineHeight;
-            return curRect;
-        }
-    }
+		if (!NanameWalls.Mod.Settings.meshSettings.TryGetValue(selDef.defName, out var meshSettings))
+		{
+			meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
+		}
 
-    private void DoValuesSection(Rect rect, float previewSize, MeshSettings meshSettings)
-    {
-        var viewRect = rect;
-        viewRect.height = viewRectYMax - rect.y;
-        Widgets.AdjustRectsForScrollView(rect, ref rect, ref viewRect);
-        var itemRect = viewRect.TopPartPixels(Text.LineHeight);
-        Widgets.BeginScrollView(rect, ref scrollPosition2, viewRect);
-        const float labelPct = 0.2f;
-        var rect2 = itemRect.RightPart(1f - labelPct).AtZero();
-        rect2.SplitVerticallyWithMargin(out var left2, out var right2, 5f);
-        left2.SplitVerticallyWithMargin(out var rect3, out var rect4, 5f);
-        right2.SplitVerticallyWithMargin(out var rect5, out var rect6, 5f);
-        List<Rect> rects = [rect3, rect4, rect5, rect6];
-        Text.Font = GameFont.Tiny;
+		rect.SplitHorizontally(previewSize, out var top, out var bottom);
+		top.SplitVertically(previewSize, out var left, out var right);
 
-        var defaultSettings = DefaultSettingsFor(NanameWalls.Mod.selDef);
-        foreach (var item in meshSettings.settingItems.Values)
-        {
-            if (!defaultSettings.settingItems.TryGetValue(item.label, out var defaultItem))
-            {
-                defaultItem = item.DeepCopy();
-            }
-            switch (item.type)
-            {
-                case SettingItem.SettingType.Repeat:
-                    if (DoItem(ref itemRect, labelPct, item.label, ref item.repeat, defaultItem.repeat, rects[0]))
-                    {
-                        repeat = item.repeat;
-                        selectedPoint = null;
-                        if (!meshSettings.settingItems.TryGetValue(item.link, out var linkVerts)) continue;
-                        selectedList = [.. linkVerts.vectors.Select(v => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))];
+		//壁のプレビュー
+		Widgets.DrawBoxSolid(left, new Color(0.1f, 0.1f, 0.1f));
 
-                        if (!meshSettings.settingItems.TryGetValue(linkVerts.link, out var linkUVs)) continue;
-                        texCoords = [.. linkUVs.vectors];
-                        selectedSource = linkUVs.source;
-                    }
-                    break;
+		var graphic = selThing != null ? selThing.Graphic : selDef.graphicData?.Graphic;
+		var mat = graphic?.MatSingle;
+		if (mat is not null)
+		{
+			var proportions = new Vector2(previewSize / 2f, previewSize / 2f);
+			var coords = new Rect(0f, 0f, 1f, 1f);
+			Widgets.DrawTextureFitted(left.LeftHalf().BottomHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
+			Widgets.DrawTextureFitted(left.RightHalf().TopHalf(), mat.mainTexture, 1f, proportions, coords, 0f, mat);
+		}
 
-                case SettingItem.SettingType.UVs:
-                case SettingItem.SettingType.Verts:
-                    DoItem(ref itemRect, previewSize, labelPct, item.label, item, defaultItem, rects, meshSettings);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        Widgets.EndScrollView();
+		if (selectedList is not null)
+		{
+			Widgets.BeginGroup(left);
+			var mat2 = texCoords is not null ? mat : null;
+			var color = texCoords is not null ? Color.white : new Color(1f, 0.94f, 0.5f, 0.18f);
+			WidgetsEx.DrawQuadFilled(selectedList, color, mat2, texCoords, repeat);
+			Widgets.EndGroup();
+			if (selectedPoint is not null)
+			{
+				var point = selectedPoint.Value + left.position;
+				point = new Vector2(Mathf.Floor(point.x), Mathf.Floor(point.y));
+				var tmpColor = GUI.color;
+				GUI.color = Color.red;
+				GUI.DrawTexture(new Rect(point.x - 2f, point.y, 5f, 1f), BaseContent.WhiteTex);
+				GUI.DrawTexture(new Rect(point.x, point.y - 2f, 1f, 5f), BaseContent.WhiteTex);
+				GUI.color = tmpColor;
+			}
+		}
 
-        viewRectYMax = itemRect.y;
-        Text.Font = GameFont.Small;
-    }
+		//壁の説明
+		right = right.RightPartPixels(right.width - 10f);
+		using (new TextBlock(GameFont.Medium))
+		{
+			Widgets.Label(right.TopPartPixels(Text.LineHeight), nanameWall.LabelCap);
+			right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
+		}
 
-    private bool DoItem(ref Rect rect, float labelPct, string label, ref int value, int defaultValue, Rect textFieldRect)
-    {
-        Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
-        var rect2 = rect.RightPart(1f - labelPct);
-        if (!buffers.TryGetValue(label, out var buffer))
-        {
-            buffer = buffers[label] = new string[1];
-        }
-        var rect3 = textFieldRect;
-        rect3.position += rect2.position;
-        var prevValue = value;
-        Widgets.TextFieldNumeric(rect3, ref value, ref buffer[0], 1, 9);
+		var buttonOffset = selThing != null ? Text.LineHeight : 0f;
+		const int settingsCount = 1;
+		const float settingItemHeight = 18f;
+		const float settingsHeight = settingItemHeight * settingsCount;
+		using (new TextBlock(GameFont.Tiny, TextAnchor.MiddleLeft))
+		{
+			Widgets.Label(right.TopPartPixels(Text.LineHeight), $"defName: {nanameWall.defName}");
+			right = right.BottomPartPixels(right.height - Text.LineHeight + 4f);
 
-        using (new TextBlock(GameFont.Small))
-        {
-            if (Widgets.ButtonText(new Rect(rect3.xMax + 2f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "+"))
-            {
-                value = Math.Min(value + 1, 9);
-                buffer[0] = value.ToStringCached();
-            }
-            if (Widgets.ButtonText(new Rect(rect3.xMax + rect3.height + 4f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "-"))
-            {
-                value = Math.Max(value - 1, 1);
-                buffer[0] = value.ToStringCached();
-            }
-        }
-        if (prevValue != value)
-        {
-            repeat = value;
-        }
+			var outRect = right.TopPartPixels(right.height - settingsHeight - buttonOffset);
+			var viewRect = outRect;
+			viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
+			if (viewRect.height >= outRect.height)
+			{
+				viewRect.width -= 20f;
+				viewRect.height = Text.CalcHeight(nanameWall.description, viewRect.width);
+			}
 
-        var flag = false;
-        var controlName = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
-        var name = GUI.GetNameOfFocusedControl();
-        if (name == controlName)
-        {
-            Widgets.DrawHighlightSelected(rect);
-            if (prevFocusedControl != name)
-            {
-                prevFocusedControl = name;
-                flag = true;
-            }
-        }
-        if (defaultRequest == controlName)
-        {
-            value = defaultValue;
-            buffer[0] = value.ToStringCached();
-        }
-        rect.y += Text.LineHeightOf(GameFont.Small);
-        return flag;
-    }
+			Widgets.BeginScrollView(outRect, ref scrollPosition3, viewRect);
+			Widgets.Label(viewRect, nanameWall.description);
+			Widgets.EndScrollView();
+		}
 
-    private void DoItem(ref Rect rect, float previewSize, float labelPct, string label, SettingItem item, SettingItem defaultItem, List<Rect> textFieldRects, MeshSettings meshSettings)
-    {
-        var isVerts = item.type == SettingItem.SettingType.Verts;
-        Widgets.DrawRectFast(rect, isVerts ? new Color(0f, 0.1f, 0.85f, 0.05f) : new Color(0.85f, 0.8f, 0f, 0.05f));
-        Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
-        var rect2 = rect.RightPart(1f - labelPct);
-        for (var i = 0; i < item.vectors.Count; i++)
-        {
-            var value = item.vectors[i];
-            var rect3 = textFieldRects[i];
-            rect3.position += rect2.position;
-            if (!buffers.TryGetValue(label + i, out var buffer))
-            {
-                buffer = buffers[label + i] = new string[3];
-            }
-            var prevValue = value;
-            WidgetsEx.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
-            item.vectors[i] = value;
-            if (prevValue != value)
-            {
-                if (isVerts)
-                {
-                    selectedPoint = ConvertVert(value);
-                    selectedList = [.. item.vectors.Select(ConvertVert)];
-                    if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
-                    {
-                        texCoords = [.. uvs.vectors];
-                    }
-                    selectedSource = SettingItem.UVSource.None;
-                }
-                else
-                {
-                    selectedPoint = ConvertUV(value);
-                    selectedList = [.. item.vectors.Select(ConvertUV)];
-                    selectedSource = item.source;
-                }
-            }
+		//基本設定
+		right = right.BottomPartPixels(settingsHeight + buttonOffset);
+		var enabled = meshSettings.enabled;
+		var curY = right.y;
+		WidgetsEx.CheckboxLabeled(CurRect(), "NAW.Settings.EnableNaname".Translate(), ref enabled, settingItemHeight);
+		if (selThing != null)
+		{
+			if (Widgets.ButtonText(right.BottomPartPixels(buttonOffset), "NAW.UpdateGraphic".Translate()))
+			{
+				selThing.DirtyMapMesh(selThing.Map);
+			}
+		}
 
-            if (i != item.vectors.Count - 1)
-            {
-                Widgets.Label(new Rect(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
-            }
+		if (meshSettings.enabled != enabled)
+		{
+			nanameWall.designationCategory = enabled ? selDef.designationCategory : null;
+			designationCategoryChanged = true;
+			meshSettings.enabled = enabled;
+		}
 
-            var offset = rect3.width / 3f;
-            var controlName1 = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
-            var controlName2 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset).ToString("F0");
-            var controlName3 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset * 2).ToString("F0");
-            var name = GUI.GetNameOfFocusedControl();
-            if (name == controlName1 || name == controlName2 || name == controlName3)
-            {
-                Widgets.DrawHighlightSelected(rect);
-                if (prevFocusedControl != name)
-                {
-                    prevFocusedControl = name;
-                    if (isVerts)
-                    {
-                        repeat = meshSettings.settingItems.Values.FirstOrDefault(item2 => item2.link == item.label)?.repeat ?? 1;
-                        selectedPoint = ConvertVert(value);
-                        selectedList = [.. item.vectors.Select(ConvertVert)];
-                        if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
-                        {
-                            texCoords = [.. uvs.vectors];
-                        }
-                        selectedSource = SettingItem.UVSource.None;
-                    }
-                    else
-                    {
-                        selectedPoint = ConvertUV(value);
-                        selectedList = [.. item.vectors.Select(ConvertUV)];
-                        texCoords = null;
-                        selectedSource = item.source;
-                    }
-                }
-            }
-            if (defaultRequest == controlName1 || defaultRequest == controlName2 || defaultRequest == controlName3)
-            {
-                item.vectors[i] = defaultItem.vectors[i];
-                buffers[label + i] = new string[3];
-            }
-        }
+		//タブドロワー
+		var tabRect = bottom.BottomPartPixels(bottom.height - Text.LineHeight - 5f);
+		if (tabs is null)
+		{
+			InitializeTabs();
+		}
 
-        rect.y += Text.LineHeightOf(GameFont.Small);
-        return;
+		Widgets.DrawMenuSection(tabRect);
+		WidgetsEx.DrawTabs(tabRect, tabs, Text.LineHeight, tabRect.width / 2f / tabs!.Count);
 
-        Vector3 ConvertUV(Vector3 v) => Invert(v * previewSize / 2f, previewSize);
+		//デフォルトボタン
+		var buttonRect = bottom.TopPartPixels(Text.LineHeight).RightPartPixels(bottom.width / 2f - 2f);
+		buttonRect.y = tabRect.y - Text.LineHeight;
+		var rightButtonRect = buttonRect.RightPartPixels(buttonRect.width / 2f - 1f);
+		if (Widgets.ButtonText(rightButtonRect, "ResetAll".Translate()))
+		{
+			Find.WindowStack.Add(new Dialog_Confirm("NAW.Settings.DefaultAll".Translate(), () =>
+			{
+				meshSettings = NanameWalls.Mod.Settings.meshSettings[selDef.defName] = DeepCopyDefaultFor(selDef);
+				Clear();
+			}));
+		}
 
-        Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize);
-    }
+		tabRect = tabRect.ContractedBy(2f);
+		switch (settingMode)
+		{
+			case "Items":
+				DoItemsSection(tabRect, meshSettings);
+				break;
+			case "Options":
+				DoOptionsSection(tabRect, meshSettings);
+				break;
+			default:
+				defaultRequest = "";
+				var leftButtonRect = buttonRect.LeftPartPixels(buttonRect.width / 2f - 1f);
+				if (Widgets.ButtonText(leftButtonRect, "Reset".Translate()))
+				{
+					defaultRequest = GUI.GetNameOfFocusedControl();
+					Clear();
+				}
 
-    private static Vector3 Invert(Vector3 vector, float previewSize)
-    {
-        vector.y = previewSize - vector.y;
-        return vector;
-    }
+				DoValuesSection(tabRect, previewSize, meshSettings);
+				break;
+		}
 
-    private void DoItemsSection(Rect rect, MeshSettings meshSettings)
-    {
-        const float labelPct = 0.3f;
+		return;
 
-        rect.SplitHorizontally(Text.LineHeight, out var top, out var bottom);
-        var viewRect = bottom;
-        viewRect.height = viewRectYMax - bottom.y;
-        Widgets.AdjustRectsForScrollView(bottom, ref bottom, ref viewRect);
+		Rect CurRect()
+		{
+			Rect curRect = new(right.x, curY, right.width, Text.LineHeight);
+			curY += Text.LineHeight;
+			return curRect;
+		}
+	}
 
-        using (new TextBlock(TextAnchor.MiddleCenter))
-        {
-            top.width = viewRect.width;
-            top.SplitVertically(top.width * labelPct, out var left, out var right);
-            Widgets.DrawBox(left);
-            Widgets.Label(left, "NAW.Settings.Label".Translate());
-            right.SplitVertically(right.width / 3f, out var rect2, out var rect3);
-            Widgets.DrawBox(rect2);
-            Widgets.Label(rect2, "NAW.Settings.Type".Translate());
-            rect3.SplitVertically(rect3.width / 2f, out var rect4, out var rect5);
-            Widgets.DrawBox(rect4);
-            Widgets.Label(rect4, "NAW.Settings.Related".Translate());
-            Widgets.DrawBox(rect5);
-            Widgets.Label(rect5, "NAW.Settings.Direction".Translate());
-        }
+	private void DoValuesSection(Rect rect, float previewSize, MeshSettings meshSettings)
+	{
+		var viewRect = rect;
+		viewRect.height = viewRectYMax - rect.y;
+		Widgets.AdjustRectsForScrollView(rect, ref rect, ref viewRect);
+		var itemRect = viewRect.TopPartPixels(Text.LineHeight);
+		Widgets.BeginScrollView(rect, ref scrollPosition2, viewRect);
+		const float labelPct = 0.2f;
+		var rect2 = itemRect.RightPart(1f - labelPct).AtZero();
+		rect2.SplitVerticallyWithMargin(out var left2, out var right2, 5f);
+		left2.SplitVerticallyWithMargin(out var rect3, out var rect4, 5f);
+		right2.SplitVerticallyWithMargin(out var rect5, out var rect6, 5f);
+		List<Rect> rects = [rect3, rect4, rect5, rect6];
+		Text.Font = GameFont.Tiny;
 
-        var itemRect = viewRect.TopPartPixels(Text.LineHeight);
-        Widgets.BeginScrollView(bottom, ref scrollPosition2, viewRect);
-        Text.Font = GameFont.Tiny;
-        foreach (var item in meshSettings.settingItems.Values)
-        {
-            DoItem(ref itemRect, labelPct, item, meshSettings);
-        }
-        if (Widgets.ButtonImageWithBG(itemRect.LeftPart(labelPct), TexUI.CopyTex, new Vector2(itemRect.height - 4f, itemRect.height - 4f)))
-        {
-            var item = new SettingItem();
-            Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
-            {
-                meshSettings.settingItems[item.label] = item;
-            }));
-        }
-        itemRect.y += Text.LineHeightOf(GameFont.Small);
-        Widgets.EndScrollView();
+		var defaultSettings = DefaultSettingsFor(NanameWalls.Mod.selDef);
+		foreach (var item in meshSettings.settingItems.Values)
+		{
+			if (!defaultSettings.settingItems.TryGetValue(item.label, out var defaultItem))
+			{
+				defaultItem = item.DeepCopy();
+			}
 
-        viewRectYMax = itemRect.y;
-        Text.Font = GameFont.Small;
-    }
+			switch (item.type)
+			{
+				case SettingItem.SettingType.Repeat:
+					if (DoItem(ref itemRect, labelPct, item.label, ref item.repeat, defaultItem.repeat, rects[0]))
+					{
+						repeat = item.repeat;
+						selectedPoint = null;
+						if (!meshSettings.settingItems.TryGetValue(item.link, out var linkVerts)) continue;
+						selectedList =
+						[
+							.. linkVerts.vectors.Select(v =>
+								Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize))
+						];
 
-    private static void DoItem(ref Rect rect, float labelPct, SettingItem item, MeshSettings meshSettings)
-    {
-        var labelRect = rect.LeftPart(labelPct);
-        var lineHeight = Text.LineHeightOf(GameFont.Small);
-        labelRect.SplitVertically(labelRect.width - lineHeight * 2f, out var left, out var right);
-        if (item.type == SettingItem.SettingType.Verts)
-        {
-            var visibleIconRect = left.RightPartPixels(lineHeight).ContractedBy(1f);
-            TooltipHandler.TipRegionByKey(visibleIconRect, "Visible");
+						if (!meshSettings.settingItems.TryGetValue(linkVerts.link, out var linkUVs)) continue;
+						texCoords = [.. linkUVs.vectors];
+						TransformForSource(texCoords, linkUVs.source);
+					}
 
-            var color = Color.white.WithAlpha(item.visible ? 0.9f : 0.4f);
-            if (Widgets.ButtonImageFitted(visibleIconRect, VisibleIcon.Texture, color, color.WithAlpha(color.a + 0.1f)))
-            {
-                item.visible = !item.visible;
-            }
-            GUI.color = Color.white;
-            left.xMax -= lineHeight;
-        }
-        Widgets.LabelEllipses(left, item.label);
+					break;
 
-        var buttonRect = right.LeftHalf().ContractedBy(1f);
-        TooltipHandler.TipRegionByKey(buttonRect, "Rename");
-        if (Widgets.ButtonImageFitted(buttonRect, TexUI.RenameTex))
-        {
-            var prevName = item.label;
-            Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
-            {
-                meshSettings.settingItems.Remove(prevName);
-                meshSettings.settingItems[item.label] = item;
-                meshSettings.settingItems.Values.Where(i => i.link == prevName).Do(i => i.link = item.label);
-            }));
-        }
-        var buttonRect2 = right.RightHalf().ContractedBy(1f);
-        TooltipHandler.TipRegionByKey(buttonRect2, "Delete");
-        if (Widgets.ButtonImageFitted(buttonRect2, TexUI.DismissTex))
-        {
-            Delay.AfterNSeconds(0, () =>
-            {
-                meshSettings.settingItems.Remove(item.label);
-                meshSettings.settingItems.Values.Where(i => i.link == item.label).Do(i => i.link = "");
-            });
-        }
+				case SettingItem.SettingType.UVs:
+				case SettingItem.SettingType.Verts:
+					DoItem(ref itemRect, previewSize, labelPct, item.label, item, defaultItem, rects, meshSettings);
+					break;
+				default:
+					throw new IndexOutOfRangeException(nameof(item.type));
+			}
+		}
 
-        var rect2 = rect.RightPartPixels(rect.xMax - right.xMax - 2f);
-        Widgets.Dropdown(rect2.LeftPart(0.33f), item, item2 => item2.type, item2 =>
-        {
-            return ((IEnumerable<SettingItem.SettingType>)Enum.GetValues(typeof(SettingItem.SettingType))).Select(type =>
-            {
-                return new Widgets.DropdownMenuElement<SettingItem.SettingType>
-                {
-                    option = new FloatMenuOption(type.ToString(), () =>
-                    {
-                        item2.type = type;
-                    }),
-                    payload = type
-                };
-            });
-        }, item.type.ToString());
-        
-        switch (item.type)
-        {
-            case SettingItem.SettingType.Repeat:
-            {
-                if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
-                {
-                    Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
-                    {
-                        return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.Verts).Select(item3 =>
-                        {
-                            return new Widgets.DropdownMenuElement<string>
-                            {
-                                option = new FloatMenuOption(item3.label, () =>
-                                {
-                                    item2.link = item3.label;
-                                }),
-                                payload = item3.label
-                            };
-                        });
-                    }, item.link);
-                }
-                break;
-            }
-            case SettingItem.SettingType.Verts:
-            {
-                if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
-                {
-                    Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
-                    {
-                        return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.UVs).Select(item3 =>
-                        {
-                            return new Widgets.DropdownMenuElement<string>
-                            {
-                                option = new FloatMenuOption(item3.label, () =>
-                                {
-                                    item2.link = item3.label;
-                                }),
-                                payload = item3.label
-                            };
-                        });
-                    }, item.link);
-                }
-                Widgets.Dropdown(rect2.RightPart(0.33f), item, item2 => item2.condition, item2 =>
-                {
-                    return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition))).Where(d => d != SettingItem.Condition.None).Select(direction =>
-                    {
-                        return new Widgets.DropdownMenuElement<SettingItem.Condition>
-                        {
-                            option = new FloatMenuOption(direction.ToString(), () =>
-                            {
-                                item2.condition = direction;
-                            }),
-                            payload = direction
-                        };
-                    });
-                }, item.condition.ToString());
-                break;
-            }
-            case SettingItem.SettingType.UVs:
-            {
-                Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.source, item2 =>
-                {
-                    return ((IEnumerable<SettingItem.UVSource>)Enum.GetValues(typeof(SettingItem.UVSource))).Select(source =>
-                    {
-                        return new Widgets.DropdownMenuElement<SettingItem.UVSource>
-                        {
-                            option = new FloatMenuOption(source.ToString(), () =>
-                            {
-                                item2.source = source;
-                            }),
-                            payload = source
-                        };
-                    });
-                }, item.source.ToString());
-                break;
-            }
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+		Widgets.EndScrollView();
 
-        rect.y += lineHeight;
-    }
+		viewRectYMax = itemRect.y;
+		Text.Font = GameFont.Small;
+	}
 
-    private static void DoOptionsSection(Rect rect, MeshSettings meshSettings)
-    {
-        var listing_standard = new Listing_Standard();
-        listing_standard.Begin(rect);
-        listing_standard.CheckboxLabeled("NAW.Settings.NoChangeLinkState".Translate(), ref meshSettings.noChangeLinkState);
-        listing_standard.CheckboxLabeled("NAW.Settings.SkipOriginalPrint".Translate(), ref meshSettings.skipOriginalPrint);
-        listing_standard.CheckboxLabeled("NAW.Settings.AllowVShaped".Translate(), ref meshSettings.allowVShaped);
-        listing_standard.CheckboxLabeled("NAW.Settings.ForceDent".Translate(), ref meshSettings.forceDent);
-        listing_standard.CheckboxLabeled("NAW.Settings.ForceDentOpposite".Translate(), ref meshSettings.forceDentOpposite);
-        listing_standard.End();
-    }
+	private bool DoItem(ref Rect rect, float labelPct, string label, ref int value, int defaultValue, Rect textFieldRect)
+	{
+		Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
+		var rect2 = rect.RightPart(1f - labelPct);
+		if (!buffers.TryGetValue(label, out var buffer))
+		{
+			buffer = buffers[label] = new string[1];
+		}
 
-    public class Dialog_RenameItem(SettingItem item, MeshSettings meshSettings, Action action) : Dialog_Rename<SettingItem>(item)
-    {
-        protected override AcceptanceReport NameIsValid(string name)
-        {
-            var acceptanceReport = base.NameIsValid(name);
-            if (!acceptanceReport.Accepted)
-            {
-                return acceptanceReport;
-            }
-            if (name != renaming.label && meshSettings.settingItems.TryGetValue(name, out _))
-            {
-                return "NameIsInUse".Translate();
-            }
-            return true;
-        }
+		var rect3 = textFieldRect;
+		rect3.position += rect2.position;
+		var prevValue = value;
+		Widgets.TextFieldNumeric(rect3, ref value, ref buffer[0], 1, 9);
 
-        protected override void OnRenamed(string name) => action();
-    }
+		using (new TextBlock(GameFont.Small))
+		{
+			if (Widgets.ButtonText(new Rect(rect3.xMax + 2f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "+"))
+			{
+				value = Math.Min(value + 1, 9);
+				buffer[0] = value.ToStringCached();
+			}
+
+			if (Widgets.ButtonText(
+				    new Rect(rect3.xMax + rect3.height + 4f, rect.y, rect3.height, rect3.height).ContractedBy(1f), "-"))
+			{
+				value = Math.Max(value - 1, 1);
+				buffer[0] = value.ToStringCached();
+			}
+		}
+
+		if (prevValue != value)
+		{
+			repeat = value;
+		}
+
+		var flag = false;
+		var controlName = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
+		var name = GUI.GetNameOfFocusedControl();
+		if (name == controlName)
+		{
+			Widgets.DrawHighlightSelected(rect);
+			if (prevFocusedControl != name)
+			{
+				prevFocusedControl = name;
+				flag = true;
+			}
+		}
+
+		if (defaultRequest == controlName)
+		{
+			value = defaultValue;
+			buffer[0] = value.ToStringCached();
+		}
+
+		rect.y += Text.LineHeightOf(GameFont.Small);
+		return flag;
+	}
+
+	private void DoItem(ref Rect rect, float previewSize, float labelPct, string label, SettingItem item,
+		SettingItem defaultItem, List<Rect> textFieldRects, MeshSettings meshSettings)
+	{
+		var isVerts = item.type == SettingItem.SettingType.Verts;
+		Widgets.DrawRectFast(rect, isVerts ? new Color(0f, 0.1f, 0.85f, 0.05f) : new Color(0.85f, 0.8f, 0f, 0.05f));
+		Widgets.LabelEllipses(rect.LeftPart(labelPct), label);
+		var rect2 = rect.RightPart(1f - labelPct);
+		for (var i = 0; i < item.vectors.Count; i++)
+		{
+			var value = item.vectors[i];
+			var rect3 = textFieldRects[i];
+			rect3.position += rect2.position;
+			if (!buffers.TryGetValue(label + i, out var buffer))
+			{
+				buffer = buffers[label + i] = new string[3];
+			}
+
+			var prevValue = value;
+			WidgetsEx.TextFieldVector(rect3, ref value, ref buffer, isVerts ? -0.75f : 0f, isVerts ? 1.75f : 1f);
+			item.vectors[i] = value;
+			if (prevValue != value)
+			{
+				if (isVerts)
+				{
+					selectedPoint = ConvertVert(value);
+					selectedList = [.. item.vectors.Select(ConvertVert)];
+					if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
+					{
+						texCoords = [.. uvs.vectors];
+					}
+
+					TransformForSource(texCoords, item.source);
+				}
+				else
+				{
+					selectedPoint = ConvertUV(value);
+					selectedList = [.. item.vectors.Select(ConvertUV)];
+				}
+			}
+
+			if (i != item.vectors.Count - 1)
+			{
+				Widgets.Label(new Rect(rect3.xMax - 2f, rect3.y, 5f, rect3.height), ",");
+			}
+
+			var offset = rect3.width / 3f;
+			var controlName1 = "TextField" + rect3.y.ToString("F0") + rect3.x.ToString("F0");
+			var controlName2 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset).ToString("F0");
+			var controlName3 = "TextField" + rect3.y.ToString("F0") + (rect3.x + offset * 2).ToString("F0");
+			var name = GUI.GetNameOfFocusedControl();
+			if (name == controlName1 || name == controlName2 || name == controlName3)
+			{
+				Widgets.DrawHighlightSelected(rect);
+				if (prevFocusedControl != name)
+				{
+					prevFocusedControl = name;
+					if (isVerts)
+					{
+						repeat = meshSettings.settingItems.Values.FirstOrDefault(item2 => item2.link == item.label)?.repeat ?? 1;
+						selectedPoint = ConvertVert(value);
+						selectedList = [.. item.vectors.Select(ConvertVert)];
+						if (meshSettings.settingItems.TryGetValue(item.link, out var uvs))
+						{
+							texCoords = [.. uvs.vectors];
+						}
+
+						TransformForSource(texCoords, item.source);
+					}
+					else
+					{
+						selectedPoint = ConvertUV(value);
+						selectedList = [.. item.vectors.Select(ConvertUV)];
+						texCoords = null;
+					}
+				}
+			}
+
+			if (defaultRequest == controlName1 || defaultRequest == controlName2 || defaultRequest == controlName3)
+			{
+				item.vectors[i] = defaultItem.vectors[i];
+				buffers[label + i] = new string[3];
+			}
+		}
+
+		rect.y += Text.LineHeightOf(GameFont.Small);
+		return;
+
+		Vector3 ConvertUV(Vector3 v) => Invert(v * previewSize / 2f, previewSize);
+
+		Vector3 ConvertVert(Vector3 v) => Invert((v.ToVector2() + new Vector2(0.5f, 0.5f)) * previewSize / 2f, previewSize);
+	}
+
+	private static Vector3 Invert(Vector3 vector, float previewSize)
+	{
+		vector.y = previewSize - vector.y;
+		return vector;
+	}
+
+	private static void TransformForSource(List<Vector2> texCoords, SettingItem.UVSource source)
+	{
+		if (texCoords.NullOrEmpty() || source is SettingItem.UVSource.Whole)
+			return;
+
+		var sourceInt = (int)source;
+		var position = new Vector2(sourceInt % 4 * 0.25f + 0.03125f, Mathf.Floor(sourceInt / 4f) * 0.25f + 0.03125f);
+		var scale = new Vector2(0.1875f, 0.1875f);
+		for (var i = 0; i < texCoords.Count; i++)
+		{
+			var texCoord = texCoords[i];
+			texCoord *= scale;
+			texCoord += position;
+			texCoords[i] = texCoord;
+		}
+	}
+
+	private void DoItemsSection(Rect rect, MeshSettings meshSettings)
+	{
+		const float labelPct = 0.3f;
+
+		rect.SplitHorizontally(Text.LineHeight, out var top, out var bottom);
+		var viewRect = bottom;
+		viewRect.height = viewRectYMax - bottom.y;
+		Widgets.AdjustRectsForScrollView(bottom, ref bottom, ref viewRect);
+
+		using (new TextBlock(TextAnchor.MiddleCenter))
+		{
+			top.width = viewRect.width;
+			top.SplitVertically(top.width * labelPct, out var left, out var right);
+			Widgets.DrawBox(left);
+			Widgets.Label(left, "NAW.Settings.Label".Translate());
+			right.SplitVertically(right.width / 3f, out var rect2, out var rect3);
+			Widgets.DrawBox(rect2);
+			Widgets.Label(rect2, "NAW.Settings.Type".Translate());
+			rect3.SplitVertically(rect3.width / 2f, out var rect4, out var rect5);
+			Widgets.DrawBox(rect4);
+			Widgets.Label(rect4, "NAW.Settings.Related".Translate());
+			Widgets.DrawBox(rect5);
+			Widgets.Label(rect5, "NAW.Settings.Direction".Translate());
+		}
+
+		var itemRect = viewRect.TopPartPixels(Text.LineHeight);
+		Widgets.BeginScrollView(bottom, ref scrollPosition2, viewRect);
+		Text.Font = GameFont.Tiny;
+		foreach (var item in meshSettings.settingItems.Values)
+		{
+			DoItem(ref itemRect, labelPct, item, meshSettings);
+		}
+
+		if (Widgets.ButtonImageWithBG(itemRect.LeftPart(labelPct), TexUI.CopyTex,
+			    new Vector2(itemRect.height - 4f, itemRect.height - 4f)))
+		{
+			var item = new SettingItem();
+			Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings,
+				() => { meshSettings.settingItems[item.label] = item; }));
+		}
+
+		itemRect.y += Text.LineHeightOf(GameFont.Small);
+		Widgets.EndScrollView();
+
+		viewRectYMax = itemRect.y;
+		Text.Font = GameFont.Small;
+	}
+
+	private static void DoItem(ref Rect rect, float labelPct, SettingItem item, MeshSettings meshSettings)
+	{
+		var labelRect = rect.LeftPart(labelPct);
+		var lineHeight = Text.LineHeightOf(GameFont.Small);
+		labelRect.SplitVertically(labelRect.width - lineHeight * 2f, out var left, out var right);
+		if (item.type == SettingItem.SettingType.Verts)
+		{
+			var visibleIconRect = left.RightPartPixels(lineHeight).ContractedBy(1f);
+			TooltipHandler.TipRegionByKey(visibleIconRect, "Visible");
+
+			var color = Color.white.WithAlpha(item.visible ? 0.9f : 0.4f);
+			if (Widgets.ButtonImageFitted(visibleIconRect, VisibleIcon.Texture, color, color.WithAlpha(color.a + 0.1f)))
+			{
+				item.visible = !item.visible;
+			}
+
+			GUI.color = Color.white;
+			left.xMax -= lineHeight;
+		}
+
+		Widgets.LabelEllipses(left, item.label);
+
+		var buttonRect = right.LeftHalf().ContractedBy(1f);
+		TooltipHandler.TipRegionByKey(buttonRect, "Rename");
+		if (Widgets.ButtonImageFitted(buttonRect, TexUI.RenameTex))
+		{
+			var prevName = item.label;
+			Find.WindowStack.Add(new Dialog_RenameItem(item, meshSettings, () =>
+			{
+				meshSettings.settingItems.Remove(prevName);
+				meshSettings.settingItems[item.label] = item;
+				meshSettings.settingItems.Values.Where(i => i.link == prevName).Do(i => i.link = item.label);
+			}));
+		}
+
+		var buttonRect2 = right.RightHalf().ContractedBy(1f);
+		TooltipHandler.TipRegionByKey(buttonRect2, "Delete");
+		if (Widgets.ButtonImageFitted(buttonRect2, TexUI.DismissTex))
+		{
+			Delay.AfterNSeconds(0, () =>
+			{
+				meshSettings.settingItems.Remove(item.label);
+				meshSettings.settingItems.Values.Where(i => i.link == item.label).Do(i => i.link = "");
+			});
+		}
+
+		var rect2 = rect.RightPartPixels(rect.xMax - right.xMax - 2f);
+		Widgets.Dropdown(rect2.LeftPart(0.33f), item, item2 => item2.type, item2 =>
+		{
+			return ((IEnumerable<SettingItem.SettingType>)Enum.GetValues(typeof(SettingItem.SettingType))).Select(type =>
+			{
+				return new Widgets.DropdownMenuElement<SettingItem.SettingType>
+				{
+					option = new FloatMenuOption(type.ToString(), () => { item2.type = type; }),
+					payload = type
+				};
+			});
+		}, item.type.ToString());
+
+		switch (item.type)
+		{
+			case SettingItem.SettingType.Repeat:
+			{
+				if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.Verts))
+				{
+					Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
+					{
+						return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.Verts)
+							.Select(item3 =>
+							{
+								return new Widgets.DropdownMenuElement<string>
+								{
+									option = new FloatMenuOption(item3.label, () => { item2.link = item3.label; }),
+									payload = item3.label
+								};
+							});
+					}, item.link);
+				}
+
+				break;
+			}
+			case SettingItem.SettingType.Verts:
+			{
+				if (meshSettings.settingItems.Values.Any(item2 => item2.type == SettingItem.SettingType.UVs))
+				{
+					Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.link, item2 =>
+					{
+						return meshSettings.settingItems.Values.Where(item3 => item3.type == SettingItem.SettingType.UVs)
+							.Select(item3 =>
+							{
+								return new Widgets.DropdownMenuElement<string>
+								{
+									option = new FloatMenuOption(item3.label, () => { item2.link = item3.label; }),
+									payload = item3.label
+								};
+							});
+					}, item.link);
+				}
+
+				Widgets.Dropdown(rect2.RightPart(0.33f), item, item2 => item2.condition, item2 =>
+				{
+					return ((IEnumerable<SettingItem.Condition>)Enum.GetValues(typeof(SettingItem.Condition)))
+						.Where(d => d != SettingItem.Condition.None).Select(direction =>
+						{
+							return new Widgets.DropdownMenuElement<SettingItem.Condition>
+							{
+								option = new FloatMenuOption(direction.ToString(), () => { item2.condition = direction; }),
+								payload = direction
+							};
+						});
+				}, item.condition.ToString());
+				break;
+			}
+			case SettingItem.SettingType.UVs:
+			{
+				Widgets.Dropdown(rect2.MiddlePart(0.33f, 1f), item, item2 => item2.source, item2 =>
+				{
+					return ((IEnumerable<SettingItem.UVSource>)Enum.GetValues(typeof(SettingItem.UVSource))).Select(source =>
+					{
+						return new Widgets.DropdownMenuElement<SettingItem.UVSource>
+						{
+							option = new FloatMenuOption(source.ToString(), () => { item2.source = source; }),
+							payload = source
+						};
+					});
+				}, item.source.ToString());
+				break;
+			}
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+
+		rect.y += lineHeight;
+	}
+
+	private static void DoOptionsSection(Rect rect, MeshSettings meshSettings)
+	{
+		var listing_standard = new Listing_Standard();
+		listing_standard.Begin(rect);
+		listing_standard.CheckboxLabeled("NAW.Settings.NoChangeLinkState".Translate(), ref meshSettings.noChangeLinkState);
+		listing_standard.CheckboxLabeled("NAW.Settings.SkipOriginalPrint".Translate(), ref meshSettings.skipOriginalPrint);
+		listing_standard.CheckboxLabeled("NAW.Settings.AllowVShaped".Translate(), ref meshSettings.allowVShaped);
+		listing_standard.CheckboxLabeled("NAW.Settings.ForceDent".Translate(), ref meshSettings.forceDent);
+		listing_standard.CheckboxLabeled("NAW.Settings.ForceDentOpposite".Translate(), ref meshSettings.forceDentOpposite);
+		listing_standard.End();
+	}
+
+	public class Dialog_RenameItem(SettingItem item, MeshSettings meshSettings, Action action)
+		: Dialog_Rename<SettingItem>(item)
+	{
+		protected override AcceptanceReport NameIsValid(string name)
+		{
+			var acceptanceReport = base.NameIsValid(name);
+			if (!acceptanceReport.Accepted)
+			{
+				return acceptanceReport;
+			}
+
+			if (name != renaming.label && meshSettings.settingItems.TryGetValue(name, out _))
+			{
+				return "NameIsInUse".Translate();
+			}
+
+			return true;
+		}
+
+		protected override void OnRenamed(string name) => action();
+	}
 }

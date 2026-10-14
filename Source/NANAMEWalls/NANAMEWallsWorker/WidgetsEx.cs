@@ -5,7 +5,7 @@ using Verse.Sound;
 
 namespace NanameWalls;
 
-public class WidgetsEx
+public static class WidgetsEx
 {
   public static void DrawQuadFilled(List<Vector3> points, Color color, Material mat = null,
     List<Vector2> texCoords = null, int repeat = 1)
